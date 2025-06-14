@@ -19,35 +19,45 @@ import Deals from "./pages/Deals";
 import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+// Create QueryClient outside component to avoid recreating on each render
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <SidebarProvider>
-          <Routes>
-            <Route path="/" element={<DashboardLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="packages" element={<Packages />} />
-              <Route path="packages/:id" element={<PackageDetails />} />
-              <Route path="bookings" element={<Bookings />} />
-              <Route path="calendar" element={<Calendar />} />
-              <Route path="travelers" element={<Travelers />} />
-              <Route path="guides" element={<Guides />} />
-              <Route path="gallery" element={<Gallery />} />
-              <Route path="messages" element={<Messages />} />
-              <Route path="deals" element={<Deals />} />
-              <Route path="feedback" element={<Feedback />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </SidebarProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <SidebarProvider>
+            <Routes>
+              <Route path="/" element={<DashboardLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="packages" element={<Packages />} />
+                <Route path="packages/:id" element={<PackageDetails />} />
+                <Route path="bookings" element={<Bookings />} />
+                <Route path="calendar" element={<Calendar />} />
+                <Route path="travelers" element={<Travelers />} />
+                <Route path="guides" element={<Guides />} />
+                <Route path="gallery" element={<Gallery />} />
+                <Route path="messages" element={<Messages />} />
+                <Route path="deals" element={<Deals />} />
+                <Route path="feedback" element={<Feedback />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </SidebarProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;

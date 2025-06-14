@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ const packages = [
   {
     id: 1,
     title: "Seoul, South Korea",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop",
     duration: "5 Days / 4 Nights",
     price: "$2,100",
     period: "per person",
@@ -25,7 +26,7 @@ const packages = [
   {
     id: 2,
     title: "Venice, Italy",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop",
     duration: "4 Days / 3 Nights",
     price: "$1,500",
     period: "per person",
@@ -34,7 +35,7 @@ const packages = [
   {
     id: 3,
     title: "Serengeti, Tanzania",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?w=400&h=300&fit=crop",
     duration: "6 Days / 5 Nights",
     price: "$3,200",
     period: "per person",
@@ -117,8 +118,10 @@ export default function Packages() {
                   <span className="text-xl font-bold text-blue-600">{pkg.price}</span>
                   <span className="text-sm text-gray-500 ml-1">{pkg.period}</span>
                 </div>
-                <Button variant="outline" size="sm" className="text-blue-600 border-blue-600">
-                  See Detail
+                <Button variant="outline" size="sm" className="text-blue-600 border-blue-600" asChild>
+                  <Link to={`/packages/${pkg.id}`}>
+                    See Detail
+                  </Link>
                 </Button>
               </div>
             </CardContent>

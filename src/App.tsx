@@ -8,6 +8,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Packages from "./pages/Packages";
+import PackageDetails from "./pages/PackageDetails";
 import Bookings from "./pages/Bookings";
 import Calendar from "./pages/Calendar";
 import Travelers from "./pages/Travelers";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="packages" element={<Packages />} />
+              <Route path="packages/:id" element={<PackageDetails />} />
               <Route path="bookings" element={<Bookings />} />
               <Route path="calendar" element={<Calendar />} />
               <Route path="travelers" element={<Travelers />} />

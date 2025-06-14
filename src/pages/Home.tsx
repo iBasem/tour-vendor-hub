@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -99,7 +100,7 @@ const recentlyViewed = [
 
 const trendingAdventures = [
   {
-    id: 1,
+    id: 5,
     title: "Best Of Vietnam in 14 Days",
     duration: "14 days",
     rating: 4.8,
@@ -110,7 +111,7 @@ const trendingAdventures = [
     image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=400&h=300&fit=crop"
   },
   {
-    id: 2,
+    id: 6,
     title: "Costa Rica Quest",
     duration: "9 days",
     rating: 4.8,
@@ -121,7 +122,7 @@ const trendingAdventures = [
     image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=400&h=300&fit=crop"
   },
   {
-    id: 3,
+    id: 7,
     title: "Spanish Wonder (End Barcelona, 9 Days)",
     duration: "9 days",
     rating: 4.6,
@@ -132,7 +133,7 @@ const trendingAdventures = [
     image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=400&h=300&fit=crop"
   },
   {
-    id: 4,
+    id: 8,
     title: "Europe Taste",
     duration: "7 days",
     rating: 4.5,
@@ -282,68 +283,8 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Recently Viewed</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {recentlyViewed.map((tour) => (
-            <Card key={tour.id} className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
-              <CardContent className="p-0">
-                <div className="relative">
-                  <img 
-                    src={tour.image} 
-                    alt={tour.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  {tour.discount > 0 && (
-                    <Badge className="absolute top-2 left-2 bg-red-500 text-white">
-                      -{tour.discount}% OFF
-                    </Badge>
-                  )}
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                  >
-                    <Heart className="w-4 h-4" />
-                  </Button>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">{tour.title}</h3>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm text-gray-600">{tour.duration}</span>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                      <span className="text-sm font-medium">{tour.rating}</span>
-                      <span className="text-sm text-gray-500">({tour.reviews})</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      {tour.discount > 0 && (
-                        <span className="text-sm text-gray-500 line-through mr-2">
-                          From ${tour.originalPrice.toLocaleString()}
-                        </span>
-                      )}
-                      <span className="text-lg font-bold text-gray-900">
-                        ${tour.currentPrice.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Trending Adventures */}
-      <section className="bg-gray-50 py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Trending Adventures</h2>
-            <Button variant="outline" className="text-blue-600 border-blue-600">
-              See deals
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {trendingAdventures.map((tour) => (
-              <Card key={tour.id} className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow bg-white">
+            <Link key={tour.id} to={`/dashboard/packages/${tour.id}`}>
+              <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
                 <CardContent className="p-0">
                   <div className="relative">
                     <img 
@@ -360,6 +301,7 @@ export default function Home() {
                       variant="ghost" 
                       size="icon"
                       className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                      onClick={(e) => e.preventDefault()}
                     >
                       <Heart className="w-4 h-4" />
                     </Button>
@@ -389,6 +331,71 @@ export default function Home() {
                   </div>
                 </CardContent>
               </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Trending Adventures */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Trending Adventures</h2>
+            <Button variant="outline" className="text-blue-600 border-blue-600">
+              See deals
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {trendingAdventures.map((tour) => (
+              <Link key={tour.id} to={`/dashboard/packages/${tour.id}`}>
+                <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow bg-white">
+                  <CardContent className="p-0">
+                    <div className="relative">
+                      <img 
+                        src={tour.image} 
+                        alt={tour.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      {tour.discount > 0 && (
+                        <Badge className="absolute top-2 left-2 bg-red-500 text-white">
+                          -{tour.discount}% OFF
+                        </Badge>
+                      )}
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        <Heart className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-2">{tour.title}</h3>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm text-gray-600">{tour.duration}</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                          <span className="text-sm font-medium">{tour.rating}</span>
+                          <span className="text-sm text-gray-500">({tour.reviews})</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          {tour.discount > 0 && (
+                            <span className="text-sm text-gray-500 line-through mr-2">
+                              From ${tour.originalPrice.toLocaleString()}
+                            </span>
+                          )}
+                          <span className="text-lg font-bold text-gray-900">
+                            ${tour.currentPrice.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>

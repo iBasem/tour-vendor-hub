@@ -1,11 +1,11 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, Users, Search, Heart, Star } from "lucide-react";
+import { MapPin, Calendar, Users, Search, Heart, Star, User } from "lucide-react";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 const featuredDestinations = [
   {
@@ -148,6 +148,13 @@ export default function Home() {
   const [searchLocation, setSearchLocation] = useState("");
   const [searchDate, setSearchDate] = useState("");
   const [searchType, setSearchType] = useState("All adventures");
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+
+  const openAuthModal = (mode: "signin" | "signup") => {
+    setAuthMode(mode);
+    setIsAuthModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -175,7 +182,20 @@ export default function Home() {
               <span className="text-sm">4.5 stars</span>
             </div>
             <span className="text-sm text-gray-600">247 customer support</span>
-            <Button className="bg-blue-600 hover:bg-blue-700">Get app</Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => openAuthModal("signin")}
+              className="flex items-center gap-2"
+            >
+              <User className="w-4 h-4" />
+              Sign In
+            </Button>
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={() => openAuthModal("signup")}
+            >
+              Get app
+            </Button>
           </div>
         </div>
       </header>
@@ -417,6 +437,13 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authMode}
+      />
     </div>
   );
 }

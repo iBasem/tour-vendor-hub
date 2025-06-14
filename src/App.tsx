@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardLayout from "./components/layout/DashboardLayout";
+import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Packages from "./pages/Packages";
 import CreatePackage from "./pages/CreatePackage";
@@ -28,25 +29,32 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SidebarProvider>
-          <Routes>
-            <Route path="/" element={<DashboardLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="packages" element={<Packages />} />
-              <Route path="packages/create" element={<CreatePackage />} />
-              <Route path="packages/:id" element={<PackageDetails />} />
-              <Route path="bookings" element={<Bookings />} />
-              <Route path="calendar" element={<Calendar />} />
-              <Route path="travelers" element={<Travelers />} />
-              <Route path="guides" element={<Guides />} />
-              <Route path="gallery" element={<Gallery />} />
-              <Route path="messages" element={<Messages />} />
-              <Route path="deals" element={<Deals />} />
-              <Route path="feedback" element={<Feedback />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </SidebarProvider>
+        <Routes>
+          {/* Public Homepage */}
+          <Route path="/" element={<Home />} />
+          
+          {/* Dashboard Routes */}
+          <Route path="/dashboard" element={
+            <SidebarProvider>
+              <DashboardLayout />
+            </SidebarProvider>
+          }>
+            <Route index element={<Dashboard />} />
+            <Route path="packages" element={<Packages />} />
+            <Route path="packages/create" element={<CreatePackage />} />
+            <Route path="packages/:id" element={<PackageDetails />} />
+            <Route path="bookings" element={<Bookings />} />
+            <Route path="calendar" element={<Calendar />} />
+            <Route path="travelers" element={<Travelers />} />
+            <Route path="guides" element={<Guides />} />
+            <Route path="gallery" element={<Gallery />} />
+            <Route path="messages" element={<Messages />} />
+            <Route path="deals" element={<Deals />} />
+            <Route path="feedback" element={<Feedback />} />
+          </Route>
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

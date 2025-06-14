@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardLayout from "./components/layout/DashboardLayout";
+import AdminLayout from "./components/layout/AdminLayout";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Packages from "./pages/Packages";
@@ -20,6 +21,15 @@ import Messages from "./pages/Messages";
 import Deals from "./pages/Deals";
 import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import TravelerManagement from "./pages/admin/TravelerManagement";
+import AgencyManagement from "./pages/admin/AgencyManagement";
+import AdminPackageManagement from "./pages/admin/AdminPackageManagement";
+import AdminBookingManagement from "./pages/admin/AdminBookingManagement";
+import FinancialManagement from "./pages/admin/FinancialManagement";
+import ReportsPage from "./pages/admin/ReportsPage";
+import ContentManagement from "./pages/admin/ContentManagement";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +61,23 @@ const App = () => (
             <Route path="messages" element={<Messages />} />
             <Route path="deals" element={<Deals />} />
             <Route path="feedback" element={<Feedback />} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <SidebarProvider>
+              <AdminLayout />
+            </SidebarProvider>
+          }>
+            <Route index element={<AdminDashboard />} />
+            <Route path="travelers" element={<TravelerManagement />} />
+            <Route path="agencies" element={<AgencyManagement />} />
+            <Route path="packages" element={<AdminPackageManagement />} />
+            <Route path="bookings" element={<AdminBookingManagement />} />
+            <Route path="financials" element={<FinancialManagement />} />
+            <Route path="reports" element={<ReportsPage />} />
+            <Route path="content" element={<ContentManagement />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
           
           <Route path="*" element={<NotFound />} />

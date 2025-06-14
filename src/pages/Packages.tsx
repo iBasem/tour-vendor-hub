@@ -50,9 +50,11 @@ export default function Packages() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Travel Packages</h1>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Package
+        <Button className="bg-blue-600 hover:bg-blue-700" asChild>
+          <Link to="/packages/create">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Package
+          </Link>
         </Button>
       </div>
 
@@ -138,8 +140,10 @@ export default function Packages() {
           <p className="text-blue-700 mb-4">
             Create amazing travel packages to attract more customers
           </p>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            Upgrade Now
+          <Button className="bg-blue-600 hover:bg-blue-700" asChild>
+            <Link to="/packages/create">
+              Upgrade Now
+            </Link>
           </Button>
         </CardContent>
       </Card>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { BookingWizard } from "@/components/booking/BookingWizard";
+import { HeaderSection } from "@/components/home/HeaderSection";
+import { FooterSection } from "@/components/home/FooterSection";
 import { 
   MapPin, 
   Calendar, 
@@ -82,11 +83,16 @@ export default function PackageDetails() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with back button */}
+      <HeaderSection 
+        onAuthModalOpen={() => {}} 
+        onAgencyAuthModalOpen={() => {}} 
+      />
+
+      {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <Link 
-            to="/" 
+            to="/packages" 
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -322,6 +328,8 @@ export default function PackageDetails() {
           </div>
         </div>
       </div>
+
+      <FooterSection />
 
       {/* Booking Wizard */}
       <BookingWizard

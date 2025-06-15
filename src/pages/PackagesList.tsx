@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,7 +21,8 @@ import {
   SlidersHorizontal
 } from "lucide-react";
 import { HeaderSection } from "@/components/home/HeaderSection";
-import {
+import { FooterSection } from "@/components/home/FooterSection";
+import { 
   Sheet,
   SheetContent,
   SheetHeader,
@@ -520,6 +520,8 @@ export default function PackagesList() {
           </div>
         </div>
       </div>
+
+      <FooterSection />
     </div>
   );
 }

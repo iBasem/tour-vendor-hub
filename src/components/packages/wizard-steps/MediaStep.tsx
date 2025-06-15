@@ -1,9 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, X, Image, Video } from "lucide-react";
+import { MediaUploadArea } from "./media/MediaUploadArea";
+import { MediaGallery } from "./media/MediaGallery";
 
 interface MediaStepProps {
   data: any[];
@@ -26,7 +24,6 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
     onUpdate(media);
   }, [media, onUpdate]);
 
-  // Mock media items for demonstration
   const mockImages = [
     "https://images.unsplash.com/photo-1539650116574-75c0c6c6178d?w=400&h=300&fit=crop",
     "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=400&h=300&fit=crop",
@@ -75,7 +72,6 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    // In a real app, you would handle file uploads here
     console.log("Files dropped:", e.dataTransfer.files);
   };
 
@@ -86,107 +82,20 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
         <p className="text-gray-600">Upload photos and videos to showcase your package</p>
       </div>
 
-      {/* Upload Area */}
-      <Card>
-        <CardContent className="p-6">
-          <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300"
-            }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Upload your photos and videos
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Drag and drop files here, or click to browse
-            </p>
-            <div className="flex gap-2 justify-center">
-              <Button variant="outline">
-                <Image className="w-4 h-4 mr-2" />
-                Add Photos
-              </Button>
-              <Button variant="outline">
-                <Video className="w-4 h-4 mr-2" />
-                Add Videos
-              </Button>
-              <Button onClick={addMockImages} className="bg-blue-600 hover:bg-blue-700">
-                Add Sample Images
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <MediaUploadArea
+        dragOver={dragOver}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onAddSampleImages={addMockImages}
+      />
 
-      {/* Media Gallery */}
-      {media.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Uploaded Media ({media.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {media.map((item) => (
-                <div key={item.id} className="relative group">
-                  <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                    {item.type === 'image' ? (
-                      <img
-                        src={item.url}
-                        alt={item.caption}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                        <Video className="w-8 h-8 text-gray-400" />
-                      </div>
-                    )}
-                    
-                    {item.isPrimary && (
-                      <div className="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                        Primary
-                      </div>
-                    )}
-                    
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => removeMedia(item.id)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-2 space-y-2">
-                    <input
-                      type="text"
-                      value={item.caption}
-                      onChange={(e) => updateCaption(item.id, e.target.value)}
-                      placeholder="Add a caption..."
-                      className="w-full text-sm border rounded px-2 py-1"
-                    />
-                    
-                    {!item.isPrimary && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setPrimary(item.id)}
-                        className="w-full"
-                      >
-                        Set as Primary
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <MediaGallery
+        media={media}
+        onRemoveMedia={removeMedia}
+        onSetPrimary={setPrimary}
+        onUpdateCaption={updateCaption}
+      />
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h4 className="font-medium text-blue-900 mb-2">Media Guidelines</h4>

@@ -23,6 +23,7 @@ import {
   Award
 } from "lucide-react";
 import { toast } from "sonner";
+import { BookingWizard } from "@/components/booking/BookingWizard";
 
 // Mock data for a specific package
 const packageData = {
@@ -114,6 +115,7 @@ export default function PackageDetails() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isBookingWizardOpen, setIsBookingWizardOpen] = useState(false);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -123,6 +125,7 @@ export default function PackageDetails() {
           text: packageData.subtitle,
           url: window.location.href,
         });
+        toast.success("Content shared successfully!");
       } catch (error) {
         console.log('Error sharing:', error);
         copyToClipboard();
@@ -144,6 +147,10 @@ export default function PackageDetails() {
   const handleWishlist = () => {
     setIsWishlisted(!isWishlisted);
     toast.success(isWishlisted ? "Removed from wishlist" : "Added to wishlist");
+  };
+
+  const handleBookingRequest = () => {
+    setIsBookingWizardOpen(true);
   };
 
   return (
@@ -491,7 +498,11 @@ export default function PackageDetails() {
                     )}
                   </div>
 
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700" size="lg">
+                  <Button 
+                    className="w-full bg-blue-600 hover:bg-blue-700" 
+                    size="lg"
+                    onClick={handleBookingRequest}
+                  >
                     <Calendar className="w-4 h-4 mr-2" />
                     Request Booking
                   </Button>
@@ -505,6 +516,14 @@ export default function PackageDetails() {
           </div>
         </div>
       </div>
+
+      {/* Booking Wizard */}
+      <BookingWizard
+        isOpen={isBookingWizardOpen}
+        onClose={() => setIsBookingWizardOpen(false)}
+        packageData={packageData}
+        selectedDate={selectedDate}
+      />
     </div>
   );
 }

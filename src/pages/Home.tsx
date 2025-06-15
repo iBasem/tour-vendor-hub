@@ -178,24 +178,35 @@ export default function Home() {
       
       <DestinationsSection />
       
-      <ToursSection 
-        title="Trending Adventures"
-        tours={trendingAdventures}
-        buttonText="See deals"
-        backgroundColor="bg-gray-50"
-      />
+      <section className="max-w-7xl mx-auto px-6 py-16 bg-gray-50">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Trending Adventures</h2>
+            <p className="text-gray-600">Discover our most popular adventures</p>
+          </div>
+        </div>
+        <ToursSection tours={trendingAdventures} showViewAll={true} />
+      </section>
       
-      <ToursSection 
-        title="New Adventures"
-        tours={newAdventures}
-        buttonText="View all"
-      />
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">New Adventures</h2>
+            <p className="text-gray-600">Explore our latest tour offerings</p>
+          </div>
+        </div>
+        <ToursSection tours={newAdventures} showViewAll={true} />
+      </section>
       
-      <ToursSection 
-        title="Recently Viewed"
-        tours={recentlyViewed}
-        backgroundColor="bg-gray-50"
-      />
+      <section className="max-w-7xl mx-auto px-6 py-16 bg-gray-50">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Recently Viewed</h2>
+            <p className="text-gray-600">Continue exploring these packages</p>
+          </div>
+        </div>
+        <ToursSection tours={recentlyViewed} showViewAll={false} />
+      </section>
       
       <FooterSection />
 

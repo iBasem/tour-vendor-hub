@@ -6,15 +6,10 @@ import { DashboardHeader } from "./DashboardHeader";
 const DashboardLayout = () => {
   return (
     <div className="min-h-screen flex w-full bg-gray-50">
-      {/* Sidebar - Hidden on mobile, shown on desktop */}
-      <div className="hidden lg:block">
-        <AppSidebar />
-      </div>
-      
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col w-full lg:ml-0">
+      <AppSidebar />
+      <div className="flex-1 flex flex-col">
         <DashboardHeader />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-6">
           <Outlet />
         </main>
       </div>

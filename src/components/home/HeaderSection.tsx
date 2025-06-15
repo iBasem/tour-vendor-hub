@@ -20,21 +20,18 @@ export function HeaderSection({ onAuthModalOpen, onAgencyAuthModalOpen }: Header
             <span className="text-2xl font-bold text-blue-600">travelle</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link to="/packages" className="text-gray-700 hover:text-blue-600 font-medium">
-              Browse Tours
-            </Link>
             <Link to="#destinations" className="text-gray-700 hover:text-blue-600">Destinations</Link>
             <Link to="#deals" className="text-gray-700 hover:text-blue-600">Deals</Link>
             <Link to="#contact" className="text-gray-700 hover:text-blue-600">Contact</Link>
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600 hidden lg:block">Shop 2,500 operators</span>
-          <div className="flex items-center gap-1 hidden sm:flex">
+          <span className="text-sm text-gray-600">Shop 2,500 operators</span>
+          <div className="flex items-center gap-1">
             <Star className="w-4 h-4 text-yellow-500 fill-current" />
             <span className="text-sm">4.5 stars</span>
           </div>
-          <span className="text-sm text-gray-600 hidden lg:block">24/7 customer support</span>
+          <span className="text-sm text-gray-600">24/7 customer support</span>
           <Button 
             variant="ghost" 
             onClick={() => onAuthModalOpen("signin")}

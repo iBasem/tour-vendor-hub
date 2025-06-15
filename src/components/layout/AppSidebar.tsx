@@ -26,16 +26,16 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  { title: "Dashboard", url: "/travel_agency", icon: BarChart3 },
-  { title: "Packages", url: "/travel_agency/packages", icon: Package },
-  { title: "Bookings", url: "/travel_agency/bookings", icon: BookOpen },
-  { title: "Calendar", url: "/travel_agency/calendar", icon: Calendar },
-  { title: "Travelers", url: "/travel_agency/travelers", icon: Users },
-  { title: "Guides", url: "/travel_agency/guides", icon: UserCheck },
-  { title: "Gallery", url: "/travel_agency/gallery", icon: Images },
-  { title: "Messages", url: "/travel_agency/messages", icon: MessageSquare },
-  { title: "Deals", url: "/travel_agency/deals", icon: Tag },
-  { title: "Feedback", url: "/travel_agency/feedback", icon: Star },
+  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
+  { title: "Packages", url: "/dashboard/packages", icon: Package },
+  { title: "Bookings", url: "/dashboard/bookings", icon: BookOpen },
+  { title: "Calendar", url: "/dashboard/calendar", icon: Calendar },
+  { title: "Travelers", url: "/dashboard/travelers", icon: Users },
+  { title: "Guides", url: "/dashboard/guides", icon: UserCheck },
+  { title: "Gallery", url: "/dashboard/gallery", icon: Images },
+  { title: "Messages", url: "/dashboard/messages", icon: MessageSquare },
+  { title: "Deals", url: "/dashboard/deals", icon: Tag },
+  { title: "Feedback", url: "/dashboard/feedback", icon: Star },
 ];
 
 export function AppSidebar() {
@@ -43,47 +43,45 @@ export function AppSidebar() {
   const location = useLocation();
 
   const isActive = (path: string) => {
-    if (path === "/travel_agency") return location.pathname === "/travel_agency";
+    if (path === "/dashboard") return location.pathname === "/dashboard";
     return location.pathname.startsWith(path);
   };
 
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar className="w-64 lg:w-64" collapsible="icon">
+    <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarContent className="bg-white border-r border-gray-200">
-        {/* Brand Header */}
-        <div className="p-4 sm:p-6 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
-              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <MapPin className="w-5 h-5 text-white" />
             </div>
             {!isCollapsed && (
-              <span className="text-xl sm:text-2xl font-bold text-gray-900 truncate">Travelle</span>
+              <span className="text-xl font-bold text-gray-900">Travelle</span>
             )}
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <SidebarGroup className="px-3 sm:px-4 py-4 flex-1">
+        <SidebarGroup className="px-4 py-2">
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end={item.url === "/travel_agency"}
+                      end={item.url === "/dashboard"}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2.5 sm:py-3 rounded-xl transition-all duration-200 text-sm sm:text-base ${
+                        `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                           isActive
-                            ? "bg-blue-50 text-blue-700 font-semibold shadow-sm border-l-4 border-blue-600"
-                            : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                            ? "bg-blue-50 text-blue-600 font-medium"
+                            : "text-gray-700 hover:bg-gray-50"
                         }`
                       }
                     >
-                      <item.icon className="w-5 h-5 flex-shrink-0" />
-                      {!isCollapsed && <span className="truncate">{item.title}</span>}
+                      <item.icon className="w-5 h-5" />
+                      {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -92,17 +90,13 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Upgrade Section - Only show when not collapsed */}
         {!isCollapsed && (
-          <div className="mt-auto p-3 sm:p-4 border-t border-gray-200">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-              <h3 className="font-semibold text-blue-900 mb-2 text-sm sm:text-base">
-                Enhance Your Experience!
+          <div className="mt-auto p-4 border-t border-gray-200">
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="font-medium text-blue-900 mb-2">
+                Enhance Your Travelle Experience!
               </h3>
-              <p className="text-xs sm:text-sm text-blue-700 mb-3 opacity-90">
-                Unlock premium features
-              </p>
-              <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm">
+              <button className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
                 Upgrade Now
               </button>
             </div>
@@ -110,7 +104,7 @@ export function AppSidebar() {
         )}
       </SidebarContent>
       
-      <SidebarTrigger className="absolute -right-4 top-4 bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow" />
+      <SidebarTrigger className="absolute -right-4 top-4 bg-white border border-gray-200 shadow-sm" />
     </Sidebar>
   );
 }

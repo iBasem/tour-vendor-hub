@@ -9,15 +9,21 @@ export function HeroSection() {
   const [searchDate, setSearchDate] = useState("");
 
   return (
-    <section className="relative bg-gradient-to-r from-blue-900 to-blue-700 text-white">
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-30"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=600&fit=crop')" }}
-      />
-      <div className="relative max-w-7xl mx-auto px-6 py-20">
+    <section className="relative bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4">Book the Best Tours & Adventures</h1>
           <p className="text-xl opacity-90">Choose from thousands of Organized Adventures</p>
+        </div>
+
+        {/* Background Image Container with Rounded Corners */}
+        <div className="relative mb-12">
+          <div 
+            className="w-full h-64 md:h-80 bg-cover bg-center rounded-2xl shadow-2xl"
+            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=600&fit=crop')" }}
+          >
+            <div className="absolute inset-0 bg-black bg-opacity-30 rounded-2xl"></div>
+          </div>
         </div>
 
         {/* Search Bar */}

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +22,7 @@ import {
   Shield,
   Award
 } from "lucide-react";
+import { toast } from "sonner";
 
 // Mock data for a specific package
 const packageData = {
@@ -97,11 +97,15 @@ const packageData = {
   maxGroupSize: 16,
   minAge: 12,
   physicalRating: "Easy",
-  nextDepartures: [
+  availabilities: [
     { date: "2024-07-15", price: 2100, spotsLeft: 3 },
     { date: "2024-07-29", price: 2100, spotsLeft: 8 },
     { date: "2024-08-12", price: 2250, spotsLeft: 12 },
-    { date: "2024-08-26", price: 2250, spotsLeft: 15 }
+    { date: "2024-08-26", price: 2250, spotsLeft: 15 },
+    { date: "2024-09-09", price: 2100, spotsLeft: 6 },
+    { date: "2024-09-23", price: 2100, spotsLeft: 10 },
+    { date: "2024-10-07", price: 2350, spotsLeft: 4 },
+    { date: "2024-10-21", price: 2350, spotsLeft: 9 }
   ]
 };
 
@@ -109,6 +113,38 @@ export default function PackageDetails() {
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: packageData.title,
+          text: packageData.subtitle,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log('Error sharing:', error);
+        copyToClipboard();
+      }
+    } else {
+      copyToClipboard();
+    }
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to copy link");
+    }
+  };
+
+  const handleWishlist = () => {
+    setIsWishlisted(!isWishlisted);
+    toast.success(isWishlisted ? "Removed from wishlist" : "Added to wishlist");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -126,10 +162,10 @@ export default function PackageDetails() {
               <p className="text-gray-600">{packageData.subtitle}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon">
-                <Heart className="w-4 h-4" />
+              <Button variant="outline" size="icon" onClick={handleWishlist}>
+                <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
               </Button>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" onClick={handleShare}>
                 <Share2 className="w-4 h-4" />
               </Button>
             </div>
@@ -166,6 +202,31 @@ export default function PackageDetails() {
                         />
                       </button>
                     ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Info */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold mb-4">Quick Info</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Bed className="w-5 h-5 text-gray-500" />
+                    <span className="text-sm">4-star accommodation</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Utensils className="w-5 h-5 text-gray-500" />
+                    <span className="text-sm">Breakfast + 3 dinners</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Car className="w-5 h-5 text-gray-500" />
+                    <span className="text-sm">Private transportation</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Users className="w-5 h-5 text-gray-500" />
+                    <span className="text-sm">English-speaking guide</span>
                   </div>
                 </div>
               </CardContent>
@@ -335,6 +396,38 @@ export default function PackageDetails() {
                 </Tabs>
               </CardContent>
             </Card>
+
+            {/* All Availabilities - Show when more than 4 dates */}
+            {packageData.availabilities.length > 4 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-4">All Availabilities</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {packageData.availabilities.map((availability, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedDate(availability.date)}
+                        className={`p-3 border rounded-lg text-left transition-colors ${
+                          selectedDate === availability.date 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-sm">{availability.date}</div>
+                            <div className="text-xs text-gray-600">{availability.spotsLeft} spots left</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium text-sm">${availability.price}</div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Booking Sidebar */}
@@ -367,65 +460,45 @@ export default function PackageDetails() {
                   </div>
 
                   <div className="border-t pt-4">
-                    <h4 className="font-medium mb-3">Next Departures</h4>
+                    <h4 className="font-medium mb-3">Availabilities</h4>
                     <div className="space-y-2">
-                      {packageData.nextDepartures.map((departure, index) => (
+                      {packageData.availabilities.slice(0, 4).map((availability, index) => (
                         <button
                           key={index}
-                          onClick={() => setSelectedDate(departure.date)}
+                          onClick={() => setSelectedDate(availability.date)}
                           className={`w-full p-3 border rounded-lg text-left transition-colors ${
-                            selectedDate === departure.date 
+                            selectedDate === availability.date 
                               ? 'border-blue-500 bg-blue-50' 
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <div className="font-medium">{departure.date}</div>
-                              <div className="text-sm text-gray-600">{departure.spotsLeft} spots left</div>
+                              <div className="font-medium">{availability.date}</div>
+                              <div className="text-sm text-gray-600">{availability.spotsLeft} spots left</div>
                             </div>
                             <div className="text-right">
-                              <div className="font-medium">${departure.price}</div>
+                              <div className="font-medium">${availability.price}</div>
                             </div>
                           </div>
                         </button>
                       ))}
                     </div>
+                    {packageData.availabilities.length > 4 && (
+                      <p className="text-sm text-gray-500 mt-2 text-center">
+                        {packageData.availabilities.length - 4} more dates available below
+                      </p>
+                    )}
                   </div>
 
                   <Button className="w-full bg-blue-600 hover:bg-blue-700" size="lg">
                     <Calendar className="w-4 h-4 mr-2" />
-                    Book Now
+                    Request Booking
                   </Button>
 
                   <Button variant="outline" className="w-full">
                     Contact Us
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Info */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-4">Quick Info</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Bed className="w-5 h-5 text-gray-500" />
-                    <span className="text-sm">4-star accommodation</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Utensils className="w-5 h-5 text-gray-500" />
-                    <span className="text-sm">Breakfast + 3 dinners</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Car className="w-5 h-5 text-gray-500" />
-                    <span className="text-sm">Private transportation</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-gray-500" />
-                    <span className="text-sm">English-speaking guide</span>
-                  </div>
                 </div>
               </CardContent>
             </Card>

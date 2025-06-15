@@ -26,16 +26,16 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
-  { title: "Packages", url: "/dashboard/packages", icon: Package },
-  { title: "Bookings", url: "/dashboard/bookings", icon: BookOpen },
-  { title: "Calendar", url: "/dashboard/calendar", icon: Calendar },
-  { title: "Travelers", url: "/dashboard/travelers", icon: Users },
-  { title: "Guides", url: "/dashboard/guides", icon: UserCheck },
-  { title: "Gallery", url: "/dashboard/gallery", icon: Images },
-  { title: "Messages", url: "/dashboard/messages", icon: MessageSquare },
-  { title: "Deals", url: "/dashboard/deals", icon: Tag },
-  { title: "Feedback", url: "/dashboard/feedback", icon: Star },
+  { title: "Dashboard", url: "/travel_agency", icon: BarChart3 },
+  { title: "Packages", url: "/travel_agency/packages", icon: Package },
+  { title: "Bookings", url: "/travel_agency/bookings", icon: BookOpen },
+  { title: "Calendar", url: "/travel_agency/calendar", icon: Calendar },
+  { title: "Travelers", url: "/travel_agency/travelers", icon: Users },
+  { title: "Guides", url: "/travel_agency/guides", icon: UserCheck },
+  { title: "Gallery", url: "/travel_agency/gallery", icon: Images },
+  { title: "Messages", url: "/travel_agency/messages", icon: MessageSquare },
+  { title: "Deals", url: "/travel_agency/deals", icon: Tag },
+  { title: "Feedback", url: "/travel_agency/feedback", icon: Star },
 ];
 
 export function AppSidebar() {
@@ -43,7 +43,7 @@ export function AppSidebar() {
   const location = useLocation();
 
   const isActive = (path: string) => {
-    if (path === "/dashboard") return location.pathname === "/dashboard";
+    if (path === "/travel_agency") return location.pathname === "/travel_agency";
     return location.pathname.startsWith(path);
   };
 
@@ -71,7 +71,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end={item.url === "/dashboard"}
+                      end={item.url === "/travel_agency"}
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                           isActive

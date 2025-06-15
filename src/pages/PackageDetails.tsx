@@ -33,6 +33,7 @@ const mockPackage = {
   reviews: 70,
   duration: "14 days",
   groupSize: "12-16 people",
+  tourType: "group", // group, private, customizable
   images: [
     "https://images.unsplash.com/photo-1528127269322-539801943592?w=800&h=600&fit=crop",
     "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=600&fit=crop",
@@ -46,6 +47,29 @@ const mockPackage = {
     "Experience local markets and street food",
     "Meet friendly local communities"
   ],
+  tourOptions: {
+    group: {
+      price: 899,
+      description: "Join a small group of like-minded travelers",
+      minSize: 12,
+      maxSize: 16,
+      features: ["Fixed itinerary", "Group guide", "Shared experiences", "Best value"]
+    },
+    private: {
+      price: 1499,
+      description: "Exclusive tour just for you and your companions",
+      minSize: 2,
+      maxSize: 8,
+      features: ["Private guide", "Flexible schedule", "Personalized service", "VIP treatment"]
+    },
+    customizable: {
+      price: 1299,
+      description: "Tailor the tour to your preferences",
+      minSize: 4,
+      maxSize: 12,
+      features: ["Custom itinerary", "Choose activities", "Flexible dates", "Personal touches"]
+    }
+  },
   itinerary: [
     { day: 1, title: "Arrival in Ho Chi Minh City", description: "Welcome dinner and city orientation" },
     { day: 2, title: "Cu Chi Tunnels & City Tour", description: "Historical sites and local markets" },
@@ -75,10 +99,23 @@ export default function PackageDetails() {
   const [isBookingWizardOpen, setIsBookingWizardOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [selectedTourType, setSelectedTourType] = useState<"group" | "private" | "customizable">("group");
+
+  const currentTourOption = mockPackage.tourOptions[selectedTourType];
+  const currentPrice = currentTourOption.price;
 
   const handleBookNow = (date?: string) => {
     setSelectedDate(date || "");
     setIsBookingWizardOpen(true);
+  };
+
+  const getTourTypeBadgeColor = (type: string) => {
+    switch (type) {
+      case "group": return "bg-blue-100 text-blue-800 border-blue-200";
+      case "private": return "bg-purple-100 text-purple-800 border-purple-200";
+      case "customizable": return "bg-green-100 text-green-800 border-green-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
   };
 
   return (
@@ -114,12 +151,15 @@ export default function PackageDetails() {
                     alt={mockPackage.title}
                     className="w-full h-96 object-cover"
                   />
-                  <div className="absolute top-4 left-4">
+                  <div className="absolute top-4 left-4 flex gap-2">
                     {mockPackage.discount > 0 && (
                       <Badge className="bg-red-500 text-white">
                         -{mockPackage.discount}% OFF
                       </Badge>
                     )}
+                    <Badge className={`capitalize ${getTourTypeBadgeColor(selectedTourType)}`}>
+                      {selectedTourType} tour
+                    </Badge>
                   </div>
                   <div className="absolute top-4 right-4 flex gap-2">
                     <Button
@@ -175,7 +215,7 @@ export default function PackageDetails() {
                       </div>
                       <div className="flex items-center gap-1">
                         <Users className="w-4 h-4" />
-                        {mockPackage.groupSize}
+                        {currentTourOption.minSize}-{currentTourOption.maxSize} people
                       </div>
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -187,7 +227,60 @@ export default function PackageDetails() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
+                {/* Tour Type Selection */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3">Choose Your Tour Style</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {Object.entries(mockPackage.tourOptions).map(([type, option]) => (
+                      <button
+                        key={type}
+                        onClick={() => setSelectedTourType(type as any)}
+                        className={`p-4 border rounded-lg text-left transition-all ${
+                          selectedTourType === type
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold capitalize">{type}</h4>
+                          <span className="text-lg font-bold text-blue-600">
+                            ${option.price}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3">{option.description}</p>
+                        <div className="flex flex-wrap gap-1">
+                          {option.features.slice(0, 2).map((feature, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-6 mt-6">
+                  {/* Current Tour Option Details */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                      <Award className="w-5 h-5 text-blue-600" />
+                      {selectedTourType.charAt(0).toUpperCase() + selectedTourType.slice(1)} Tour Features
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {currentTourOption.features.map((feature, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 flex-shrink-0" />
+                          <span className="text-gray-700">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
                   {/* Highlights */}
                   <div>
                     <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -255,16 +348,16 @@ export default function PackageDetails() {
               <CardHeader>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    {mockPackage.originalPrice > mockPackage.price && (
+                    {mockPackage.originalPrice > currentPrice && (
                       <span className="text-lg text-gray-500 line-through">
                         ${mockPackage.originalPrice}
                       </span>
                     )}
                     <span className="text-3xl font-bold text-gray-900">
-                      ${mockPackage.price}
+                      ${currentPrice}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">per person</p>
+                  <p className="text-sm text-gray-600">per person • {selectedTourType} tour</p>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -299,7 +392,7 @@ export default function PackageDetails() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="font-semibold">${availability.price}</div>
+                          <div className="font-semibold">${currentPrice}</div>
                           <Button
                             variant="outline"
                             size="sm"
@@ -338,8 +431,9 @@ export default function PackageDetails() {
         packageData={{
           id: mockPackage.id,
           title: mockPackage.title,
-          price: mockPackage.price,
-          availabilities: mockPackage.availabilities
+          price: currentPrice,
+          availabilities: mockPackage.availabilities.map(a => ({ ...a, price: currentPrice })),
+          tourType: selectedTourType
         }}
         selectedDate={selectedDate}
       />

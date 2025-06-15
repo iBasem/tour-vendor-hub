@@ -10,6 +10,7 @@ import TravelerLayout from "./components/layout/TravelerLayout";
 import AdminLayout from "./components/layout/AdminLayout";
 import Home from "./pages/Home";
 import PackagesList from "./pages/PackagesList";
+import Destinations from "./pages/Destinations";
 import Dashboard from "./pages/travel_agency/Dashboard";
 import Packages from "./pages/travel_agency/Packages";
 import CreatePackage from "./pages/travel_agency/CreatePackage";
@@ -52,6 +53,9 @@ const App = () => (
           
           {/* Public Package Listing */}
           <Route path="/packages" element={<PackagesList />} />
+          
+          {/* Public Destinations Page */}
+          <Route path="/destinations" element={<Destinations />} />
           
           {/* Public Package Details - accessible from homepage */}
           <Route path="/packages/:id" element={<PackageDetails />} />

@@ -1,4 +1,5 @@
 
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 
 const destinationCards = [
@@ -12,7 +13,7 @@ const destinationCards = [
   {
     id: 2,
     title: "Asia",
-    subtitle: "Adventure Tours",
+    subtitle: "Adventure Tours", 
     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
     color: "bg-orange-50"
   },
@@ -25,7 +26,7 @@ const destinationCards = [
   },
   {
     id: 4,
-    title: "Africa",
+    title: "Africa", 
     subtitle: "Safari Adventures",
     image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=400&h=300&fit=crop",
     color: "bg-yellow-50"
@@ -48,21 +49,23 @@ export function DestinationsSection() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         {destinationCards.map((destination) => (
-          <Card key={destination.id} className={`overflow-hidden cursor-pointer hover:shadow-lg transition-shadow ${destination.color}`}>
-            <CardContent className="p-0">
-              <div className="relative">
-                <img 
-                  src={destination.image} 
-                  alt={destination.title}
-                  className="w-full h-32 object-cover"
-                />
-              </div>
-              <div className="p-4 text-center">
-                <h3 className="font-semibold text-gray-900">{destination.title}</h3>
-                <p className="text-sm text-gray-600">{destination.subtitle}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <Link key={destination.id} to="/destinations">
+            <Card className={`overflow-hidden cursor-pointer hover:shadow-lg transition-shadow ${destination.color}`}>
+              <CardContent className="p-0">
+                <div className="relative">
+                  <img 
+                    src={destination.image} 
+                    alt={destination.title}
+                    className="w-full h-32 object-cover"
+                  />
+                </div>
+                <div className="p-4 text-center">
+                  <h3 className="font-semibold text-gray-900">{destination.title}</h3>
+                  <p className="text-sm text-gray-600">{destination.subtitle}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
     </section>

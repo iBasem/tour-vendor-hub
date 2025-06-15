@@ -21,6 +21,7 @@ interface BookingWizardProps {
       price: number;
       spotsLeft: number;
     }>;
+    tourType?: string;
   };
   selectedDate?: string;
 }
@@ -29,6 +30,7 @@ export interface BookingFormData {
   selectedDate: string;
   travelers: number;
   specialRequests: string;
+  tourType: string;
   leadTraveler: {
     firstName: string;
     lastName: string;
@@ -60,6 +62,7 @@ export function BookingWizard({ isOpen, onClose, packageData, selectedDate }: Bo
     selectedDate: selectedDate || '',
     travelers: 1,
     specialRequests: '',
+    tourType: packageData.tourType || 'group',
     leadTraveler: {
       firstName: '',
       lastName: '',
@@ -174,6 +177,11 @@ export function BookingWizard({ isOpen, onClose, packageData, selectedDate }: Bo
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
             Request Booking - {packageData.title}
+            {packageData.tourType && (
+              <div className="text-sm font-normal text-gray-600 mt-1">
+                {packageData.tourType.charAt(0).toUpperCase() + packageData.tourType.slice(1)} Tour
+              </div>
+            )}
           </DialogTitle>
         </DialogHeader>
 

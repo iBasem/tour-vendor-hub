@@ -21,11 +21,11 @@ export function HeaderSection({ onAuthModalOpen, onAgencyAuthModalOpen }: Header
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/packages" className="text-gray-700 hover:text-blue-600 font-medium">
-              Browse Tours
+              Tours
             </Link>
-            <Link to="#destinations" className="text-gray-700 hover:text-blue-600">Destinations</Link>
-            <Link to="#deals" className="text-gray-700 hover:text-blue-600">Deals</Link>
-            <Link to="#contact" className="text-gray-700 hover:text-blue-600">Contact</Link>
+            <Link to="/destinations" className="text-gray-700 hover:text-blue-600">Destinations</Link>
+            <Link to="/packages" className="text-gray-700 hover:text-blue-600">Deals</Link>
+            <a href="#contact" className="text-gray-700 hover:text-blue-600">Contact</a>
           </nav>
         </div>
         <div className="flex items-center gap-4">

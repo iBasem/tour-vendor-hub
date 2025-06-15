@@ -110,6 +110,7 @@ export function BookingWizard({ isOpen, onClose, packageData, selectedDate }: Bo
         selectedDate: '',
         travelers: 1,
         specialRequests: '',
+        tourType: packageData.tourType || 'group',
         leadTraveler: {
           firstName: '',
           lastName: '',

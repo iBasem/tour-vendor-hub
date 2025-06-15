@@ -1,30 +1,15 @@
 
-import { AuthModal } from "@/components/auth/AuthModal";
 import { HeaderSection } from "@/components/home/HeaderSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { DestinationsSection } from "@/components/home/DestinationsSection";
 import { TourListingSection } from "@/components/home/TourListingSection";
 import { FooterSection } from "@/components/home/FooterSection";
-import { useAuthModal } from "@/hooks/useAuthModal";
 import { trendingAdventures, newAdventures, recentlyViewed } from "@/data/tours";
 
 export default function Home() {
-  const {
-    isAuthModalOpen,
-    isAgencyAuthModalOpen,
-    authMode,
-    openAuthModal,
-    openAgencyAuthModal,
-    closeAuthModal,
-    closeAgencyAuthModal,
-  } = useAuthModal();
-
   return (
     <div className="min-h-screen bg-white">
-      <HeaderSection 
-        onAuthModalOpen={openAuthModal}
-        onAgencyAuthModalOpen={openAgencyAuthModal}
-      />
+      <HeaderSection />
       
       <HeroSection />
       
@@ -54,20 +39,6 @@ export default function Home() {
       />
       
       <FooterSection />
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={closeAuthModal}
-        initialMode={authMode}
-        userType="traveler"
-      />
-      
-      <AuthModal
-        isOpen={isAgencyAuthModalOpen}
-        onClose={closeAgencyAuthModal}
-        initialMode={authMode}
-        userType="agency"
-      />
     </div>
   );
 }

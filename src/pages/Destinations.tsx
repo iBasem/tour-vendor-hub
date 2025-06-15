@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -101,10 +100,7 @@ export default function Destinations() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <HeaderSection 
-        onAuthModalOpen={() => {}} 
-        onAgencyAuthModalOpen={() => {}} 
-      />
+      <HeaderSection />
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">

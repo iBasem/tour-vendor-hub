@@ -216,10 +216,7 @@ export default function PackageDetails() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <HeaderSection 
-        onAuthModalOpen={() => {}} 
-        onAgencyAuthModalOpen={() => {}} 
-      />
+      <HeaderSection />
 
       {/* Breadcrumb */}
       <div className="bg-white border-b">

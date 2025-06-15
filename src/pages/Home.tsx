@@ -1,53 +1,47 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, Users, Search, Heart, Star, User } from "lucide-react";
+import { MapPin, Calendar, Search, Heart, Star, User } from "lucide-react";
 import { AuthModal } from "@/components/auth/AuthModal";
 
-const featuredDestinations = [
+const destinationCards = [
   {
     id: 1,
-    title: "New on Travelle",
-    subtitle: "Latest Adventures",
-    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop",
-    isNew: true,
-    color: "bg-blue-50"
-  },
-  {
-    id: 2,
-    title: "Travelle Curated",
-    subtitle: "Handpicked Tours",
-    image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop",
-    isNew: false,
-    color: "bg-purple-50"
-  },
-  {
-    id: 3,
     title: "Europe",
     subtitle: "Cultural Journeys",
     image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=400&h=300&fit=crop",
-    isNew: false,
     color: "bg-green-50"
   },
   {
-    id: 4,
+    id: 2,
     title: "Asia",
     subtitle: "Adventure Tours",
     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-    isNew: false,
     color: "bg-orange-50"
   },
   {
-    id: 5,
+    id: 3,
     title: "Americas",
     subtitle: "Wild Expeditions",
     image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?w=400&h=300&fit=crop",
-    isNew: false,
     color: "bg-red-50"
+  },
+  {
+    id: 4,
+    title: "Africa",
+    subtitle: "Safari Adventures",
+    image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=400&h=300&fit=crop",
+    color: "bg-yellow-50"
+  },
+  {
+    id: 5,
+    title: "Oceania",
+    subtitle: "Island Escapes",
+    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+    color: "bg-blue-50"
   }
 ];
 
@@ -145,16 +139,72 @@ const trendingAdventures = [
   }
 ];
 
+const newAdventures = [
+  {
+    id: 9,
+    title: "Iceland Northern Lights",
+    duration: "6 days",
+    rating: 4.9,
+    reviews: 15,
+    originalPrice: 2200,
+    currentPrice: 1980,
+    discount: 10,
+    image: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=400&h=300&fit=crop",
+    isNew: true
+  },
+  {
+    id: 10,
+    title: "Morocco Desert Experience",
+    duration: "8 days",
+    rating: 4.7,
+    reviews: 42,
+    originalPrice: 1650,
+    currentPrice: 1485,
+    discount: 10,
+    image: "https://images.unsplash.com/photo-1539650116574-75c0c6d73d0e?w=400&h=300&fit=crop",
+    isNew: true
+  },
+  {
+    id: 11,
+    title: "Japan Cherry Blossom",
+    duration: "10 days",
+    rating: 4.8,
+    reviews: 88,
+    originalPrice: 3200,
+    currentPrice: 2880,
+    discount: 10,
+    image: "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400&h=300&fit=crop",
+    isNew: true
+  },
+  {
+    id: 12,
+    title: "Patagonia Trekking",
+    duration: "12 days",
+    rating: 4.6,
+    reviews: 33,
+    originalPrice: 2800,
+    currentPrice: 2520,
+    discount: 10,
+    image: "https://images.unsplash.com/photo-1551524164-d526dfc8de27?w=400&h=300&fit=crop",
+    isNew: true
+  }
+];
+
 export default function Home() {
   const [searchLocation, setSearchLocation] = useState("");
   const [searchDate, setSearchDate] = useState("");
-  const [searchType, setSearchType] = useState("All adventures");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAgencyAuthModalOpen, setIsAgencyAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
 
   const openAuthModal = (mode: "signin" | "signup") => {
     setAuthMode(mode);
     setIsAuthModalOpen(true);
+  };
+
+  const openAgencyAuthModal = (mode: "signin" | "signup") => {
+    setAuthMode(mode);
+    setIsAgencyAuthModalOpen(true);
   };
 
   return (
@@ -171,7 +221,6 @@ export default function Home() {
             </Link>
             <nav className="hidden md:flex items-center gap-6">
               <Link to="/destinations" className="text-gray-700 hover:text-blue-600">Destinations</Link>
-              <Link to="/styles" className="text-gray-700 hover:text-blue-600">Adventure Styles</Link>
               <Link to="/deals" className="text-gray-700 hover:text-blue-600">Deals</Link>
               <Link to="/contact" className="text-gray-700 hover:text-blue-600">Contact</Link>
             </nav>
@@ -192,10 +241,11 @@ export default function Home() {
               Sign In
             </Button>
             <Button 
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => openAuthModal("signup")}
+              variant="outline"
+              onClick={() => openAgencyAuthModal("signin")}
+              className="text-blue-600 border-blue-600 hover:bg-blue-50"
             >
-              Get app
+              Travel Agency
             </Button>
           </div>
         </div>
@@ -215,7 +265,7 @@ export default function Home() {
 
           {/* Search Bar */}
           <div className="max-w-4xl mx-auto bg-white rounded-xl p-6 shadow-xl">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <Input
@@ -234,15 +284,6 @@ export default function Home() {
                   className="pl-10 h-12 text-gray-900"
                 />
               </div>
-              <div className="relative">
-                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="All adventures"
-                  value={searchType}
-                  onChange={(e) => setSearchType(e.target.value)}
-                  className="pl-10 h-12 text-gray-900"
-                />
-              </div>
               <Button className="h-12 bg-blue-600 hover:bg-blue-700">
                 <Search className="w-5 h-5 mr-2" />
                 Search
@@ -252,10 +293,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Destinations */}
+      {/* Destinations */}
       <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Popular Destinations</h2>
+          <p className="text-gray-600">Discover amazing places around the world</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          {featuredDestinations.map((destination) => (
+          {destinationCards.map((destination) => (
             <Card key={destination.id} className={`overflow-hidden cursor-pointer hover:shadow-lg transition-shadow ${destination.color}`}>
               <CardContent className="p-0">
                 <div className="relative">
@@ -264,9 +309,6 @@ export default function Home() {
                     alt={destination.title}
                     className="w-full h-32 object-cover"
                   />
-                  {destination.isNew && (
-                    <Badge className="absolute top-2 left-2 bg-blue-600 text-white">NEW</Badge>
-                  )}
                 </div>
                 <div className="p-4 text-center">
                   <h3 className="font-semibold text-gray-900">{destination.title}</h3>
@@ -278,11 +320,81 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Recently Viewed */}
+      {/* Trending Adventures */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Trending Adventures</h2>
+            <Button variant="outline" className="text-blue-600 border-blue-600">
+              See deals
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {trendingAdventures.map((tour) => (
+              <Link key={tour.id} to={`/dashboard/packages/${tour.id}`}>
+                <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow bg-white">
+                  <CardContent className="p-0">
+                    <div className="relative">
+                      <img 
+                        src={tour.image} 
+                        alt={tour.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      {tour.discount > 0 && (
+                        <Badge className="absolute top-2 left-2 bg-red-500 text-white">
+                          -{tour.discount}% OFF
+                        </Badge>
+                      )}
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        <Heart className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-2">{tour.title}</h3>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm text-gray-600">{tour.duration}</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                          <span className="text-sm font-medium">{tour.rating}</span>
+                          <span className="text-sm text-gray-500">({tour.reviews})</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          {tour.discount > 0 && (
+                            <span className="text-sm text-gray-500 line-through mr-2">
+                              From ${tour.originalPrice.toLocaleString()}
+                            </span>
+                          )}
+                          <span className="text-lg font-bold text-gray-900">
+                            ${tour.currentPrice.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* New Adventures */}
       <section className="max-w-7xl mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">Recently Viewed</h2>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-3xl font-bold text-gray-900">New Adventures</h2>
+          <Button variant="outline" className="text-blue-600 border-blue-600">
+            View all
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {recentlyViewed.map((tour) => (
+          {newAdventures.map((tour) => (
             <Link key={tour.id} to={`/dashboard/packages/${tour.id}`}>
               <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
                 <CardContent className="p-0">
@@ -292,8 +404,13 @@ export default function Home() {
                       alt={tour.title}
                       className="w-full h-48 object-cover"
                     />
+                    {tour.isNew && (
+                      <Badge className="absolute top-2 left-2 bg-blue-600 text-white">
+                        NEW
+                      </Badge>
+                    )}
                     {tour.discount > 0 && (
-                      <Badge className="absolute top-2 left-2 bg-red-500 text-white">
+                      <Badge className="absolute top-2 right-12 bg-red-500 text-white">
                         -{tour.discount}% OFF
                       </Badge>
                     )}
@@ -336,17 +453,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Trending Adventures */}
+      {/* Recently Viewed */}
       <section className="bg-gray-50 py-16">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Trending Adventures</h2>
-            <Button variant="outline" className="text-blue-600 border-blue-600">
-              See deals
-            </Button>
-          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">Recently Viewed</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {trendingAdventures.map((tour) => (
+            {recentlyViewed.map((tour) => (
               <Link key={tour.id} to={`/dashboard/packages/${tour.id}`}>
                 <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow bg-white">
                   <CardContent className="p-0">
@@ -445,11 +557,19 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Auth Modal */}
+      {/* Auth Modals */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authMode}
+        userType="traveler"
+      />
+      
+      <AuthModal
+        isOpen={isAgencyAuthModalOpen}
+        onClose={() => setIsAgencyAuthModalOpen(false)}
+        initialMode={authMode}
+        userType="agency"
       />
     </div>
   );

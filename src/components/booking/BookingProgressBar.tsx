@@ -1,0 +1,47 @@
+
+import { Progress } from '@/components/ui/progress';
+
+const STEPS = [
+  { id: 1, title: 'Travel Details', description: 'Select dates and travelers' },
+  { id: 2, title: 'Traveler Info', description: 'Personal information' },
+  { id: 3, title: 'Add-ons', description: 'Additional services' },
+  { id: 4, title: 'Review & Book', description: 'Confirm and pay' },
+];
+
+interface BookingProgressBarProps {
+  currentStep: number;
+}
+
+export function BookingProgressBar({ currentStep }: BookingProgressBarProps) {
+  const progress = (currentStep / STEPS.length) * 100;
+
+  return (
+    <div className="mb-6">
+      <div className="flex justify-between mb-2">
+        {STEPS.map((step) => (
+          <div
+            key={step.id}
+            className={`flex flex-col items-center ${
+              currentStep >= step.id ? 'text-blue-600' : 'text-gray-400'
+            }`}
+          >
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${
+                currentStep >= step.id
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-400'
+              }`}
+            >
+              {step.id}
+            </div>
+            <div className="text-xs font-medium text-center">
+              <div>{step.title}</div>
+              <div className="text-gray-500">{step.description}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <Progress value={progress} className="h-2" />
+    </div>
+  );
+}

@@ -5,6 +5,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import AuthPage from "@/pages/AuthPage";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import TravelerLayout from "./components/layout/TravelerLayout";
 import AdminLayout from "./components/layout/AdminLayout";
@@ -43,81 +46,84 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Public Homepage */}
-          <Route path="/" element={<Home />} />
-          
-          {/* Public Package Listing */}
-          <Route path="/packages" element={<PackagesList />} />
-          
-          {/* Public Destinations Page */}
-          <Route path="/destinations" element={<Destinations />} />
-          
-          {/* Public Package Details - accessible from homepage */}
-          <Route path="/packages/:id" element={<PackageDetails />} />
-          
-          {/* Traveler Routes */}
-          <Route path="/traveler/dashboard" element={
-            <SidebarProvider>
-              <TravelerLayout />
-            </SidebarProvider>
-          }>
-            <Route index element={<TravelerDashboard />} />
-            <Route path="bookings" element={<TravelerBookings />} />
-            <Route path="wishlist" element={<TravelerWishlist />} />
-            <Route path="reviews" element={<TravelerReviews />} />
-            <Route path="profile" element={<TravelerProfile />} />
-          </Route>
-          
-          {/* Travel Agency Routes - Changed from /dashboard to /travel_agency */}
-          <Route path="/travel_agency" element={
-            <SidebarProvider>
-              <DashboardLayout />
-            </SidebarProvider>
-          }>
-            <Route index element={<Dashboard />} />
-            <Route path="packages" element={<Packages />} />
-            <Route path="packages/create" element={<CreatePackage />} />
-            <Route path="packages/:id" element={<PackageDetails />} />
-            <Route path="bookings" element={<Bookings />} />
-            <Route path="calendar" element={<Calendar />} />
-            <Route path="travelers" element={<Travelers />} />
-            <Route path="guides" element={<Guides />} />
-            <Route path="gallery" element={<Gallery />} />
-            <Route path="messages" element={<Messages />} />
-            <Route path="deals" element={<Deals />} />
-            <Route path="feedback" element={<Feedback />} />
-          </Route>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/packages" element={<PackagesList />} />
+            <Route path="/destinations" element={<Destinations />} />
+            <Route path="/packages/:id" element={<PackageDetails />} />
+            
+            {/* Protected Traveler Routes */}
+            <Route path="/traveler/dashboard" element={
+              <ProtectedRoute requiredRole="traveler">
+                <SidebarProvider>
+                  <TravelerLayout />
+                </SidebarProvider>
+              </ProtectedRoute>
+            }>
+              <Route index element={<TravelerDashboard />} />
+              <Route path="bookings" element={<TravelerBookings />} />
+              <Route path="wishlist" element={<TravelerWishlist />} />
+              <Route path="reviews" element={<TravelerReviews />} />
+              <Route path="profile" element={<TravelerProfile />} />
+            </Route>
+            
+            {/* Protected Travel Agency Routes */}
+            <Route path="/travel_agency" element={
+              <ProtectedRoute requiredRole="agency">
+                <SidebarProvider>
+                  <DashboardLayout />
+                </SidebarProvider>
+              </ProtectedRoute>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="packages" element={<Packages />} />
+              <Route path="packages/create" element={<CreatePackage />} />
+              <Route path="packages/:id" element={<PackageDetails />} />
+              <Route path="bookings" element={<Bookings />} />
+              <Route path="calendar" element={<Calendar />} />
+              <Route path="travelers" element={<Travelers />} />
+              <Route path="guides" element={<Guides />} />
+              <Route path="gallery" element={<Gallery />} />
+              <Route path="messages" element={<Messages />} />
+              <Route path="deals" element={<Deals />} />
+              <Route path="feedback" element={<Feedback />} />
+            </Route>
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={
-            <SidebarProvider>
-              <AdminLayout />
-            </SidebarProvider>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="travelers" element={<TravelerManagement />} />
-            <Route path="agencies" element={<AgencyManagement />} />
-            <Route path="packages" element={<AdminPackageManagement />} />
-            <Route path="bookings" element={<AdminBookingManagement />} />
-            <Route path="financials" element={<FinancialManagement />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="content" element={<ContentManagement />} />
-            <Route path="settings" element={<AdminSettings />} />
-          </Route>
-          
-          {/* Redirect legacy routes */}
-          <Route path="/dashboard" element={<Navigate to="/travel_agency" replace />} />
-          <Route path="/dashboard/*" element={<Navigate to="/travel_agency" replace />} />
-          
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+            {/* Protected Admin Routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="admin">
+                <SidebarProvider>
+                  <AdminLayout />
+                </SidebarProvider>
+              </ProtectedRoute>
+            }>
+              <Route index element={<AdminDashboard />} />
+              <Route path="travelers" element={<TravelerManagement />} />
+              <Route path="agencies" element={<AgencyManagement />} />
+              <Route path="packages" element={<AdminPackageManagement />} />
+              <Route path="bookings" element={<AdminBookingManagement />} />
+              <Route path="financials" element={<FinancialManagement />} />
+              <Route path="reports" element={<ReportsPage />} />
+              <Route path="content" element={<ContentManagement />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
+            
+            {/* Redirect legacy routes */}
+            <Route path="/dashboard" element={<Navigate to="/travel_agency" replace />} />
+            <Route path="/dashboard/*" element={<Navigate to="/travel_agency" replace />} />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

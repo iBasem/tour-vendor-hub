@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -34,9 +33,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", userType = 
     // Simulate authentication logic
     console.log("Auth attempt:", { mode, userType, email });
     
-    // If it's a travel agency, redirect to dashboard
+    // Redirect based on user type
     if (userType === "agency") {
       navigate("/dashboard");
+    } else if (userType === "traveler") {
+      navigate("/traveler/dashboard");
     }
     
     onClose();
@@ -45,9 +46,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", userType = 
   const handleGoogleAuth = () => {
     console.log("Google auth attempt:", { mode, userType });
     
-    // If it's a travel agency, redirect to dashboard
+    // Redirect based on user type
     if (userType === "agency") {
       navigate("/dashboard");
+    } else if (userType === "traveler") {
+      navigate("/traveler/dashboard");
     }
     
     onClose();

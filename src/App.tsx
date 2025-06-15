@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardLayout from "./components/layout/DashboardLayout";
+import TravelerLayout from "./components/layout/TravelerLayout";
 import AdminLayout from "./components/layout/AdminLayout";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
@@ -30,6 +30,11 @@ import FinancialManagement from "./pages/admin/FinancialManagement";
 import ReportsPage from "./pages/admin/ReportsPage";
 import ContentManagement from "./pages/admin/ContentManagement";
 import AdminSettings from "./pages/admin/AdminSettings";
+import TravelerDashboard from "./pages/traveler/TravelerDashboard";
+import TravelerBookings from "./pages/traveler/TravelerBookings";
+import TravelerWishlist from "./pages/traveler/TravelerWishlist";
+import TravelerReviews from "./pages/traveler/TravelerReviews";
+import TravelerProfile from "./pages/traveler/TravelerProfile";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +47,19 @@ const App = () => (
         <Routes>
           {/* Public Homepage */}
           <Route path="/" element={<Home />} />
+          
+          {/* Traveler Routes */}
+          <Route path="/traveler/dashboard" element={
+            <SidebarProvider>
+              <TravelerLayout />
+            </SidebarProvider>
+          }>
+            <Route index element={<TravelerDashboard />} />
+            <Route path="bookings" element={<TravelerBookings />} />
+            <Route path="wishlist" element={<TravelerWishlist />} />
+            <Route path="reviews" element={<TravelerReviews />} />
+            <Route path="profile" element={<TravelerProfile />} />
+          </Route>
           
           {/* Dashboard Routes */}
           <Route path="/dashboard" element={

@@ -1,171 +1,23 @@
 
-import { useState } from "react";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { HeaderSection } from "@/components/home/HeaderSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { DestinationsSection } from "@/components/home/DestinationsSection";
-import { ToursSection } from "@/components/home/ToursSection";
+import { TourListingSection } from "@/components/home/TourListingSection";
 import { FooterSection } from "@/components/home/FooterSection";
-
-const trendingAdventures = [
-  {
-    id: 5,
-    title: "Best Of Vietnam in 14 Days",
-    duration: "14 days",
-    rating: 4.8,
-    reviews: 70,
-    originalPrice: 1998,
-    currentPrice: 899,
-    discount: 55,
-    image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=400&h=300&fit=crop"
-  },
-  {
-    id: 6,
-    title: "Costa Rica Quest",
-    duration: "9 days",
-    rating: 4.8,
-    reviews: 290,
-    originalPrice: 1209,
-    currentPrice: 1104,
-    discount: 10,
-    image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=400&h=300&fit=crop"
-  },
-  {
-    id: 7,
-    title: "Spanish Wonder (End Barcelona, 9 Days)",
-    duration: "9 days",
-    rating: 4.6,
-    reviews: 27,
-    originalPrice: 2750,
-    currentPrice: 2475,
-    discount: 10,
-    image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=400&h=300&fit=crop"
-  },
-  {
-    id: 8,
-    title: "Europe Taste",
-    duration: "7 days",
-    rating: 4.5,
-    reviews: 302,
-    originalPrice: 1655,
-    currentPrice: 927,
-    discount: 44,
-    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop"
-  }
-];
-
-const newAdventures = [
-  {
-    id: 9,
-    title: "Iceland Northern Lights",
-    duration: "6 days",
-    rating: 4.9,
-    reviews: 15,
-    originalPrice: 2200,
-    currentPrice: 1980,
-    discount: 10,
-    image: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=400&h=300&fit=crop",
-    isNew: true
-  },
-  {
-    id: 10,
-    title: "Morocco Desert Experience",
-    duration: "8 days",
-    rating: 4.7,
-    reviews: 42,
-    originalPrice: 1650,
-    currentPrice: 1485,
-    discount: 10,
-    image: "https://images.unsplash.com/photo-1539650116574-75c0c6d73d0e?w=400&h=300&fit=crop",
-    isNew: true
-  },
-  {
-    id: 11,
-    title: "Japan Cherry Blossom",
-    duration: "10 days",
-    rating: 4.8,
-    reviews: 88,
-    originalPrice: 3200,
-    currentPrice: 2880,
-    discount: 10,
-    image: "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400&h=300&fit=crop",
-    isNew: true
-  },
-  {
-    id: 12,
-    title: "Patagonia Trekking",
-    duration: "12 days",
-    rating: 4.6,
-    reviews: 33,
-    originalPrice: 2800,
-    currentPrice: 2520,
-    discount: 10,
-    image: "https://images.unsplash.com/photo-1551524164-d526dfc8de27?w=400&h=300&fit=crop",
-    isNew: true
-  }
-];
-
-const recentlyViewed = [
-  {
-    id: 1,
-    title: "Adventure in Costa Rica",
-    duration: "9 days",
-    rating: 4.8,
-    reviews: 50,
-    originalPrice: 1770,
-    currentPrice: 1682,
-    discount: 5,
-    image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=400&h=300&fit=crop"
-  },
-  {
-    id: 2,
-    title: "European Classic Journey",
-    duration: "12 days",
-    rating: 4.5,
-    reviews: 804,
-    originalPrice: 2670,
-    currentPrice: 2165,
-    discount: 19,
-    image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=400&h=300&fit=crop"
-  },
-  {
-    id: 3,
-    title: "Thailand Island Explorer",
-    duration: "9 days",
-    rating: 5.0,
-    reviews: 2,
-    originalPrice: 2330,
-    currentPrice: 609,
-    discount: 70,
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop"
-  },
-  {
-    id: 4,
-    title: "Mediterranean Cruise",
-    duration: "8 days",
-    rating: 4.7,
-    reviews: 30,
-    originalPrice: 1479,
-    currentPrice: 1479,
-    discount: 0,
-    image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop"
-  }
-];
+import { useAuthModal } from "@/hooks/useAuthModal";
+import { trendingAdventures, newAdventures, recentlyViewed } from "@/data/tours";
 
 export default function Home() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isAgencyAuthModalOpen, setIsAgencyAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
-
-  const openAuthModal = (mode: "signin" | "signup") => {
-    setAuthMode(mode);
-    setIsAuthModalOpen(true);
-  };
-
-  const openAgencyAuthModal = (mode: "signin" | "signup") => {
-    setAuthMode(mode);
-    setIsAgencyAuthModalOpen(true);
-  };
+  const {
+    isAuthModalOpen,
+    isAgencyAuthModalOpen,
+    authMode,
+    openAuthModal,
+    openAgencyAuthModal,
+    closeAuthModal,
+    closeAgencyAuthModal,
+  } = useAuthModal();
 
   return (
     <div className="min-h-screen bg-white">
@@ -178,48 +30,41 @@ export default function Home() {
       
       <DestinationsSection />
       
-      <section className="max-w-7xl mx-auto px-6 py-16 bg-gray-50">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Trending Adventures</h2>
-            <p className="text-gray-600">Discover our most popular adventures</p>
-          </div>
-        </div>
-        <ToursSection tours={trendingAdventures} showViewAll={true} />
-      </section>
+      <TourListingSection
+        title="Trending Adventures"
+        description="Discover our most popular adventures"
+        tours={trendingAdventures}
+        showViewAll={true}
+        backgroundClass="bg-gray-50"
+      />
       
-      <section className="max-w-7xl mx-auto px-6 py-16">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">New Adventures</h2>
-            <p className="text-gray-600">Explore our latest tour offerings</p>
-          </div>
-        </div>
-        <ToursSection tours={newAdventures} showViewAll={true} />
-      </section>
+      <TourListingSection
+        title="New Adventures"
+        description="Explore our latest tour offerings"
+        tours={newAdventures}
+        showViewAll={true}
+      />
       
-      <section className="max-w-7xl mx-auto px-6 py-16 bg-gray-50">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Recently Viewed</h2>
-            <p className="text-gray-600">Continue exploring these packages</p>
-          </div>
-        </div>
-        <ToursSection tours={recentlyViewed} showViewAll={false} />
-      </section>
+      <TourListingSection
+        title="Recently Viewed"
+        description="Continue exploring these packages"
+        tours={recentlyViewed}
+        showViewAll={false}
+        backgroundClass="bg-gray-50"
+      />
       
       <FooterSection />
 
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={closeAuthModal}
         initialMode={authMode}
         userType="traveler"
       />
       
       <AuthModal
         isOpen={isAgencyAuthModalOpen}
-        onClose={() => setIsAgencyAuthModalOpen(false)}
+        onClose={closeAgencyAuthModal}
         initialMode={authMode}
         userType="agency"
       />

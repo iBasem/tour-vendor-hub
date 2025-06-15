@@ -9,6 +9,7 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 import TravelerLayout from "./components/layout/TravelerLayout";
 import AdminLayout from "./components/layout/AdminLayout";
 import Home from "./pages/Home";
+import PackagesList from "./pages/PackagesList";
 import Dashboard from "./pages/travel_agency/Dashboard";
 import Packages from "./pages/travel_agency/Packages";
 import CreatePackage from "./pages/travel_agency/CreatePackage";
@@ -48,6 +49,9 @@ const App = () => (
         <Routes>
           {/* Public Homepage */}
           <Route path="/" element={<Home />} />
+          
+          {/* Public Package Listing */}
+          <Route path="/packages" element={<PackagesList />} />
           
           {/* Public Package Details - accessible from homepage */}
           <Route path="/packages/:id" element={<PackageDetails />} />
@@ -105,7 +109,6 @@ const App = () => (
           {/* Redirect legacy routes */}
           <Route path="/dashboard" element={<Navigate to="/travel_agency" replace />} />
           <Route path="/dashboard/*" element={<Navigate to="/travel_agency" replace />} />
-          <Route path="/packages" element={<Navigate to="/travel_agency/packages" replace />} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

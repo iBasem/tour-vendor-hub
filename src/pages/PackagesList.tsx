@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,17 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { 
   Search, 
-  Filter, 
   Star, 
   MapPin, 
   Calendar, 
   Users, 
   Heart,
-  ChevronDown,
   Grid,
   List,
   SlidersHorizontal
@@ -44,7 +42,7 @@ const packages = [
     reviews: 127,
     image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=400&h=300&fit=crop",
     operator: "Intrepid Travel",
-    difficulty: "Easy",
+    packageType: "group",
     groupSize: "12-16",
     includes: ["Accommodation", "Some meals", "Transport", "Guide"],
     features: ["Small Groups", "Cultural", "Adventure"]
@@ -61,8 +59,8 @@ const packages = [
     reviews: 89,
     image: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=400&h=300&fit=crop",
     operator: "G Adventures",
-    difficulty: "Moderate",
-    groupSize: "16-20",
+    packageType: "private",
+    groupSize: "4-8",
     includes: ["Accommodation", "Most meals", "Transport", "Guide"],
     features: ["Cultural", "Historical", "Food"]
   },
@@ -78,7 +76,7 @@ const packages = [
     reviews: 156,
     image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=400&h=300&fit=crop",
     operator: "On The Go Tours",
-    difficulty: "Easy",
+    packageType: "group",
     groupSize: "8-12",
     includes: ["Accommodation", "Some meals", "Transport", "Guide"],
     features: ["Desert", "Cultural", "Small Groups"]
@@ -95,8 +93,8 @@ const packages = [
     reviews: 203,
     image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
     operator: "Trafalgar",
-    difficulty: "Easy",
-    groupSize: "20-25",
+    packageType: "private",
+    groupSize: "2-6",
     includes: ["Accommodation", "Most meals", "Transport", "Guide"],
     features: ["Cultural", "Temples", "Modern Cities"]
   },
@@ -112,7 +110,7 @@ const packages = [
     reviews: 94,
     image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?w=400&h=300&fit=crop",
     operator: "Intrepid Travel",
-    difficulty: "Challenging",
+    packageType: "group",
     groupSize: "12-16",
     includes: ["Accommodation", "Most meals", "Transport", "Guide"],
     features: ["Adventure", "Hiking", "Ancient Sites"]
@@ -129,8 +127,8 @@ const packages = [
     reviews: 178,
     image: "https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=400&h=300&fit=crop",
     operator: "Cosmos",
-    difficulty: "Easy",
-    groupSize: "35-40",
+    packageType: "private",
+    groupSize: "4-10",
     includes: ["Accommodation", "Some meals", "Transport", "Guide"],
     features: ["Cultural", "Food", "Art"]
   }
@@ -138,40 +136,25 @@ const packages = [
 
 const destinations = ["All Destinations", "Vietnam", "Turkey", "Morocco", "Japan", "Peru", "Italy"];
 const operators = ["All Operators", "Intrepid Travel", "G Adventures", "On The Go Tours", "Trafalgar", "Cosmos"];
-const difficulties = ["All Levels", "Easy", "Moderate", "Challenging"];
-const features = ["Small Groups", "Cultural", "Adventure", "Desert", "Historical", "Food", "Temples", "Modern Cities", "Hiking", "Ancient Sites", "Art"];
+const packageTypes = ["All Types", "Group", "Private"];
 
 export default function PackagesList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDestination, setSelectedDestination] = useState("All Destinations");
-  const [selectedOperator, setSelectedOperator] = useState("All Operators");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("All Levels");
+  const [selectedPackageType, setSelectedPackageType] = useState("All Types");
   const [priceRange, setPriceRange] = useState([0, 3000]);
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("price-low");
   const [showFilters, setShowFilters] = useState(false);
-
-  const handleFeatureToggle = (feature: string) => {
-    setSelectedFeatures(prev => 
-      prev.includes(feature) 
-        ? prev.filter(f => f !== feature)
-        : [...prev, feature]
-    );
-  };
 
   const filteredPackages = packages.filter(pkg => {
     const matchesSearch = pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          pkg.destination.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDestination = selectedDestination === "All Destinations" || pkg.destination === selectedDestination;
-    const matchesOperator = selectedOperator === "All Operators" || pkg.operator === selectedOperator;
-    const matchesDifficulty = selectedDifficulty === "All Levels" || pkg.difficulty === selectedDifficulty;
+    const matchesPackageType = selectedPackageType === "All Types" || pkg.packageType.toLowerCase() === selectedPackageType.toLowerCase();
     const matchesPrice = pkg.price >= priceRange[0] && pkg.price <= priceRange[1];
-    const matchesFeatures = selectedFeatures.length === 0 || 
-                           selectedFeatures.some(feature => pkg.features.includes(feature));
 
-    return matchesSearch && matchesDestination && matchesOperator && 
-           matchesDifficulty && matchesPrice && matchesFeatures;
+    return matchesSearch && matchesDestination && matchesPackageType && matchesPrice;
   });
 
   const sortedPackages = [...filteredPackages].sort((a, b) => {
@@ -219,53 +202,19 @@ export default function PackagesList() {
         </Select>
       </div>
 
-      {/* Tour Operator */}
+      {/* Package Type */}
       <div>
-        <h3 className="font-semibold mb-3 text-sm">Tour Operator</h3>
-        <Select value={selectedOperator} onValueChange={setSelectedOperator}>
+        <h3 className="font-semibold mb-3 text-sm">Package Type</h3>
+        <Select value={selectedPackageType} onValueChange={setSelectedPackageType}>
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {operators.map(op => (
-              <SelectItem key={op} value={op}>{op}</SelectItem>
+            {packageTypes.map(type => (
+              <SelectItem key={type} value={type}>{type}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-      </div>
-
-      {/* Difficulty */}
-      <div>
-        <h3 className="font-semibold mb-3 text-sm">Difficulty Level</h3>
-        <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {difficulties.map(diff => (
-              <SelectItem key={diff} value={diff}>{diff}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Features */}
-      <div>
-        <h3 className="font-semibold mb-3 text-sm">Tour Features</h3>
-        <div className="space-y-2 max-h-48 overflow-y-auto">
-          {features.map(feature => (
-            <div key={feature} className="flex items-center space-x-2">
-              <Checkbox
-                id={feature}
-                checked={selectedFeatures.includes(feature)}
-                onCheckedChange={() => handleFeatureToggle(feature)}
-              />
-              <label htmlFor={feature} className="text-sm cursor-pointer">
-                {feature}
-              </label>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
@@ -314,10 +263,8 @@ export default function PackagesList() {
                   <h2 className="text-lg font-semibold">Filters</h2>
                   <Button variant="ghost" size="sm" onClick={() => {
                     setSelectedDestination("All Destinations");
-                    setSelectedOperator("All Operators");
-                    setSelectedDifficulty("All Levels");
+                    setSelectedPackageType("All Types");
                     setPriceRange([0, 3000]);
-                    setSelectedFeatures([]);
                   }}>
                     Clear All
                   </Button>
@@ -410,10 +357,15 @@ export default function PackagesList() {
                         -{pkg.discount}% OFF
                       </Badge>
                     </div>
+                    <div className="absolute top-3 right-3">
+                      <Badge className={`${pkg.packageType === 'group' ? 'bg-blue-500' : 'bg-green-500'} text-white font-semibold`}>
+                        {pkg.packageType.charAt(0).toUpperCase() + pkg.packageType.slice(1)}
+                      </Badge>
+                    </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute top-3 right-3 bg-white/90 hover:bg-white"
+                      className="absolute bottom-3 right-3 bg-white/90 hover:bg-white"
                     >
                       <Heart className="w-4 h-4" />
                     </Button>
@@ -499,10 +451,8 @@ export default function PackagesList() {
                 <Button onClick={() => {
                   setSearchTerm("");
                   setSelectedDestination("All Destinations");
-                  setSelectedOperator("All Operators");
-                  setSelectedDifficulty("All Levels");
+                  setSelectedPackageType("All Types");
                   setPriceRange([0, 3000]);
-                  setSelectedFeatures([]);
                 }}>
                   Clear All Filters
                 </Button>

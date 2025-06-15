@@ -1,62 +1,65 @@
+
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Minus, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Plus, X, DollarSign, Utensils, Bed, Car, Shield } from "lucide-react";
 
 interface PricingStepProps {
   data: any;
   onUpdate: (data: any) => void;
 }
 
-const MEAL_CATEGORIES = {
-  breakfast: ["Continental Breakfast", "American Breakfast", "Local Breakfast"],
-  lunch: ["Buffet Lunch", "Set Menu Lunch", "Street Food Tour", "Picnic Lunch"],
-  dinner: ["Fine Dining", "Local Restaurant", "Hotel Dinner", "Cultural Dinner Show"]
-};
-
-const ACCOMMODATION_CATEGORIES = {
-  luxury: ["5-Star Hotels", "Luxury Resorts", "Boutique Hotels"],
-  standard: ["4-Star Hotels", "Standard Hotels", "Local Guesthouses"],
-  budget: ["3-Star Hotels", "Hostels", "Budget Accommodations"]
-};
-
-const TRANSPORTATION_CATEGORIES = {
-  private: ["Private Car", "Private Van", "Private Bus"],
-  shared: ["Shared Bus", "Public Transport", "Group Transport"],
-  premium: ["First Class Train", "Business Class Flight", "Luxury Coach"]
-};
-
 export function PricingStep({ data, onUpdate }: PricingStepProps) {
   const [formData, setFormData] = useState({
-    basePrice: "",
-    packageType: "group",
-    groupPrice: "",
-    privatePrice: "",
-    customizablePrice: "",
     currency: "USD",
-    seasonalPricing: false,
-    highSeasonMultiplier: "1.2",
-    lowSeasonMultiplier: "0.8",
-    highSeasonPrice: "",
-    lowSeasonPrice: "",
+    basePrice: "",
+    originalPrice: "",
+    discount: "",
+    tourOptions: {
+      group: {
+        price: "",
+        description: "Join a small group of like-minded travelers",
+        minSize: 12,
+        maxSize: 16,
+        features: ["Fixed itinerary", "Group guide", "Shared experiences", "Best value"]
+      },
+      private: {
+        price: "",
+        description: "Exclusive tour just for you and your companions",
+        minSize: 2,
+        maxSize: 8,
+        features: ["Private guide", "Flexible schedule", "Personalized service", "VIP treatment"]
+      },
+      customizable: {
+        price: "",
+        description: "Tailor the tour to your preferences",
+        minSize: 4,
+        maxSize: 12,
+        features: ["Custom itinerary", "Choose activities", "Flexible dates", "Personal touches"]
+      }
+    },
     inclusions: {
-      accommodation: { enabled: false, category: "", details: [] },
-      meals: { enabled: false, types: [], details: [] },
-      transportation: { enabled: false, category: "", details: [] },
-      guides: { enabled: false, details: ["Professional English-speaking guide"] },
-      activities: { enabled: false, details: [] },
-      insurance: { enabled: false, details: ["Basic travel insurance"] }
+      accommodation: { included: false, details: [] },
+      meals: { included: false, details: [] },
+      transportation: { included: false, details: [] },
+      activities: { included: false, details: [] },
+      guides: { included: false, details: [] },
+      insurance: { included: false, details: [] },
+      other: { included: false, details: [] }
     },
     additionalInclusions: [],
     exclusions: [],
-    cities: [],
-    bookingTerms: "50% deposit required upon booking. Full payment due 30 days before departure.",
-    cancellationPolicy: "Free cancellation up to 30 days before departure. 50% refund for cancellations 15-30 days before departure.",
+    newInclusion: "",
+    newExclusion: "",
+    availabilities: [
+      { date: "", price: "", spotsLeft: "" }
+    ],
     ...data
   });
 
@@ -68,36 +71,33 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleInclusionChange = (category: string, field: string, value: any) => {
+  const handleTourOptionChange = (tourType: string, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      inclusions: {
-        ...prev.inclusions,
-        [category]: {
-          ...prev.inclusions[category],
+      tourOptions: {
+        ...prev.tourOptions,
+        [tourType]: {
+          ...prev.tourOptions[tourType],
           [field]: value
         }
       }
     }));
   };
 
-  const addToList = (listName: string, item: string) => {
-    if (item.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        [listName]: [...prev[listName], item.trim()]
-      }));
-    }
-  };
-
-  const removeFromList = (listName: string, index: number) => {
+  const handleInclusionToggle = (category: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      [listName]: prev[listName].filter((_, i) => i !== index)
+      inclusions: {
+        ...prev.inclusions,
+        [category]: {
+          ...prev.inclusions[category],
+          included: checked
+        }
+      }
     }));
   };
 
-  const addDetailToInclusion = (category: string, detail: string) => {
+  const addInclusionDetail = (category: string, detail: string) => {
     if (detail.trim()) {
       setFormData(prev => ({
         ...prev,
@@ -105,14 +105,14 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
           ...prev.inclusions,
           [category]: {
             ...prev.inclusions[category],
-            details: [...(prev.inclusions[category].details || []), detail.trim()]
+            details: [...prev.inclusions[category].details, detail.trim()]
           }
         }
       }));
     }
   };
 
-  const removeDetailFromInclusion = (category: string, index: number) => {
+  const removeInclusionDetail = (category: string, index: number) => {
     setFormData(prev => ({
       ...prev,
       inclusions: {
@@ -125,256 +125,267 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
     }));
   };
 
+  const addAdditionalInclusion = () => {
+    if (formData.newInclusion.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        additionalInclusions: [...prev.additionalInclusions, prev.newInclusion.trim()],
+        newInclusion: ""
+      }));
+    }
+  };
+
+  const addExclusion = () => {
+    if (formData.newExclusion.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        exclusions: [...prev.exclusions, prev.newExclusion.trim()],
+        newExclusion: ""
+      }));
+    }
+  };
+
+  const removeAdditionalInclusion = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      additionalInclusions: prev.additionalInclusions.filter((_, i) => i !== index)
+    }));
+  };
+
+  const removeExclusion = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      exclusions: prev.exclusions.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addAvailability = () => {
+    setFormData(prev => ({
+      ...prev,
+      availabilities: [...prev.availabilities, { date: "", price: "", spotsLeft: "" }]
+    }));
+  };
+
+  const updateAvailability = (index: number, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      availabilities: prev.availabilities.map((avail, i) =>
+        i === index ? { ...avail, [field]: value } : avail
+      )
+    }));
+  };
+
+  const removeAvailability = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      availabilities: prev.availabilities.filter((_, i) => i !== index)
+    }));
+  };
+
+  const inclusionCategories = [
+    { key: 'accommodation', label: 'Accommodation', icon: Bed },
+    { key: 'meals', label: 'Meals', icon: Utensils },
+    { key: 'transportation', label: 'Transportation', icon: Car },
+    { key: 'activities', label: 'Activities & Tours', icon: Shield },
+    { key: 'guides', label: 'Professional Guides', icon: Shield },
+    { key: 'insurance', label: 'Travel Insurance', icon: Shield },
+    { key: 'other', label: 'Other Services', icon: Shield }
+  ];
+
+  const mealOptions = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Welcome Dinner', 'Farewell Dinner'];
+  const accommodationOptions = ['Hotels', 'Resorts', 'Guesthouses', 'Homestays', 'Cruise Ships'];
+  const transportationOptions = ['Airport Transfers', 'Domestic Flights', 'Private Vehicle', 'Public Transport', 'Boat/Ferry'];
+
   return (
     <div className="space-y-6">
-      {/* Package Type & Pricing */}
+      {/* Base Pricing */}
       <Card>
         <CardHeader>
-          <CardTitle>Package Type & Pricing</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="w-5 h-5" />
+            Base Pricing
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="groupPrice">Group Tour Price *</Label>
-              <Input
-                id="groupPrice"
-                type="number"
-                value={formData.groupPrice}
-                onChange={(e) => handleInputChange("groupPrice", e.target.value)}
-                placeholder="1200"
-              />
-              <p className="text-xs text-gray-500">Per person (12-16 people)</p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="privatePrice">Private Tour Price *</Label>
-              <Input
-                id="privatePrice"
-                type="number"
-                value={formData.privatePrice}
-                onChange={(e) => handleInputChange("privatePrice", e.target.value)}
-                placeholder="1800"
-              />
-              <p className="text-xs text-gray-500">Per person (2-8 people)</p>
+              <Label>Currency</Label>
+              <Select value={formData.currency} onValueChange={(value) => handleInputChange("currency", value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD">USD ($)</SelectItem>
+                  <SelectItem value="EUR">EUR (€)</SelectItem>
+                  <SelectItem value="GBP">GBP (£)</SelectItem>
+                  <SelectItem value="CAD">CAD (C$)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="customizablePrice">Customizable Price *</Label>
+              <Label>Base Price</Label>
               <Input
-                id="customizablePrice"
                 type="number"
-                value={formData.customizablePrice}
-                onChange={(e) => handleInputChange("customizablePrice", e.target.value)}
-                placeholder="1500"
+                value={formData.basePrice}
+                onChange={(e) => handleInputChange("basePrice", e.target.value)}
+                placeholder="899"
               />
-              <p className="text-xs text-gray-500">Per person (4-12 people)</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Original Price (optional)</Label>
+              <Input
+                type="number"
+                value={formData.originalPrice}
+                onChange={(e) => handleInputChange("originalPrice", e.target.value)}
+                placeholder="1299"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Discount % (optional)</Label>
+              <Input
+                type="number"
+                value={formData.discount}
+                onChange={(e) => handleInputChange("discount", e.target.value)}
+                placeholder="30"
+              />
             </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="currency">Currency</Label>
-            <Select value={formData.currency} onValueChange={(value) => handleInputChange("currency", value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="USD">USD ($)</SelectItem>
-                <SelectItem value="EUR">EUR (€)</SelectItem>
-                <SelectItem value="GBP">GBP (£)</SelectItem>
-                <SelectItem value="JPY">JPY (¥)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="seasonalPricing"
-              checked={formData.seasonalPricing}
-              onCheckedChange={(checked) => handleInputChange("seasonalPricing", checked)}
-            />
-            <Label htmlFor="seasonalPricing">Enable seasonal pricing adjustments</Label>
-          </div>
-
-          {formData.seasonalPricing && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="highSeasonMultiplier">High Season Multiplier</Label>
-                <Input
-                  id="highSeasonMultiplier"
-                  type="number"
-                  step="0.1"
-                  value={formData.highSeasonMultiplier}
-                  onChange={(e) => handleInputChange("highSeasonMultiplier", e.target.value)}
-                  placeholder="1.2"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lowSeasonMultiplier">Low Season Multiplier</Label>
-                <Input
-                  id="lowSeasonMultiplier"
-                  type="number"
-                  step="0.1"
-                  value={formData.lowSeasonMultiplier}
-                  onChange={(e) => handleInputChange("lowSeasonMultiplier", e.target.value)}
-                  placeholder="0.8"
-                />
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
-      {/* Cities Included */}
+      {/* Tour Options Pricing */}
       <Card>
         <CardHeader>
-          <CardTitle>Cities Included</CardTitle>
+          <CardTitle>Tour Options & Pricing</CardTitle>
         </CardHeader>
-        <CardContent>
-          <CityManager 
-            cities={formData.cities}
-            onAdd={(city) => addToList("cities", city)}
-            onRemove={(index) => removeFromList("cities", index)}
-          />
+        <CardContent className="space-y-6">
+          {Object.entries(formData.tourOptions).map(([tourType, option]: [string, any]) => (
+            <div key={tourType} className="border rounded-lg p-4">
+              <h4 className="font-medium capitalize mb-3">{tourType} Tour</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Price</Label>
+                  <Input
+                    type="number"
+                    value={option.price}
+                    onChange={(e) => handleTourOptionChange(tourType, "price", e.target.value)}
+                    placeholder="899"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Min Group Size</Label>
+                  <Input
+                    type="number"
+                    value={option.minSize}
+                    onChange={(e) => handleTourOptionChange(tourType, "minSize", parseInt(e.target.value))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Max Group Size</Label>
+                  <Input
+                    type="number"
+                    value={option.maxSize}
+                    onChange={(e) => handleTourOptionChange(tourType, "maxSize", parseInt(e.target.value))}
+                  />
+                </div>
+              </div>
+              <div className="mt-4">
+                <Label>Description</Label>
+                <Input
+                  value={option.description}
+                  onChange={(e) => handleTourOptionChange(tourType, "description", e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
-      {/* Smart Inclusions */}
+      {/* What's Included */}
       <Card>
         <CardHeader>
           <CardTitle>What's Included</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Accommodation */}
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="accommodation"
-                checked={formData.inclusions.accommodation.enabled}
-                onCheckedChange={(checked) => handleInclusionChange("accommodation", "enabled", checked)}
-              />
-              <Label htmlFor="accommodation" className="text-base font-medium">Accommodation</Label>
-            </div>
-            {formData.inclusions.accommodation.enabled && (
-              <div className="ml-6 space-y-3">
-                <Select
-                  value={formData.inclusions.accommodation.category}
-                  onValueChange={(value) => handleInclusionChange("accommodation", "category", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select accommodation type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(ACCOMMODATION_CATEGORIES).map(category => (
-                      <SelectItem key={category} value={category}>
-                        {category.charAt(0).toUpperCase() + category.slice(1)} Hotels
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <DetailManager
-                  items={formData.inclusions.accommodation.details}
-                  onAdd={(detail) => addDetailToInclusion("accommodation", detail)}
-                  onRemove={(index) => removeDetailFromInclusion("accommodation", index)}
-                  placeholder="Add accommodation detail..."
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Meals */}
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="meals"
-                checked={formData.inclusions.meals.enabled}
-                onCheckedChange={(checked) => handleInclusionChange("meals", "enabled", checked)}
-              />
-              <Label htmlFor="meals" className="text-base font-medium">Meals</Label>
-            </div>
-            {formData.inclusions.meals.enabled && (
-              <div className="ml-6 space-y-3">
-                <div className="grid grid-cols-3 gap-2">
-                  {Object.keys(MEAL_CATEGORIES).map(mealType => (
-                    <div key={mealType} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={mealType}
-                        checked={formData.inclusions.meals.types?.includes(mealType)}
-                        onCheckedChange={(checked) => {
-                          const currentTypes = formData.inclusions.meals.types || [];
-                          const newTypes = checked 
-                            ? [...currentTypes, mealType]
-                            : currentTypes.filter(t => t !== mealType);
-                          handleInclusionChange("meals", "types", newTypes);
-                        }}
-                      />
-                      <Label htmlFor={mealType} className="capitalize">{mealType}</Label>
-                    </div>
-                  ))}
-                </div>
-                <DetailManager
-                  items={formData.inclusions.meals.details}
-                  onAdd={(detail) => addDetailToInclusion("meals", detail)}
-                  onRemove={(index) => removeDetailFromInclusion("meals", index)}
-                  placeholder="Add meal detail..."
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Transportation */}
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="transportation"
-                checked={formData.inclusions.transportation.enabled}
-                onCheckedChange={(checked) => handleInclusionChange("transportation", "enabled", checked)}
-              />
-              <Label htmlFor="transportation" className="text-base font-medium">Transportation</Label>
-            </div>
-            {formData.inclusions.transportation.enabled && (
-              <div className="ml-6 space-y-3">
-                <Select
-                  value={formData.inclusions.transportation.category}
-                  onValueChange={(value) => handleInclusionChange("transportation", "category", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select transportation type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(TRANSPORTATION_CATEGORIES).map(category => (
-                      <SelectItem key={category} value={category}>
-                        {category.charAt(0).toUpperCase() + category.slice(1)} Transport
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <DetailManager
-                  items={formData.inclusions.transportation.details}
-                  onAdd={(detail) => addDetailToInclusion("transportation", detail)}
-                  onRemove={(index) => removeDetailFromInclusion("transportation", index)}
-                  placeholder="Add transportation detail..."
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Other inclusions */}
-          {["guides", "activities", "insurance"].map(category => (
-            <div key={category} className="space-y-3">
+          {inclusionCategories.map(({ key, label, icon: Icon }) => (
+            <div key={key} className="space-y-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id={category}
-                  checked={formData.inclusions[category].enabled}
-                  onCheckedChange={(checked) => handleInclusionChange(category, "enabled", checked)}
+                  id={key}
+                  checked={formData.inclusions[key].included}
+                  onCheckedChange={(checked) => handleInclusionToggle(key, checked as boolean)}
                 />
-                <Label htmlFor={category} className="text-base font-medium capitalize">{category}</Label>
+                <Label htmlFor={key} className="flex items-center gap-2">
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </Label>
               </div>
-              {formData.inclusions[category].enabled && (
-                <div className="ml-6">
-                  <DetailManager
-                    items={formData.inclusions[category].details}
-                    onAdd={(detail) => addDetailToInclusion(category, detail)}
-                    onRemove={(index) => removeDetailFromInclusion(category, index)}
-                    placeholder={`Add ${category} detail...`}
-                  />
+
+              {formData.inclusions[key].included && (
+                <div className="ml-6 space-y-2">
+                  {key === 'meals' && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {mealOptions.map((meal) => (
+                        <Button
+                          key={meal}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addInclusionDetail(key, meal)}
+                          className="text-xs"
+                        >
+                          + {meal}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {key === 'accommodation' && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {accommodationOptions.map((acc) => (
+                        <Button
+                          key={acc}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addInclusionDetail(key, acc)}
+                          className="text-xs"
+                        >
+                          + {acc}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+
+                  {key === 'transportation' && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {transportationOptions.map((transport) => (
+                        <Button
+                          key={transport}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addInclusionDetail(key, transport)}
+                          className="text-xs"
+                        >
+                          + {transport}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {formData.inclusions[key].details.map((detail: string, index: number) => (
+                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                        {detail}
+                        <X
+                          className="w-3 h-3 cursor-pointer"
+                          onClick={() => removeInclusionDetail(key, index)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -387,13 +398,29 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
         <CardHeader>
           <CardTitle>Additional Inclusions</CardTitle>
         </CardHeader>
-        <CardContent>
-          <DetailManager
-            items={formData.additionalInclusions}
-            onAdd={(item) => addToList("additionalInclusions", item)}
-            onRemove={(index) => removeFromList("additionalInclusions", index)}
-            placeholder="Add additional inclusion..."
-          />
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              value={formData.newInclusion}
+              onChange={(e) => handleInputChange("newInclusion", e.target.value)}
+              placeholder="e.g., Professional photography session"
+              onKeyPress={(e) => e.key === "Enter" && addAdditionalInclusion()}
+            />
+            <Button type="button" onClick={addAdditionalInclusion} size="sm">
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {formData.additionalInclusions.map((inclusion: string, index: number) => (
+              <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                {inclusion}
+                <X
+                  className="w-3 h-3 cursor-pointer"
+                  onClick={() => removeAdditionalInclusion(index)}
+                />
+              </Badge>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
@@ -402,139 +429,87 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
         <CardHeader>
           <CardTitle>What's Not Included</CardTitle>
         </CardHeader>
-        <CardContent>
-          <DetailManager
-            items={formData.exclusions}
-            onAdd={(item) => addToList("exclusions", item)}
-            onRemove={(index) => removeFromList("exclusions", index)}
-            placeholder="Add exclusion..."
-          />
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              value={formData.newExclusion}
+              onChange={(e) => handleInputChange("newExclusion", e.target.value)}
+              placeholder="e.g., International flights"
+              onKeyPress={(e) => e.key === "Enter" && addExclusion()}
+            />
+            <Button type="button" onClick={addExclusion} size="sm">
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {formData.exclusions.map((exclusion: string, index: number) => (
+              <Badge key={index} variant="outline" className="flex items-center gap-1">
+                {exclusion}
+                <X
+                  className="w-3 h-3 cursor-pointer"
+                  onClick={() => removeExclusion(index)}
+                />
+              </Badge>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Terms & Policies */}
+      {/* Available Dates */}
       <Card>
         <CardHeader>
-          <CardTitle>Terms & Policies</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>Available Dates</CardTitle>
+            <Button type="button" onClick={addAvailability} size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Date
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="bookingTerms">Booking Terms</Label>
-            <Textarea
-              id="bookingTerms"
-              value={formData.bookingTerms}
-              onChange={(e) => handleInputChange("bookingTerms", e.target.value)}
-              placeholder="Describe booking requirements, deposit terms, etc..."
-              className="min-h-[80px]"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cancellationPolicy">Cancellation Policy</Label>
-            <Textarea
-              id="cancellationPolicy"
-              value={formData.cancellationPolicy}
-              onChange={(e) => handleInputChange("cancellationPolicy", e.target.value)}
-              placeholder="Describe cancellation terms and refund policy..."
-              className="min-h-[80px]"
-            />
-          </div>
+          {formData.availabilities.map((availability: any, index: number) => (
+            <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              <div className="space-y-2">
+                <Label>Date</Label>
+                <Input
+                  type="date"
+                  value={availability.date}
+                  onChange={(e) => updateAvailability(index, "date", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Price</Label>
+                <Input
+                  type="number"
+                  value={availability.price}
+                  onChange={(e) => updateAvailability(index, "price", e.target.value)}
+                  placeholder="899"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Spots Available</Label>
+                <Input
+                  type="number"
+                  value={availability.spotsLeft}
+                  onChange={(e) => updateAvailability(index, "spotsLeft", e.target.value)}
+                  placeholder="12"
+                />
+              </div>
+              <div>
+                {formData.availabilities.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => removeAvailability(index)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-// Helper component for managing lists of details
-function DetailManager({ items, onAdd, onRemove, placeholder }: {
-  items: string[];
-  onAdd: (item: string) => void;
-  onRemove: (index: number) => void;
-  placeholder: string;
-}) {
-  const [newItem, setNewItem] = useState("");
-
-  const handleAdd = () => {
-    if (newItem.trim()) {
-      onAdd(newItem);
-      setNewItem("");
-    }
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="flex gap-2">
-        <Input
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          placeholder={placeholder}
-          onKeyPress={(e) => e.key === 'Enter' && handleAdd()}
-        />
-        <Button onClick={handleAdd} size="sm">
-          <Plus className="w-4 h-4" />
-        </Button>
-      </div>
-      <div className="space-y-1">
-        {items.map((item, index) => (
-          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-            <span className="text-sm">{item}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onRemove(index)}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// Helper component for managing cities
-function CityManager({ cities, onAdd, onRemove }: {
-  cities: string[];
-  onAdd: (city: string) => void;
-  onRemove: (index: number) => void;
-}) {
-  const [newCity, setNewCity] = useState("");
-
-  const handleAdd = () => {
-    if (newCity.trim()) {
-      onAdd(newCity);
-      setNewCity("");
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
-        <Input
-          value={newCity}
-          onChange={(e) => setNewCity(e.target.value)}
-          placeholder="Add city (e.g., Bangkok, Chiang Mai)"
-          onKeyPress={(e) => e.key === 'Enter' && handleAdd()}
-        />
-        <Button onClick={handleAdd} size="sm">
-          <Plus className="w-4 h-4" />
-        </Button>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {cities.map((city, index) => (
-          <div key={index} className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
-            <span className="text-sm">{city}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onRemove(index)}
-              className="h-auto p-0 w-4 h-4"
-            >
-              <X className="w-3 h-3" />
-            </Button>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

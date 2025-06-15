@@ -220,9 +220,9 @@ export default function Home() {
               <span className="text-2xl font-bold text-blue-600">travelle</span>
             </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/destinations" className="text-gray-700 hover:text-blue-600">Destinations</Link>
-              <Link to="/deals" className="text-gray-700 hover:text-blue-600">Deals</Link>
-              <Link to="/contact" className="text-gray-700 hover:text-blue-600">Contact</Link>
+              <Link to="#destinations" className="text-gray-700 hover:text-blue-600">Destinations</Link>
+              <Link to="#deals" className="text-gray-700 hover:text-blue-600">Deals</Link>
+              <Link to="#contact" className="text-gray-700 hover:text-blue-600">Contact</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
@@ -231,7 +231,7 @@ export default function Home() {
               <Star className="w-4 h-4 text-yellow-500 fill-current" />
               <span className="text-sm">4.5 stars</span>
             </div>
-            <span className="text-sm text-gray-600">247 customer support</span>
+            <span className="text-sm text-gray-600">24/7 customer support</span>
             <Button 
               variant="ghost" 
               onClick={() => openAuthModal("signin")}
@@ -331,7 +331,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {trendingAdventures.map((tour) => (
-              <Link key={tour.id} to={`/dashboard/packages/${tour.id}`}>
+              <Link key={tour.id} to={`/packages/${tour.id}`}>
                 <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow bg-white">
                   <CardContent className="p-0">
                     <div className="relative">
@@ -395,7 +395,7 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {newAdventures.map((tour) => (
-            <Link key={tour.id} to={`/dashboard/packages/${tour.id}`}>
+            <Link key={tour.id} to={`/packages/${tour.id}`}>
               <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
                 <CardContent className="p-0">
                   <div className="relative">
@@ -459,7 +459,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Recently Viewed</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {recentlyViewed.map((tour) => (
-              <Link key={tour.id} to={`/dashboard/packages/${tour.id}`}>
+              <Link key={tour.id} to={`/packages/${tour.id}`}>
                 <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow bg-white">
                   <CardContent className="p-0">
                     <div className="relative">
@@ -529,30 +529,30 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link to="/about" className="hover:text-white">About Us</Link></li>
-                <li><Link to="/careers" className="hover:text-white">Careers</Link></li>
-                <li><Link to="/press" className="hover:text-white">Press</Link></li>
+                <li><Link to="#about" className="hover:text-white">About Us</Link></li>
+                <li><Link to="#careers" className="hover:text-white">Careers</Link></li>
+                <li><Link to="#press" className="hover:text-white">Press</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link to="/help" className="hover:text-white">Help Center</Link></li>
-                <li><Link to="/contact" className="hover:text-white">Contact Us</Link></li>
-                <li><Link to="/safety" className="hover:text-white">Safety</Link></li>
+                <li><Link to="#help" className="hover:text-white">Help Center</Link></li>
+                <li><Link to="#contact" className="hover:text-white">Contact Us</Link></li>
+                <li><Link to="#safety" className="hover:text-white">Safety</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link to="/terms" className="hover:text-white">Terms of Service</Link></li>
-                <li><Link to="/privacy" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link to="/cookies" className="hover:text-white">Cookie Policy</Link></li>
+                <li><Link to="#terms" className="hover:text-white">Terms of Service</Link></li>
+                <li><Link to="#privacy" className="hover:text-white">Privacy Policy</Link></li>
+                <li><Link to="#cookies" className="hover:text-white">Cookie Policy</Link></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Travelle. All rights reserved.</p>
+            <p>&copy; 2024 Trav elle. All rights reserved.</p>
           </div>
         </div>
       </footer>

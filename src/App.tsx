@@ -1,8 +1,9 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import TravelerLayout from "./components/layout/TravelerLayout";
@@ -48,6 +49,9 @@ const App = () => (
           {/* Public Homepage */}
           <Route path="/" element={<Home />} />
           
+          {/* Public Package Details - accessible from homepage */}
+          <Route path="/packages/:id" element={<PackageDetails />} />
+          
           {/* Traveler Routes */}
           <Route path="/traveler/dashboard" element={
             <SidebarProvider>
@@ -61,7 +65,7 @@ const App = () => (
             <Route path="profile" element={<TravelerProfile />} />
           </Route>
           
-          {/* Dashboard Routes */}
+          {/* Agency Dashboard Routes */}
           <Route path="/dashboard" element={
             <SidebarProvider>
               <DashboardLayout />
@@ -97,6 +101,9 @@ const App = () => (
             <Route path="content" element={<ContentManagement />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
+          
+          {/* Redirect legacy routes */}
+          <Route path="/packages" element={<Navigate to="/dashboard/packages" replace />} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

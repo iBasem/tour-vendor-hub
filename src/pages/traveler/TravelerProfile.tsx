@@ -5,24 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { 
   User, 
   Mail, 
   Phone, 
   MapPin, 
   Calendar,
-  Camera,
-  Shield,
   Bell,
+  Shield,
   CreditCard,
-  Globe
+  Camera
 } from "lucide-react";
 
 export default function TravelerProfile() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
+  const [profileData, setProfileData] = useState({
     firstName: "John",
     lastName: "Doe",
     email: "john.doe@example.com",
@@ -30,302 +30,329 @@ export default function TravelerProfile() {
     dateOfBirth: "1990-05-15",
     nationality: "United States",
     address: "123 Main St, New York, NY 10001",
-    bio: "Passionate traveler who loves exploring new cultures and landscapes. Always looking for the next adventure!",
-    emergencyContact: "Jane Doe - +1 (555) 987-6543",
-    passportNumber: "123456789",
-    passportExpiry: "2030-12-31"
+    bio: "Travel enthusiast who loves exploring new cultures and cuisines.",
+    emergencyContact: {
+      name: "Jane Doe",
+      phone: "+1 (555) 987-6543",
+      relationship: "Spouse"
+    }
   });
 
-  const travelStats = {
-    countriesVisited: 12,
-    toursCompleted: 5,
-    reviewsWritten: 5,
-    totalSpent: "$12,450"
+  const [notifications, setNotifications] = useState({
+    emailBookings: true,
+    emailPromotions: false,
+    smsReminders: true,
+    pushNotifications: true
+  });
+
+  const [privacy, setPrivacy] = useState({
+    profileVisible: true,
+    showTravelHistory: false,
+    allowMessages: true
+  });
+
+  const handleProfileUpdate = (field: string, value: string) => {
+    setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
-  const preferences = {
-    newsletters: true,
-    bookingUpdates: true,
-    promotions: false,
-    currency: "USD",
-    language: "English"
+  const handleNotificationChange = (field: string, value: boolean) => {
+    setNotifications(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePrivacyChange = (field: string, value: boolean) => {
+    setPrivacy(prev => ({ ...prev, [field]: value }));
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-gray-600">Manage your account information and travel preferences</p>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">My Profile</h1>
+        <Button>Save Changes</Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Profile Card */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Personal Information</CardTitle>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              {isEditing ? "Cancel" : "Edit Profile"}
-            </Button>
+        {/* Profile Overview */}
+        <Card className="lg:col-span-1">
+          <CardHeader className="text-center">
+            <div className="relative mx-auto">
+              <Avatar className="w-24 h-24 mx-auto mb-4">
+                <AvatarImage src="/placeholder.svg" />
+                <AvatarFallback className="text-2xl">JD</AvatarFallback>
+              </Avatar>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute -bottom-2 -right-2 rounded-full"
+              >
+                <Camera className="w-4 h-4" />
+              </Button>
+            </div>
+            <CardTitle>{profileData.firstName} {profileData.lastName}</CardTitle>
+            <p className="text-gray-600">{profileData.email}</p>
+            <div className="flex justify-center gap-2 mt-4">
+              <Badge variant="secondary">Verified Traveler</Badge>
+              <Badge variant="outline">12 Countries</Badge>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Avatar Section */}
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="w-20 h-20">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback className="text-xl">JD</AvatarFallback>
-                </Avatar>
-                {isEditing && (
-                  <Button 
-                    size="icon" 
-                    variant="outline" 
-                    className="absolute -bottom-2 -right-2 rounded-full w-8 h-8"
-                  >
-                    <Camera className="w-4 h-4" />
-                  </Button>
-                )}
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <MapPin className="w-4 h-4" />
+                <span>{profileData.nationality}</span>
               </div>
-              <div>
-                <h3 className="text-xl font-semibold">{profile.firstName} {profile.lastName}</h3>
-                <p className="text-gray-600">Traveler since 2020</p>
-                <Badge variant="outline">Verified Account</Badge>
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <Calendar className="w-4 h-4" />
+                <span>Member since 2023</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <User className="w-4 h-4" />
+                <span>5 Completed Tours</span>
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-            {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="firstName">First Name</Label>
-                <Input 
-                  id="firstName"
-                  value={profile.firstName}
-                  disabled={!isEditing}
-                  className={!isEditing ? "bg-gray-50" : ""}
-                />
-              </div>
-              <div>
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input 
-                  id="lastName"
-                  value={profile.lastName}
-                  disabled={!isEditing}
-                  className={!isEditing ? "bg-gray-50" : ""}
-                />
+        {/* Profile Details */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Personal Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Personal Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    value={profileData.firstName}
+                    onChange={(e) => handleProfileUpdate('firstName', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={profileData.lastName}
+                    onChange={(e) => handleProfileUpdate('lastName', e.target.value)}
+                  />
+                </div>
               </div>
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input 
+                <Input
                   id="email"
                   type="email"
-                  value={profile.email}
-                  disabled={!isEditing}
-                  className={!isEditing ? "bg-gray-50" : ""}
+                  value={profileData.email}
+                  onChange={(e) => handleProfileUpdate('email', e.target.value)}
                 />
               </div>
-              <div>
-                <Label htmlFor="phone">Phone</Label>
-                <Input 
-                  id="phone"
-                  value={profile.phone}
-                  disabled={!isEditing}
-                  className={!isEditing ? "bg-gray-50" : ""}
-                />
-              </div>
-              <div>
-                <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                <Input 
-                  id="dateOfBirth"
-                  type="date"
-                  value={profile.dateOfBirth}
-                  disabled={!isEditing}
-                  className={!isEditing ? "bg-gray-50" : ""}
-                />
-              </div>
-              <div>
-                <Label htmlFor="nationality">Nationality</Label>
-                <Input 
-                  id="nationality"
-                  value={profile.nationality}
-                  disabled={!isEditing}
-                  className={!isEditing ? "bg-gray-50" : ""}
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="address">Address</Label>
-              <Input 
-                id="address"
-                value={profile.address}
-                disabled={!isEditing}
-                className={!isEditing ? "bg-gray-50" : ""}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea 
-                id="bio"
-                value={profile.bio}
-                disabled={!isEditing}
-                className={!isEditing ? "bg-gray-50" : ""}
-                rows={3}
-              />
-            </div>
-
-            {isEditing && (
-              <div className="flex gap-2">
-                <Button>Save Changes</Button>
-                <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Travel Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Travel Stats</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-blue-600" />
-                <span className="text-sm">Countries Visited</span>
-              </div>
-              <span className="font-semibold">{travelStats.countriesVisited}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-green-600" />
-                <span className="text-sm">Tours Completed</span>
-              </div>
-              <span className="font-semibold">{travelStats.toursCompleted}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-purple-600" />
-                <span className="text-sm">Reviews Written</span>
-              </div>
-              <span className="font-semibold">{travelStats.reviewsWritten}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-orange-600" />
-                <span className="text-sm">Total Spent</span>
-              </div>
-              <span className="font-semibold">{travelStats.totalSpent}</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Emergency Contact & Travel Documents */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5" />
-              Emergency Contact
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div>
-              <Label htmlFor="emergencyContact">Emergency Contact</Label>
-              <Input 
-                id="emergencyContact"
-                value={profile.emergencyContact}
-                disabled={!isEditing}
-                className={!isEditing ? "bg-gray-50" : ""}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Travel Documents</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="passportNumber">Passport Number</Label>
-              <Input 
-                id="passportNumber"
-                value={profile.passportNumber}
-                disabled={!isEditing}
-                className={!isEditing ? "bg-gray-50" : ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="passportExpiry">Passport Expiry</Label>
-              <Input 
-                id="passportExpiry"
-                type="date"
-                value={profile.passportExpiry}
-                disabled={!isEditing}
-                className={!isEditing ? "bg-gray-50" : ""}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Preferences */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="w-5 h-5" />
-            Preferences
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-medium mb-3">Notifications</h4>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={preferences.newsletters} />
-                  <span className="text-sm">Newsletter updates</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={preferences.bookingUpdates} />
-                  <span className="text-sm">Booking updates</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={preferences.promotions} />
-                  <span className="text-sm">Promotional offers</span>
-                </label>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-medium mb-3">Regional Settings</h4>
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="currency">Currency</Label>
-                  <select className="w-full p-2 border border-gray-300 rounded-lg">
-                    <option>USD - US Dollar</option>
-                    <option>EUR - Euro</option>
-                    <option>GBP - British Pound</option>
-                  </select>
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={profileData.phone}
+                    onChange={(e) => handleProfileUpdate('phone', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="language">Language</Label>
-                  <select className="w-full p-2 border border-gray-300 rounded-lg">
-                    <option>English</option>
-                    <option>Spanish</option>
-                    <option>French</option>
-                  </select>
+                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                  <Input
+                    id="dateOfBirth"
+                    type="date"
+                    value={profileData.dateOfBirth}
+                    onChange={(e) => handleProfileUpdate('dateOfBirth', e.target.value)}
+                  />
                 </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="nationality">Nationality</Label>
+                  <Input
+                    id="nationality"
+                    value={profileData.nationality}
+                    onChange={(e) => handleProfileUpdate('nationality', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    value={profileData.address}
+                    onChange={(e) => handleProfileUpdate('address', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  value={profileData.bio}
+                  onChange={(e) => handleProfileUpdate('bio', e.target.value)}
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Emergency Contact */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Phone className="w-5 h-5" />
+                Emergency Contact
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="emergencyName">Name</Label>
+                  <Input
+                    id="emergencyName"
+                    value={profileData.emergencyContact.name}
+                    onChange={(e) => setProfileData(prev => ({
+                      ...prev,
+                      emergencyContact: { ...prev.emergencyContact, name: e.target.value }
+                    }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="emergencyPhone">Phone</Label>
+                  <Input
+                    id="emergencyPhone"
+                    value={profileData.emergencyContact.phone}
+                    onChange={(e) => setProfileData(prev => ({
+                      ...prev,
+                      emergencyContact: { ...prev.emergencyContact, phone: e.target.value }
+                    }))}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="emergencyRelationship">Relationship</Label>
+                <Input
+                  id="emergencyRelationship"
+                  value={profileData.emergencyContact.relationship}
+                  onChange={(e) => setProfileData(prev => ({
+                    ...prev,
+                    emergencyContact: { ...prev.emergencyContact, relationship: e.target.value }
+                  }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notification Preferences */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Notification Preferences
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="emailBookings">Email for Bookings</Label>
+                  <p className="text-sm text-gray-600">Receive emails about your bookings and trips</p>
+                </div>
+                <Switch
+                  id="emailBookings"
+                  checked={notifications.emailBookings}
+                  onCheckedChange={(checked) => handleNotificationChange('emailBookings', checked)}
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="emailPromotions">Email Promotions</Label>
+                  <p className="text-sm text-gray-600">Receive promotional emails and deals</p>
+                </div>
+                <Switch
+                  id="emailPromotions"
+                  checked={notifications.emailPromotions}
+                  onCheckedChange={(checked) => handleNotificationChange('emailPromotions', checked)}
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="smsReminders">SMS Reminders</Label>
+                  <p className="text-sm text-gray-600">Get text reminders for upcoming trips</p>
+                </div>
+                <Switch
+                  id="smsReminders"
+                  checked={notifications.smsReminders}
+                  onCheckedChange={(checked) => handleNotificationChange('smsReminders', checked)}
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="pushNotifications">Push Notifications</Label>
+                  <p className="text-sm text-gray-600">Receive push notifications in the app</p>
+                </div>
+                <Switch
+                  id="pushNotifications"
+                  checked={notifications.pushNotifications}
+                  onCheckedChange={(checked) => handleNotificationChange('pushNotifications', checked)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Privacy Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Privacy Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="profileVisible">Public Profile</Label>
+                  <p className="text-sm text-gray-600">Make your profile visible to other travelers</p>
+                </div>
+                <Switch
+                  id="profileVisible"
+                  checked={privacy.profileVisible}
+                  onCheckedChange={(checked) => handlePrivacyChange('profileVisible', checked)}
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="showTravelHistory">Show Travel History</Label>
+                  <p className="text-sm text-gray-600">Display your past trips on your profile</p>
+                </div>
+                <Switch
+                  id="showTravelHistory"
+                  checked={privacy.showTravelHistory}
+                  onCheckedChange={(checked) => handlePrivacyChange('showTravelHistory', checked)}
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="allowMessages">Allow Messages</Label>
+                  <p className="text-sm text-gray-600">Let other travelers send you messages</p>
+                </div>
+                <Switch
+                  id="allowMessages"
+                  checked={privacy.allowMessages}
+                  onCheckedChange={(checked) => handlePrivacyChange('allowMessages', checked)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

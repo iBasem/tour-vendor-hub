@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 import { HeaderSection } from "@/components/home/HeaderSection";
 import { FooterSection } from "@/components/home/FooterSection";
@@ -18,7 +19,11 @@ import {
   Shield,
   Award,
   Camera,
-  ArrowLeft
+  ArrowLeft,
+  ChevronRight,
+  Utensils,
+  Bed,
+  Activity
 } from "lucide-react";
 
 // Mock data for the package
@@ -39,6 +44,28 @@ const mockPackage = {
     "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=600&fit=crop",
     "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&h=600&fit=crop",
     "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop"
+  ],
+  cities: [
+    {
+      name: "Ho Chi Minh City",
+      image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=300&h=200&fit=crop",
+      description: "Vietnam's bustling commercial hub"
+    },
+    {
+      name: "Hanoi",
+      image: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=300&h=200&fit=crop",
+      description: "The charming capital city"
+    },
+    {
+      name: "Halong Bay",
+      image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=300&h=200&fit=crop",
+      description: "UNESCO World Heritage site"
+    },
+    {
+      name: "Hoi An",
+      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
+      description: "Ancient town with lantern-lit streets"
+    }
   ],
   highlights: [
     "Explore bustling Ho Chi Minh City",
@@ -71,11 +98,80 @@ const mockPackage = {
     }
   },
   itinerary: [
-    { day: 1, title: "Arrival in Ho Chi Minh City", description: "Welcome dinner and city orientation" },
-    { day: 2, title: "Cu Chi Tunnels & City Tour", description: "Historical sites and local markets" },
-    { day: 3, title: "Mekong Delta Adventure", description: "Boat trip and floating markets" },
-    { day: 4, title: "Flight to Hanoi", description: "Capital city exploration" },
-    { day: 5, title: "Halong Bay Cruise", description: "Overnight cruise through limestone karsts" }
+    { 
+      day: 1, 
+      title: "Arrival in Ho Chi Minh City", 
+      description: "Welcome to Vietnam! Upon arrival at Tan Son Nhat Airport, you'll be transferred to your hotel in the heart of Ho Chi Minh City.",
+      activities: [
+        "Airport pickup and hotel transfer",
+        "Welcome dinner at a traditional Vietnamese restaurant",
+        "Evening orientation meeting with your guide"
+      ],
+      meals: ["Dinner"],
+      accommodation: "4-star hotel in District 1",
+      highlights: ["First taste of Vietnamese cuisine", "Meet your fellow travelers"]
+    },
+    { 
+      day: 2, 
+      title: "Cu Chi Tunnels & City Tour", 
+      description: "Discover the fascinating history of the Cu Chi Tunnels and explore the vibrant streets of Ho Chi Minh City.",
+      activities: [
+        "Morning visit to Cu Chi Tunnels historical site",
+        "Lunch at local restaurant",
+        "Afternoon city tour including Reunification Palace",
+        "Visit Ben Thanh Market for shopping",
+        "Evening free time to explore"
+      ],
+      meals: ["Breakfast", "Lunch"],
+      accommodation: "4-star hotel in District 1",
+      highlights: ["Historical tunnel system", "Local market experience"]
+    },
+    { 
+      day: 3, 
+      title: "Mekong Delta Adventure", 
+      description: "Journey to the fertile Mekong Delta, known as Vietnam's rice bowl, for a unique boat trip experience.",
+      activities: [
+        "Early morning departure to Mekong Delta",
+        "Boat cruise through narrow waterways",
+        "Visit traditional craft villages",
+        "Local lunch with Mekong specialties",
+        "Return to Ho Chi Minh City in evening"
+      ],
+      meals: ["Breakfast", "Lunch"],
+      accommodation: "4-star hotel in District 1",
+      highlights: ["Floating markets", "Traditional handicrafts"]
+    },
+    { 
+      day: 4, 
+      title: "Flight to Hanoi", 
+      description: "Travel north to Vietnam's capital city and begin exploring the cultural heart of the country.",
+      activities: [
+        "Morning flight to Hanoi",
+        "Check-in at hotel in Old Quarter",
+        "Afternoon walking tour of Hanoi Old Quarter",
+        "Visit Hoan Kiem Lake and Ngoc Son Temple",
+        "Traditional water puppet show in evening"
+      ],
+      meals: ["Breakfast", "Dinner"],
+      accommodation: "Boutique hotel in Old Quarter",
+      highlights: ["Historic Old Quarter", "Water puppet performance"]
+    },
+    { 
+      day: 5, 
+      title: "Halong Bay Cruise", 
+      description: "Embark on an unforgettable overnight cruise through the mystical limestone karsts of Halong Bay.",
+      activities: [
+        "Morning departure to Halong Bay",
+        "Board traditional junk boat",
+        "Cruise through limestone formations",
+        "Kayaking in hidden lagoons",
+        "Sunset viewing from deck",
+        "Fresh seafood dinner onboard"
+      ],
+      meals: ["Breakfast", "Lunch", "Dinner"],
+      accommodation: "Overnight on cruise boat",
+      highlights: ["UNESCO World Heritage site", "Kayaking adventure"]
+    }
   ],
   includes: [
     "13 nights accommodation",
@@ -263,6 +359,34 @@ export default function PackageDetails() {
                 <Separator />
 
                 <div className="space-y-6 mt-6">
+                  {/* Cities Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-blue-600" />
+                      Cities You'll Visit
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {mockPackage.cities.map((city, index) => (
+                        <div key={index} className="group cursor-pointer">
+                          <div className="relative overflow-hidden rounded-lg mb-2">
+                            <img
+                              src={city.image}
+                              alt={city.name}
+                              className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                            <div className="absolute bottom-2 left-2 text-white">
+                              <h4 className="font-medium text-sm">{city.name}</h4>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 text-center">{city.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
                   {/* Current Tour Option Details */}
                   <div>
                     <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -299,25 +423,91 @@ export default function PackageDetails() {
 
                   <Separator />
 
-                  {/* Itinerary */}
+                  {/* Detailed Itinerary */}
                   <div>
                     <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-blue-600" />
-                      Sample Itinerary
+                      Detailed Itinerary
                     </h3>
-                    <div className="space-y-4">
+                    <Accordion type="single" collapsible className="w-full">
                       {mockPackage.itinerary.map((item, index) => (
-                        <div key={index} className="flex gap-4">
-                          <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <span className="font-semibold text-blue-600">D{item.day}</span>
-                          </div>
-                          <div>
-                            <h4 className="font-medium">{item.title}</h4>
-                            <p className="text-sm text-gray-600">{item.description}</p>
-                          </div>
-                        </div>
+                        <AccordionItem key={index} value={`day-${item.day}`} className="border rounded-lg mb-3">
+                          <AccordionTrigger className="px-4 hover:no-underline">
+                            <div className="flex items-center gap-4 text-left">
+                              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <span className="font-semibold text-blue-600">D{item.day}</span>
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-gray-900">{item.title}</h4>
+                                <p className="text-sm text-gray-600">{item.description}</p>
+                              </div>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4 pb-4">
+                            <div className="space-y-4 mt-4">
+                              {/* Activities */}
+                              <div>
+                                <h5 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                                  <Activity className="w-4 h-4 text-green-600" />
+                                  Activities
+                                </h5>
+                                <ul className="space-y-1">
+                                  {item.activities.map((activity, actIndex) => (
+                                    <li key={actIndex} className="flex items-start gap-2 text-sm text-gray-700">
+                                      <ChevronRight className="w-3 h-3 mt-0.5 text-green-600 flex-shrink-0" />
+                                      {activity}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Meals */}
+                                <div>
+                                  <h5 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                                    <Utensils className="w-4 h-4 text-orange-600" />
+                                    Meals Included
+                                  </h5>
+                                  <div className="flex flex-wrap gap-1">
+                                    {item.meals.map((meal, mealIndex) => (
+                                      <Badge key={mealIndex} variant="secondary" className="text-xs bg-orange-50 text-orange-700">
+                                        {meal}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Accommodation */}
+                                <div>
+                                  <h5 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                                    <Bed className="w-4 h-4 text-purple-600" />
+                                    Accommodation
+                                  </h5>
+                                  <p className="text-sm text-gray-700">{item.accommodation}</p>
+                                </div>
+                              </div>
+
+                              {/* Highlights */}
+                              {item.highlights && (
+                                <div>
+                                  <h5 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                                    <Star className="w-4 h-4 text-yellow-600" />
+                                    Day Highlights
+                                  </h5>
+                                  <div className="flex flex-wrap gap-1">
+                                    {item.highlights.map((highlight, highlightIndex) => (
+                                      <Badge key={highlightIndex} variant="outline" className="text-xs border-yellow-200 text-yellow-700">
+                                        {highlight}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
                       ))}
-                    </div>
+                    </Accordion>
                   </div>
 
                   <Separator />

@@ -26,24 +26,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let mounted = true
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return
+        
+        console.log('Auth state changed:', event, session?.user?.id)
         setSession(session)
         setUser(session?.user ?? null)
         
-        if (session?.user) {
-          // Fetch user profile
+        if (session?.user && event === 'SIGNED_IN') {
+          // Defer profile fetch to avoid deadlock
           setTimeout(async () => {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
-            
-            setProfile(profileData)
+            if (!mounted) return
+            try {
+              const { data: profileData, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single()
+              
+              if (!error && profileData) {
+                setProfile(profileData)
+              } else {
+                console.log('Profile fetch error:', error)
+              }
+            } catch (err) {
+              console.error('Error fetching profile:', err)
+            }
           }, 0)
-        } else {
+        } else if (!session?.user) {
           setProfile(null)
         }
         
@@ -53,36 +67,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return
       setSession(session)
       setUser(session?.user ?? null)
-      setLoading(false)
+      if (!session) setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signUp = async (email: string, password: string, userData: any) => {
-    const redirectUrl = `${window.location.origin}/`
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: userData
+    try {
+      const redirectUrl = `${window.location.origin}/`
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            first_name: userData.first_name || '',
+            last_name: userData.last_name || '',
+            role: userData.role || 'traveler',
+            company_name: userData.company_name || ''
+          }
+        }
+      })
+      
+      if (error) {
+        console.error('Signup error:', error)
+        return { error }
       }
-    })
-    
-    return { error }
+      
+      return { error: null }
+    } catch (err) {
+      console.error('Signup exception:', err)
+      return { error: err }
+    }
   }
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-    
-    return { error }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+      
+      if (error) {
+        console.error('Signin error:', error)
+        return { error }
+      }
+      
+      return { error: null }
+    } catch (err) {
+      console.error('Signin exception:', err)
+      return { error: err }
+    }
   }
 
   const signOut = async () => {
@@ -106,16 +149,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return { error: 'No user logged in' }
     
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', user.id)
-    
-    if (!error) {
-      setProfile(prev => prev ? { ...prev, ...updates } : null)
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id)
+      
+      if (!error) {
+        setProfile(prev => prev ? { ...prev, ...updates } : null)
+      }
+      
+      return { error }
+    } catch (err) {
+      console.error('Update profile error:', err)
+      return { error: err }
     }
-    
-    return { error }
   }
 
   const value = {

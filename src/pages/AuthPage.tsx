@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -14,12 +13,13 @@ import { MapPin, Loader2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function AuthPage() {
-  const { user, signIn, signUp, loading: authLoading } = useAuth()
+  const { user, profile, signIn, signUp, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [userType, setUserType] = useState<'traveler' | 'agency'>('traveler')
   
@@ -31,23 +31,33 @@ export default function AuthPage() {
   const [lastName, setLastName] = useState('')
   const [companyName, setCompanyName] = useState('')
 
-  // Redirect authenticated users
+  // Redirect authenticated users to appropriate dashboard
   useEffect(() => {
-    if (user && !authLoading) {
-      const from = location.state?.from?.pathname || '/'
+    if (user && profile && !authLoading) {
+      const redirectPath = profile.role === 'admin' ? '/admin' : 
+                          profile.role === 'agency' ? '/travel_agency' : 
+                          '/traveler/dashboard'
+      
+      const from = location.state?.from?.pathname || redirectPath
       navigate(from, { replace: true })
     }
-  }, [user, authLoading, navigate, location])
+  }, [user, profile, authLoading, navigate, location])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setSuccess('')
 
     try {
       if (mode === 'signup') {
         if (password !== confirmPassword) {
           setError('Passwords do not match')
+          return
+        }
+
+        if (password.length < 6) {
+          setError('Password must be at least 6 characters')
           return
         }
 
@@ -60,20 +70,34 @@ export default function AuthPage() {
 
         const { error } = await signUp(email, password, userData)
         if (error) {
-          setError(error.message)
+          if (error.message?.includes('already registered')) {
+            setError('An account with this email already exists. Please sign in instead.')
+          } else {
+            setError(error.message || 'Failed to create account')
+          }
         } else {
-          setError('')
-          // Show success message
-          setError('Check your email for a confirmation link!')
+          setSuccess('Account created successfully! Please check your email for a confirmation link.')
+          // Clear form
+          setEmail('')
+          setPassword('')
+          setConfirmPassword('')
+          setFirstName('')
+          setLastName('')
+          setCompanyName('')
         }
       } else {
         const { error } = await signIn(email, password)
         if (error) {
-          setError(error.message)
+          if (error.message?.includes('Invalid login credentials')) {
+            setError('Invalid email or password. Please check your credentials and try again.')
+          } else {
+            setError(error.message || 'Failed to sign in')
+          }
         }
       }
     } catch (err) {
-      setError('An unexpected error occurred')
+      console.error('Auth error:', err)
+      setError('An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -112,12 +136,22 @@ export default function AuthPage() {
           
           <CardContent>
             {error && (
-              <Alert className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert className="mb-4 border-red-200 bg-red-50">
+                <AlertDescription className="text-red-800">{error}</AlertDescription>
               </Alert>
             )}
 
-            <Tabs value={mode} onValueChange={(value) => setMode(value as 'signin' | 'signup')} className="mb-6">
+            {success && (
+              <Alert className="mb-4 border-green-200 bg-green-50">
+                <AlertDescription className="text-green-800">{success}</AlertDescription>
+              </Alert>
+            )}
+
+            <Tabs value={mode} onValueChange={(value) => {
+              setMode(value as 'signin' | 'signup')
+              setError('')
+              setSuccess('')
+            }} className="mb-6">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -196,6 +230,7 @@ export default function AuthPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                 />
               </div>
 
@@ -208,6 +243,7 @@ export default function AuthPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
+                    minLength={6}
                   />
                 </div>
               )}
@@ -220,9 +256,8 @@ export default function AuthPage() {
               </Button>
             </form>
 
-            <div className="mt-6">
-              <Separator />
-              <div className="text-center text-sm text-gray-600 mt-4">
+            <div className="mt-6 text-center">
+              <div className="text-sm text-gray-600">
                 By continuing, you agree to our{' '}
                 <a href="#" className="text-blue-600 hover:underline">Terms of Service</a>{' '}
                 and{' '}

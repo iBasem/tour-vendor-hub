@@ -4,7 +4,7 @@ import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
 import type { Database } from '@/integrations/supabase/types'
 
-type Profile = Database['public']['Tables']['profiles']['Row']
+type Profile = Database['public']['Views']['profiles']['Row']
 
 interface AuthContextType {
   user: User | null
@@ -147,13 +147,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!user) return { error: 'No user logged in' }
+    if (!user || !profile) return { error: 'No user logged in' }
     
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id)
+      let error = null
+      
+      // Update the appropriate table based on user role
+      if (profile.role === 'traveler') {
+        const travelerUpdates: any = {}
+        if (updates.first_name !== undefined) travelerUpdates.first_name = updates.first_name
+        if (updates.last_name !== undefined) travelerUpdates.last_name = updates.last_name
+        if (updates.phone !== undefined) travelerUpdates.phone = updates.phone
+        if (updates.avatar_url !== undefined) travelerUpdates.avatar_url = updates.avatar_url
+        
+        const { error: travelerError } = await supabase
+          .from('travelers')
+          .update(travelerUpdates)
+          .eq('id', user.id)
+        
+        error = travelerError
+      } else if (profile.role === 'agency') {
+        const agencyUpdates: any = {}
+        if (updates.first_name !== undefined) agencyUpdates.contact_person_first_name = updates.first_name
+        if (updates.last_name !== undefined) agencyUpdates.contact_person_last_name = updates.last_name
+        if (updates.phone !== undefined) agencyUpdates.phone = updates.phone
+        if (updates.avatar_url !== undefined) agencyUpdates.avatar_url = updates.avatar_url
+        if (updates.company_name !== undefined) agencyUpdates.company_name = updates.company_name
+        if (updates.company_description !== undefined) agencyUpdates.company_description = updates.company_description
+        
+        const { error: agencyError } = await supabase
+          .from('travel_agencies')
+          .update(agencyUpdates)
+          .eq('id', user.id)
+        
+        error = agencyError
+      }
       
       if (!error) {
         setProfile(prev => prev ? { ...prev, ...updates } : null)

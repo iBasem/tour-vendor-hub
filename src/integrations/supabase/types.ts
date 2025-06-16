@@ -9,54 +9,127 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
+      travel_agencies: {
+        Row: {
+          address: string | null
+          avatar_url: string | null
+          city: string | null
+          company_description: string | null
+          company_name: string
+          contact_person_first_name: string | null
+          contact_person_last_name: string | null
+          country: string | null
+          created_at: string | null
+          email: string
+          id: string
+          is_verified: boolean | null
+          license_number: string | null
+          phone: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          avatar_url?: string | null
+          city?: string | null
+          company_description?: string | null
+          company_name: string
+          contact_person_first_name?: string | null
+          contact_person_last_name?: string | null
+          country?: string | null
+          created_at?: string | null
+          email: string
+          id: string
+          is_verified?: boolean | null
+          license_number?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          avatar_url?: string | null
+          city?: string | null
+          company_description?: string | null
+          company_name?: string
+          contact_person_first_name?: string | null
+          contact_person_last_name?: string | null
+          country?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          is_verified?: boolean | null
+          license_number?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      travelers: {
         Row: {
           avatar_url: string | null
-          company_description: string | null
-          company_name: string | null
           created_at: string | null
+          date_of_birth: string | null
           email: string
           first_name: string | null
           id: string
           is_verified: boolean | null
           last_name: string | null
+          nationality: string | null
           phone: string | null
-          role: Database["public"]["Enums"]["user_role"]
+          preferences: Json | null
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
-          company_description?: string | null
-          company_name?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           email: string
           first_name?: string | null
           id: string
           is_verified?: boolean | null
           last_name?: string | null
+          nationality?: string | null
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
+          preferences?: Json | null
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
-          company_description?: string | null
-          company_name?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           email?: string
           first_name?: string | null
           id?: string
           is_verified?: boolean | null
           last_name?: string | null
+          nationality?: string | null
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
+          preferences?: Json | null
           updated_at?: string | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          company_description: string | null
+          company_name: string | null
+          created_at: string | null
+          email: string | null
+          first_name: string | null
+          id: string | null
+          is_verified: boolean | null
+          last_name: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

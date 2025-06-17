@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { AppSidebar } from "./AppSidebar";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function DashboardHeader() {
+  const { user, profile, signOut } = useAuth();
+
+  const getUserDisplayName = () => {
+    if (!profile) return 'User';
+    return profile.first_name ? `${profile.first_name} ${profile.last_name}`.trim() : profile.email;
+  };
+
+  const getUserRole = () => {
+    if (!profile) return 'User';
+    switch (profile.role) {
+      case 'agency': return 'Travel Agency';
+      case 'admin': return 'Admin';
+      case 'traveler': return 'Traveler';
+      default: return 'User';
+    }
+  };
+
+  const getUserInitials = () => {
+    if (!profile) return 'U';
+    if (profile.first_name && profile.last_name) {
+      return `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase();
+    }
+    if (profile.first_name) return profile.first_name[0].toUpperCase();
+    if (profile.email) return profile.email[0].toUpperCase();
+    return 'U';
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
@@ -57,12 +85,12 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 p-1 sm:p-2">
                 <Avatar className="w-7 h-7 sm:w-8 sm:h-8">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback className="text-xs sm:text-sm">RH</AvatarFallback>
+                  <AvatarImage src={profile?.avatar_url || ''} />
+                  <AvatarFallback className="text-xs sm:text-sm">{getUserInitials()}</AvatarFallback>
                 </Avatar>
                 <div className="text-left hidden sm:block">
-                  <div className="text-sm font-medium">Ruben Herwitz</div>
-                  <div className="text-xs text-gray-500">Admin</div>
+                  <div className="text-sm font-medium">{getUserDisplayName()}</div>
+                  <div className="text-xs text-gray-500">{getUserRole()}</div>
                 </div>
                 <ChevronDown className="w-4 h-4 hidden sm:block" />
               </Button>
@@ -72,7 +100,7 @@ export function DashboardHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

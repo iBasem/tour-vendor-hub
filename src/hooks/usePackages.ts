@@ -67,22 +67,42 @@ export function usePackages() {
     }
 
     try {
-      // Extract package basic info
+      console.log('Creating package with data:', packageData);
+
+      // Extract package basic info with better data handling
       const packageInsert: PackageInsert = {
         agency_id: user.id,
-        title: packageData.basicInfo.title || '',
-        description: packageData.basicInfo.description || '',
-        destination: packageData.basicInfo.destination || '',
-        duration_days: parseInt(packageData.basicInfo.duration?.split(' ')[0]) || 1,
-        duration_nights: parseInt(packageData.basicInfo.duration?.split(' ')[0]) - 1 || 0,
-        base_price: parseFloat(packageData.pricing.basePrice) || 0,
-        max_participants: parseInt(packageData.basicInfo.maxGroupSize) || 20,
-        difficulty_level: packageData.basicInfo.difficulty || 'easy',
-        category: packageData.basicInfo.packageType || 'cultural',
+        title: packageData.basicInfo?.title || 'Untitled Package',
+        description: packageData.basicInfo?.description || '',
+        destination: packageData.basicInfo?.destination || packageData.basicInfo?.cities?.[0]?.name || 'Unknown',
+        duration_days: parseInt(packageData.basicInfo?.duration?.toString()) || packageData.itinerary?.length || 1,
+        duration_nights: Math.max(0, (parseInt(packageData.basicInfo?.duration?.toString()) || packageData.itinerary?.length || 1) - 1),
+        base_price: parseFloat(packageData.pricing?.basePrice?.toString()) || 0,
+        max_participants: parseInt(packageData.basicInfo?.maxGroupSize?.toString()) || 20,
+        difficulty_level: packageData.basicInfo?.difficulty || 'easy',
+        category: packageData.basicInfo?.packageType || 'cultural',
         status: packageData.isPublished ? 'published' : 'draft',
-        inclusions: packageData.pricing.inclusions ? Object.keys(packageData.pricing.inclusions).filter(key => packageData.pricing.inclusions[key]) : [],
-        exclusions: packageData.pricing.exclusions ? Object.keys(packageData.pricing.exclusions).filter(key => packageData.pricing.exclusions[key]) : []
+        inclusions: [],
+        exclusions: []
       };
+
+      // Handle inclusions
+      if (packageData.pricing?.inclusions) {
+        const inclusions: string[] = [];
+        Object.entries(packageData.pricing.inclusions).forEach(([key, value]: [string, any]) => {
+          if (value?.included && value?.details) {
+            inclusions.push(...value.details);
+          }
+        });
+        packageInsert.inclusions = inclusions;
+      }
+
+      // Handle exclusions
+      if (packageData.pricing?.exclusions && Array.isArray(packageData.pricing.exclusions)) {
+        packageInsert.exclusions = packageData.pricing.exclusions;
+      }
+
+      console.log('Package insert data:', packageInsert);
 
       const { data: packageResult, error: packageError } = await supabase
         .from('packages')
@@ -95,18 +115,22 @@ export function usePackages() {
         throw new Error(packageError.message);
       }
 
+      console.log('Package created successfully:', packageResult);
+
       // Create itineraries
-      if (packageData.itinerary && packageData.itinerary.length > 0) {
+      if (packageData.itinerary && Array.isArray(packageData.itinerary) && packageData.itinerary.length > 0) {
         const itineraries: ItineraryInsert[] = packageData.itinerary.map((day: any, index: number) => ({
           package_id: packageResult.id,
-          day_number: index + 1,
+          day_number: day.day || index + 1,
           title: day.title || `Day ${index + 1}`,
           description: day.description || '',
-          activities: day.activities?.filter((a: string) => a.trim()) || [],
+          activities: day.activities?.filter((a: string) => a && a.trim()) || [],
           meals_included: day.meals || [],
           accommodation: day.accommodation || '',
           transportation: day.transportation || ''
         }));
+
+        console.log('Creating itineraries:', itineraries);
 
         const { error: itineraryError } = await supabase
           .from('itineraries')
@@ -114,7 +138,30 @@ export function usePackages() {
 
         if (itineraryError) {
           console.error('Itinerary creation error:', itineraryError);
-          // Don't throw here, package was created successfully
+        }
+      }
+
+      // Handle media uploads
+      if (packageData.media && Array.isArray(packageData.media) && packageData.media.length > 0) {
+        const mediaInserts = packageData.media.map((media: any) => ({
+          package_id: packageResult.id,
+          media_type: media.type || 'image',
+          file_path: media.url,
+          file_name: media.caption || 'Image',
+          caption: media.caption || '',
+          is_primary: media.isPrimary || false,
+          display_order: 0,
+          mime_type: 'image/jpeg'
+        }));
+
+        console.log('Creating media records:', mediaInserts);
+
+        const { error: mediaError } = await supabase
+          .from('package_media')
+          .insert(mediaInserts);
+
+        if (mediaError) {
+          console.error('Media creation error:', mediaError);
         }
       }
 

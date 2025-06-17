@@ -25,6 +25,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const fetchProfile = async (userId: string) => {
+    try {
+      console.log('Fetching profile for user:', userId);
+      
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      if (error) {
+        console.error('Profile fetch error:', error);
+        return null;
+      }
+      
+      console.log('Profile data received:', profileData);
+      return profileData;
+    } catch (err) {
+      console.error('Exception fetching profile:', err);
+      return null;
+    }
+  };
+
   useEffect(() => {
     let mounted = true
     
@@ -37,26 +60,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session)
         setUser(session?.user ?? null)
         
-        if (session?.user && event === 'SIGNED_IN') {
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
           // Defer profile fetch to avoid deadlock
           setTimeout(async () => {
             if (!mounted) return
-            try {
-              const { data: profileData, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single()
-              
-              if (!error && profileData) {
-                setProfile(profileData)
-              } else {
-                console.log('Profile fetch error:', error)
-              }
-            } catch (err) {
-              console.error('Error fetching profile:', err)
+            const profileData = await fetchProfile(session.user.id);
+            if (profileData && mounted) {
+              setProfile(profileData);
             }
-          }, 0)
+          }, 100)
         } else if (!session?.user) {
           setProfile(null)
         }
@@ -66,12 +78,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (!session) setLoading(false)
-    })
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          const profileData = await fetchProfile(session.user.id);
+          if (profileData && mounted) {
+            setProfile(profileData);
+          }
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     return () => {
       mounted = false
@@ -131,6 +160,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       // Clean up auth state
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      
+      // Clear local storage
       Object.keys(localStorage).forEach((key) => {
         if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
           localStorage.removeItem(key)
@@ -184,7 +218,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       if (!error) {
-        setProfile(prev => prev ? { ...prev, ...updates } : null)
+        // Refresh profile data
+        const updatedProfile = await fetchProfile(user.id);
+        if (updatedProfile) {
+          setProfile(updatedProfile);
+        }
       }
       
       return { error }

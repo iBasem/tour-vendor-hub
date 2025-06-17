@@ -53,6 +53,7 @@ export default function PackageWizard() {
   };
 
   const handleFormDataUpdate = (stepKey: string, data: any) => {
+    console.log(`Updating ${stepKey} with:`, data);
     setFormData(prev => ({
       ...prev,
       [stepKey]: data
@@ -63,11 +64,33 @@ export default function PackageWizard() {
     navigate("/travel_agency/packages");
   };
 
+  const validateFormData = () => {
+    if (!formData.basicInfo?.title) {
+      toast.error("Please provide a package title");
+      setCurrentStep(1);
+      return false;
+    }
+    
+    if (!formData.pricing?.basePrice) {
+      toast.error("Please set a base price for the package");
+      setCurrentStep(3);
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSaveDraft = async () => {
+    if (!validateFormData()) return;
+    
     try {
       setSaving(true);
+      console.log('Saving as draft with data:', formData);
+      
       const draftData = { ...formData, isPublished: false };
-      await createPackage(draftData);
+      const result = await createPackage(draftData);
+      
+      console.log('Draft saved successfully:', result);
       toast.success("Package saved as draft successfully!");
       navigate("/travel_agency/packages");
     } catch (error) {
@@ -79,10 +102,16 @@ export default function PackageWizard() {
   };
 
   const handlePublish = async () => {
+    if (!validateFormData()) return;
+    
     try {
       setSaving(true);
+      console.log('Publishing package with data:', formData);
+      
       const publishData = { ...formData, isPublished: true };
-      await createPackage(publishData);
+      const result = await createPackage(publishData);
+      
+      console.log('Package published successfully:', result);
       toast.success("Package published successfully!");
       navigate("/travel_agency/packages");
     } catch (error) {

@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { MediaUploadArea } from "./media/MediaUploadArea";
 import { MediaGallery } from "./media/MediaGallery";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface MediaStepProps {
   data: any[];
@@ -40,6 +42,36 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
       isPrimary: index === 0 && media.length === 0
     }));
     setMedia(prev => [...prev, ...newImages]);
+    toast.success("Sample images added successfully!");
+  };
+
+  const handleFileUpload = async (files: FileList) => {
+    try {
+      const newMediaItems: MediaItem[] = [];
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Create a local URL for preview
+        const url = URL.createObjectURL(file);
+        
+        const mediaItem: MediaItem = {
+          id: Math.random().toString(36).substr(2, 9),
+          type: file.type.startsWith('image/') ? 'image' : 'video',
+          url,
+          caption: file.name,
+          isPrimary: media.length === 0 && i === 0
+        };
+        
+        newMediaItems.push(mediaItem);
+      }
+      
+      setMedia(prev => [...prev, ...newMediaItems]);
+      toast.success(`${newMediaItems.length} file(s) uploaded successfully!`);
+    } catch (error) {
+      console.error('File upload error:', error);
+      toast.error("Failed to upload files");
+    }
   };
 
   const removeMedia = (id: string) => {
@@ -72,7 +104,18 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    console.log("Files dropped:", e.dataTransfer.files);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files);
+    }
   };
 
   return (
@@ -82,13 +125,65 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
         <p className="text-gray-600">Upload photos and videos to showcase your package</p>
       </div>
 
-      <MediaUploadArea
-        dragOver={dragOver}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onAddSampleImages={addMockImages}
-      />
+      <div className="space-y-4">
+        <div
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300"
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Upload your photos and videos
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Drag and drop files here, or click to browse
+              </p>
+            </div>
+            
+            <div className="flex gap-2 justify-center">
+              <input
+                type="file"
+                id="photo-upload"
+                multiple
+                accept="image/*"
+                onChange={handleFileInputChange}
+                className="hidden"
+              />
+              <label htmlFor="photo-upload">
+                <Button type="button" variant="outline" asChild>
+                  <span className="cursor-pointer">
+                    Add Photos
+                  </span>
+                </Button>
+              </label>
+              
+              <input
+                type="file"
+                id="video-upload"
+                multiple
+                accept="video/*"
+                onChange={handleFileInputChange}
+                className="hidden"
+              />
+              <label htmlFor="video-upload">
+                <Button type="button" variant="outline" asChild>
+                  <span className="cursor-pointer">
+                    Add Videos
+                  </span>
+                </Button>
+              </label>
+              
+              <Button onClick={addMockImages} className="bg-blue-600 hover:bg-blue-700">
+                Add Sample Images
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <MediaGallery
         media={media}

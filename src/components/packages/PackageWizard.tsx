@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { BasicInfoStep } from "./wizard-steps/BasicInfoStep";
 import { ItineraryStep } from "./wizard-steps/ItineraryStep";
 import { PricingStep } from "./wizard-steps/PricingStep";
 import { MediaStep } from "./wizard-steps/MediaStep";
 import { ReviewStep } from "./wizard-steps/ReviewStep";
+import { usePackages } from "@/hooks/usePackages";
 
 const steps = [
   { id: 1, title: "Basic Info", description: "Package details and location" },
@@ -24,11 +26,13 @@ export default function PackageWizard() {
   const [formData, setFormData] = useState({
     basicInfo: {},
     itinerary: [],
-    pricing: {},
+    pricing: { currency: 'USD', basePrice: '' },
     media: [],
     isPublished: false
   });
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
+  const { createPackage } = usePackages();
 
   const progress = (currentStep / steps.length) * 100;
 
@@ -56,7 +60,37 @@ export default function PackageWizard() {
   };
 
   const handleCancel = () => {
-    navigate("/packages");
+    navigate("/travel_agency/packages");
+  };
+
+  const handleSaveDraft = async () => {
+    try {
+      setSaving(true);
+      const draftData = { ...formData, isPublished: false };
+      await createPackage(draftData);
+      toast.success("Package saved as draft successfully!");
+      navigate("/travel_agency/packages");
+    } catch (error) {
+      console.error('Save draft error:', error);
+      toast.error(error instanceof Error ? error.message : "Failed to save draft");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    try {
+      setSaving(true);
+      const publishData = { ...formData, isPublished: true };
+      await createPackage(publishData);
+      toast.success("Package published successfully!");
+      navigate("/travel_agency/packages");
+    } catch (error) {
+      console.error('Publish error:', error);
+      toast.error(error instanceof Error ? error.message : "Failed to publish package");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const renderStepContent = () => {
@@ -109,7 +143,7 @@ export default function PackageWizard() {
           <h1 className="text-2xl font-bold text-gray-900">Create New Package</h1>
           <p className="text-gray-600">Follow the steps below to create your travel package</p>
         </div>
-        <Button variant="outline" onClick={handleCancel}>
+        <Button variant="outline" onClick={handleCancel} disabled={saving}>
           Cancel
         </Button>
       </div>
@@ -181,24 +215,39 @@ export default function PackageWizard() {
         <Button
           variant="outline"
           onClick={handlePrevious}
-          disabled={currentStep === 1}
+          disabled={currentStep === 1 || saving}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Previous
         </Button>
 
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleCancel}>
+          <Button 
+            variant="outline" 
+            onClick={handleSaveDraft}
+            disabled={saving}
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : null}
             Save as Draft
           </Button>
           {currentStep < steps.length ? (
-            <Button onClick={handleNext}>
+            <Button onClick={handleNext} disabled={saving}>
               Next
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
-            <Button onClick={() => navigate("/packages")} className="bg-green-600 hover:bg-green-700">
-              <Check className="w-4 h-4 mr-2" />
+            <Button 
+              onClick={handlePublish} 
+              className="bg-green-600 hover:bg-green-700"
+              disabled={saving}
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Check className="w-4 h-4 mr-2" />
+              )}
               Publish Package
             </Button>
           )}

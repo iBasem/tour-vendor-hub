@@ -9,6 +9,240 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      itineraries: {
+        Row: {
+          accommodation: string | null
+          activities: string[] | null
+          created_at: string | null
+          day_number: number
+          description: string | null
+          id: string
+          meals_included: string[] | null
+          package_id: string
+          title: string
+          transportation: string | null
+        }
+        Insert: {
+          accommodation?: string | null
+          activities?: string[] | null
+          created_at?: string | null
+          day_number: number
+          description?: string | null
+          id?: string
+          meals_included?: string[] | null
+          package_id: string
+          title: string
+          transportation?: string | null
+        }
+        Update: {
+          accommodation?: string | null
+          activities?: string[] | null
+          created_at?: string | null
+          day_number?: number
+          description?: string | null
+          id?: string
+          meals_included?: string[] | null
+          package_id?: string
+          title?: string
+          transportation?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itineraries_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      package_bookings: {
+        Row: {
+          booking_date: string
+          created_at: string | null
+          id: string
+          package_id: string
+          participants: number
+          special_requests: string | null
+          status: string
+          total_price: number
+          traveler_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          booking_date: string
+          created_at?: string | null
+          id?: string
+          package_id: string
+          participants?: number
+          special_requests?: string | null
+          status?: string
+          total_price: number
+          traveler_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          booking_date?: string
+          created_at?: string | null
+          id?: string
+          package_id?: string
+          participants?: number
+          special_requests?: string | null
+          status?: string
+          total_price?: number
+          traveler_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_bookings_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_bookings_traveler_id_fkey"
+            columns: ["traveler_id"]
+            isOneToOne: false
+            referencedRelation: "travelers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      package_media: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          display_order: number | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          is_primary: boolean | null
+          media_type: string
+          mime_type: string | null
+          package_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          is_primary?: boolean | null
+          media_type: string
+          mime_type?: string | null
+          package_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          is_primary?: boolean | null
+          media_type?: string
+          mime_type?: string | null
+          package_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_media_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      packages: {
+        Row: {
+          agency_id: string
+          available_from: string | null
+          available_to: string | null
+          base_price: number
+          cancellation_policy: string | null
+          category: string
+          created_at: string | null
+          description: string | null
+          destination: string
+          difficulty_level: string | null
+          duration_days: number
+          duration_nights: number
+          exclusions: string[] | null
+          featured: boolean | null
+          id: string
+          inclusions: string[] | null
+          max_participants: number | null
+          requirements: string[] | null
+          status: string
+          terms_conditions: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          agency_id: string
+          available_from?: string | null
+          available_to?: string | null
+          base_price: number
+          cancellation_policy?: string | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          destination: string
+          difficulty_level?: string | null
+          duration_days?: number
+          duration_nights?: number
+          exclusions?: string[] | null
+          featured?: boolean | null
+          id?: string
+          inclusions?: string[] | null
+          max_participants?: number | null
+          requirements?: string[] | null
+          status?: string
+          terms_conditions?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          agency_id?: string
+          available_from?: string | null
+          available_to?: string | null
+          base_price?: number
+          cancellation_policy?: string | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          destination?: string
+          difficulty_level?: string | null
+          duration_days?: number
+          duration_nights?: number
+          exclusions?: string[] | null
+          featured?: boolean | null
+          id?: string
+          inclusions?: string[] | null
+          max_participants?: number | null
+          requirements?: string[] | null
+          status?: string
+          terms_conditions?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "packages_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "travel_agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       travel_agencies: {
         Row: {
           address: string | null

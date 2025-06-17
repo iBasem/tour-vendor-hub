@@ -21,9 +21,31 @@ const steps = [
   { id: 5, title: "Review", description: "Final review and publish" }
 ];
 
+interface FormData {
+  basicInfo: {
+    title?: string;
+    description?: string;
+    destination?: string;
+    duration?: number;
+    maxGroupSize?: number;
+    difficulty?: string;
+    packageType?: string;
+    cities?: Array<{ name: string }>;
+  };
+  itinerary: any[];
+  pricing: { 
+    currency: string; 
+    basePrice: string;
+    inclusions?: any;
+    exclusions?: any[];
+  };
+  media: any[];
+  isPublished: boolean;
+}
+
 export default function PackageWizard() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     basicInfo: {},
     itinerary: [],
     pricing: { currency: 'USD', basePrice: '' },
@@ -52,7 +74,7 @@ export default function PackageWizard() {
     setCurrentStep(stepId);
   };
 
-  const handleFormDataUpdate = (stepKey: string, data: any) => {
+  const handleFormDataUpdate = (stepKey: keyof FormData, data: any) => {
     console.log(`Updating ${stepKey} with:`, data);
     setFormData(prev => ({
       ...prev,

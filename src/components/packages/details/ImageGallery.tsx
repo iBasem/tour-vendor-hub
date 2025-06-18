@@ -17,11 +17,11 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
           <img
             src={images[selectedImage]}
             alt={title}
-            className="w-full h-96 object-cover"
+            className="w-full h-64 sm:h-80 lg:h-96 object-cover"
           />
         </div>
-        <div className="p-4">
-          <div className="grid grid-cols-4 gap-4">
+        <div className="p-3 sm:p-4">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-4">
             {images.map((image, index) => (
               <button
                 key={index}
@@ -33,7 +33,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
                 <img
                   src={image}
                   alt={`Gallery ${index + 1}`}
-                  className="w-full h-20 object-cover hover:opacity-80 transition-opacity"
+                  className="w-full h-16 sm:h-20 object-cover hover:opacity-80 transition-opacity"
                 />
               </button>
             ))}

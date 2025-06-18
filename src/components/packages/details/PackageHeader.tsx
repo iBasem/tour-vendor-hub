@@ -38,49 +38,52 @@ export function PackageHeader({
   };
 
   return (
-    <div className="flex items-start justify-between">
-      <div>
-        <div className="flex items-center gap-2 mb-2">
+    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      <div className="flex-1">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
           {discount && discount > 0 && (
-            <Badge className="bg-red-500 text-white">
+            <Badge className="bg-red-500 text-white text-xs">
               -{discount}% OFF
             </Badge>
           )}
-          <Badge className={`capitalize ${getTourTypeBadgeColor(selectedTourType)}`}>
+          <Badge className={`capitalize text-xs ${getTourTypeBadgeColor(selectedTourType)}`}>
             {selectedTourType} tour
           </Badge>
         </div>
-        <h1 className="text-3xl font-bold mb-2">{title}</h1>
-        <p className="text-gray-600 mb-4">{subtitle}</p>
-        <div className="flex items-center gap-4 text-sm text-gray-600">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">{title}</h1>
+        <p className="text-gray-600 mb-4 text-sm sm:text-base">{subtitle}</p>
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
           <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
-            {duration}
+            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{duration}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Users className="w-4 h-4" />
-            {groupSize}
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{groupSize}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-yellow-500 fill-current" />
+            <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-current" />
             <span className="font-medium">{rating}</span>
-            <span>({reviews} reviews)</span>
+            <span className="hidden sm:inline">({reviews} reviews)</span>
+            <span className="sm:hidden">({reviews})</span>
           </div>
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 self-start">
         <Button
           variant="secondary"
-          size="icon"
+          size="sm"
           onClick={onWishlistToggle}
+          className="w-8 h-8 sm:w-10 sm:h-10 p-0"
         >
-          <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
+          <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
         </Button>
         <Button
           variant="secondary"
-          size="icon"
+          size="sm"
+          className="w-8 h-8 sm:w-10 sm:h-10 p-0"
         >
-          <Share2 className="w-4 h-4" />
+          <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
         </Button>
       </div>
     </div>

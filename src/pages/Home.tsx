@@ -26,7 +26,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-white">
         <HeaderSection />
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-[50vh] px-4">
           <LoadingSpinner size="lg" />
         </div>
         <FooterSection />

@@ -12,7 +12,7 @@ interface ToursSectionProps {
 export function ToursSection({ packages, showViewAll = true }: ToursSectionProps) {
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {packages.map((pkg) => (
           <TourCard key={pkg.id} package={pkg} />
         ))}
@@ -20,7 +20,7 @@ export function ToursSection({ packages, showViewAll = true }: ToursSectionProps
       
       {showViewAll && packages.length > 0 && (
         <div className="text-center">
-          <Button asChild className="bg-blue-600 hover:bg-blue-700">
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
             <Link to="/packages">View All Tours</Link>
           </Button>
         </div>

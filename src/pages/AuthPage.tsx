@@ -1,27 +1,30 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MapPin, Loader2 } from 'lucide-react'
+import { MapPin, Loader2, Users, Building } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function AuthPage() {
   const { user, profile, signIn, signUp, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
-  const [userType, setUserType] = useState<'traveler' | 'agency'>('traveler')
+  
+  // Determine user type from URL params or default to traveler
+  const userTypeFromUrl = searchParams.get('type') as 'traveler' | 'agency' | null
+  const [userType, setUserType] = useState<'traveler' | 'agency'>(userTypeFromUrl || 'traveler')
   
   // Form data
   const [email, setEmail] = useState('')
@@ -30,6 +33,13 @@ export default function AuthPage() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [companyName, setCompanyName] = useState('')
+
+  // Update user type when URL changes
+  useEffect(() => {
+    if (userTypeFromUrl) {
+      setUserType(userTypeFromUrl)
+    }
+  }, [userTypeFromUrl])
 
   // Redirect authenticated users to appropriate dashboard
   useEffect(() => {
@@ -77,7 +87,6 @@ export default function AuthPage() {
           }
         } else {
           setSuccess('Account created successfully! Please check your email for a confirmation link.')
-          // Clear form
           setEmail('')
           setPassword('')
           setConfirmPassword('')
@@ -121,16 +130,41 @@ export default function AuthPage() {
           <span className="text-2xl font-bold text-blue-600">travelle</span>
         </Link>
         
+        {/* User Type Selection */}
+        <div className="mb-6">
+          <div className="flex gap-4 justify-center">
+            <Link
+              to={`/auth?type=traveler`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                userType === 'traveler' 
+                  ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Traveler</span>
+            </Link>
+            <Link
+              to={`/auth?type=agency`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                userType === 'agency' 
+                  ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Building className="w-4 h-4" />
+              <span>Travel Agency</span>
+            </Link>
+          </div>
+        </div>
+        
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">
               {mode === 'signin' ? 'Welcome back' : 'Create your account'}
             </CardTitle>
             <CardDescription>
-              {mode === 'signin' 
-                ? 'Sign in to your account to continue' 
-                : 'Join thousands of travelers and agencies'
-              }
+              {userType === 'agency' ? 'Travel Agency Portal' : 'Traveler Portal'}
             </CardDescription>
           </CardHeader>
           
@@ -156,21 +190,6 @@ export default function AuthPage() {
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
-              
-              <TabsContent value="signup" className="mt-4">
-                <div className="mb-4">
-                  <Label htmlFor="userType">Account Type</Label>
-                  <Select value={userType} onValueChange={(value: 'traveler' | 'agency') => setUserType(value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="traveler">Traveler</SelectItem>
-                      <SelectItem value="agency">Travel Agency</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </TabsContent>
             </Tabs>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -255,6 +274,19 @@ export default function AuthPage() {
                 {mode === 'signin' ? 'Sign In' : 'Create Account'}
               </Button>
             </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
+                <button
+                  type="button"
+                  onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+                  className="text-blue-600 hover:underline"
+                >
+                  {mode === 'signin' ? 'Sign up' : 'Sign in'}
+                </button>
+              </p>
+            </div>
 
             <div className="mt-6 text-center">
               <div className="text-sm text-gray-600">

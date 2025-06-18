@@ -25,6 +25,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const cleanupAuthState = () => {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        localStorage.removeItem(key)
+      }
+    })
+  }
+
   const fetchProfile = async (userId: string) => {
     try {
       console.log('Fetching profile for user:', userId);
@@ -51,7 +59,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true
     
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
@@ -61,7 +68,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null)
         
         if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-          // Defer profile fetch to avoid deadlock
           setTimeout(async () => {
             if (!mounted) return
             const profileData = await fetchProfile(session.user.id);
@@ -77,7 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     )
 
-    // Check for existing session
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -110,6 +115,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, userData: any) => {
     try {
+      cleanupAuthState();
+      
       const redirectUrl = `${window.location.origin}/`
       
       const { data, error } = await supabase.auth.signUp({
@@ -140,6 +147,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      cleanupAuthState();
+      
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Continue even if this fails
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -159,21 +174,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      // Clean up auth state
       setUser(null);
       setSession(null);
       setProfile(null);
       
-      // Clear local storage
-      Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-          localStorage.removeItem(key)
-        }
-      })
+      cleanupAuthState();
       
       await supabase.auth.signOut({ scope: 'global' })
       
-      // Force page reload for clean state
       window.location.href = '/'
     } catch (error) {
       console.error('Sign out error:', error)
@@ -186,7 +194,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       let error = null
       
-      // Update the appropriate table based on user role
       if (profile.role === 'traveler') {
         const travelerUpdates: any = {}
         if (updates.first_name !== undefined) travelerUpdates.first_name = updates.first_name
@@ -218,7 +225,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       if (!error) {
-        // Refresh profile data
         const updatedProfile = await fetchProfile(user.id);
         if (updatedProfile) {
           setProfile(updatedProfile);

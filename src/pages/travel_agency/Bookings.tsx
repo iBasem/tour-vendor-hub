@@ -3,12 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, MessageSquare, Calendar, User, Phone, Mail } from "lucide-react";
-import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useBookings } from "@/hooks/useBookings";
+import { toast } from "sonner";
 
 export default function Bookings() {
-  const { stats, loading, error } = useDashboardStats();
+  const { bookings, loading, error, updateBookingStatus } = useBookings();
 
   if (loading) {
     return (
@@ -29,55 +30,33 @@ export default function Bookings() {
     );
   }
 
-  // Sample bookings for demonstration - in a real app this would come from Supabase
-  const sampleBookings = stats.totalBookings > 0 ? [
-    {
-      id: "BK001",
-      traveler: "John Smith",
-      package: "Romantic Paris Getaway",
-      date: "2024-03-15",
-      status: "Confirmed",
-      amount: "$2,499",
-      email: "john.smith@email.com",
-      phone: "+1 (555) 123-4567"
-    },
-    {
-      id: "BK002", 
-      traveler: "Sarah Johnson",
-      package: "Tokyo Adventure",
-      date: "2024-04-20",
-      status: "Pending",
-      amount: "$3,299",
-      email: "sarah.j@email.com", 
-      phone: "+1 (555) 987-6543"
-    },
-    {
-      id: "BK003",
-      traveler: "Mike Wilson", 
-      package: "Bali Relaxation",
-      date: "2024-05-10",
-      status: "Confirmed",
-      amount: "$1,899",
-      email: "mike.wilson@email.com",
-      phone: "+1 (555) 456-7890"
-    }
-  ].slice(0, stats.totalBookings) : [];
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Confirmed":
+      case "confirmed":
         return "bg-green-100 text-green-800 border-green-200";
-      case "Pending":
+      case "pending":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "Cancelled":
+      case "cancelled":
         return "bg-red-100 text-red-800 border-red-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
-  const pendingBookings = sampleBookings.filter(b => b.status === "Pending").length;
-  const confirmedBookings = sampleBookings.filter(b => b.status === "Confirmed").length;
+  const handleStatusUpdate = async (bookingId: string, newStatus: string) => {
+    const result = await updateBookingStatus(bookingId, newStatus);
+    if (result.success) {
+      toast.success(`Booking ${newStatus} successfully`);
+    } else {
+      toast.error(result.error || 'Failed to update booking');
+    }
+  };
+
+  const pendingBookings = bookings.filter(b => b.status === "pending").length;
+  const confirmedBookings = bookings.filter(b => b.status === "confirmed").length;
+  const totalRevenue = bookings
+    .filter(b => b.status === "confirmed")
+    .reduce((sum, b) => sum + Number(b.total_price), 0);
 
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8">
@@ -94,7 +73,7 @@ export default function Bookings() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm font-medium text-gray-600">Total Bookings</p>
-                <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">{stats.totalBookings}</p>
+                <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">{bookings.length}</p>
               </div>
               <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
             </div>
@@ -134,7 +113,7 @@ export default function Bookings() {
                   ${new Intl.NumberFormat('en-US', { 
                     minimumFractionDigits: 0, 
                     maximumFractionDigits: 0 
-                  }).format(stats.totalRevenue)}
+                  }).format(totalRevenue)}
                 </p>
               </div>
               <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
@@ -149,30 +128,34 @@ export default function Bookings() {
           <CardTitle className="text-base sm:text-lg lg:text-xl font-semibold">Recent Bookings</CardTitle>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
-          {sampleBookings.length > 0 ? (
+          {bookings.length > 0 ? (
             <div className="space-y-3 sm:space-y-4">
-              {sampleBookings.map((booking) => (
+              {bookings.map((booking) => (
                 <div key={booking.id} className="flex flex-col gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
                     {/* Left section */}
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-sm sm:text-base text-gray-900">{booking.traveler}</p>
+                          <p className="font-semibold text-sm sm:text-base text-gray-900">
+                            {booking.travelers ? `${booking.travelers.first_name} ${booking.travelers.last_name}` : 'Unknown Traveler'}
+                          </p>
                           <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                            {booking.id}
+                            {booking.id.slice(-8)}
                           </span>
                         </div>
                       </div>
-                      <p className="text-xs sm:text-sm text-gray-600 mb-1">{booking.package}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                        {booking.packages?.title || 'Unknown Package'}
+                      </p>
                       <div className="hidden sm:flex items-center gap-3 text-xs text-gray-500">
                         <div className="flex items-center gap-1">
                           <Mail className="w-3 h-3" />
-                          <span>{booking.email}</span>
+                          <span>{booking.travelers?.email || 'No email'}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Phone className="w-3 h-3" />
-                          <span>{booking.phone}</span>
+                          <span>{booking.travelers?.phone || 'No phone'}</span>
                         </div>
                       </div>
                     </div>
@@ -181,15 +164,26 @@ export default function Bookings() {
                     <div className="flex flex-col sm:items-end gap-2 sm:gap-3">
                       <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 sm:gap-1">
                         <div className="text-right">
-                          <p className="font-bold text-base sm:text-lg text-gray-900">{booking.amount}</p>
-                          <p className="text-xs sm:text-sm text-gray-600">{booking.date}</p>
+                          <p className="font-bold text-base sm:text-lg text-gray-900">${booking.total_price}</p>
+                          <p className="text-xs sm:text-sm text-gray-600">
+                            {new Date(booking.booking_date).toLocaleDateString()}
+                          </p>
                         </div>
-                        <Badge className={`${getStatusColor(booking.status)} border font-medium text-xs`}>
+                        <Badge className={`${getStatusColor(booking.status)} border font-medium text-xs capitalize`}>
                           {booking.status}
                         </Badge>
                       </div>
                       
                       <div className="flex gap-2">
+                        {booking.status === 'pending' && (
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
+                            className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1"
+                          >
+                            Confirm
+                          </Button>
+                        )}
                         <Button size="sm" variant="outline" className="border-gray-200 hover:bg-gray-50 text-xs px-2 py-1">
                           <Eye className="w-3 h-3" />
                           <span className="sr-only sm:not-sr-only sm:ml-1">View</span>
@@ -206,11 +200,11 @@ export default function Bookings() {
                   <div className="sm:hidden flex flex-col gap-1 text-xs text-gray-500 pt-2 border-t border-gray-100">
                     <div className="flex items-center gap-1">
                       <Mail className="w-3 h-3" />
-                      <span>{booking.email}</span>
+                      <span>{booking.travelers?.email || 'No email'}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Phone className="w-3 h-3" />
-                      <span>{booking.phone}</span>
+                      <span>{booking.travelers?.phone || 'No phone'}</span>
                     </div>
                   </div>
                 </div>

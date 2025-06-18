@@ -1,11 +1,16 @@
 
-import { Package, Calendar, Users, Star, Image, MessageSquare, Tag, ChartBar, MapPin } from "lucide-react";
+import { Package, Calendar, Users, Star, Image, MessageSquare, Tag, ChartBar, MapPin, Search } from "lucide-react";
+import { Button } from "./button";
 
 interface EmptyStateProps {
   icon: string;
   title: string;
   description: string;
   className?: string;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
 const iconMap = {
@@ -18,9 +23,10 @@ const iconMap = {
   tag: Tag,
   "chart-bar": ChartBar,
   "map-pin": MapPin,
+  search: Search,
 };
 
-export function EmptyState({ icon, title, description, className = "" }: EmptyStateProps) {
+export function EmptyState({ icon, title, description, className = "", action }: EmptyStateProps) {
   const IconComponent = iconMap[icon as keyof typeof iconMap] || Package;
 
   return (
@@ -31,9 +37,14 @@ export function EmptyState({ icon, title, description, className = "" }: EmptySt
       <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
         {title}
       </h3>
-      <p className="text-xs sm:text-sm lg:text-base text-gray-600 max-w-md mx-auto">
+      <p className="text-xs sm:text-sm lg:text-base text-gray-600 max-w-md mx-auto mb-4">
         {description}
       </p>
+      {action && (
+        <Button onClick={action.onClick} className="text-xs sm:text-sm lg:text-base">
+          {action.label}
+        </Button>
+      )}
     </div>
   );
 }

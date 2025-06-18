@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +20,9 @@ import {
 } from "lucide-react";
 import { HeaderSection } from "@/components/home/HeaderSection";
 import { FooterSection } from "@/components/home/FooterSection";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { EmptyState } from "@/components/ui/empty-state";
+import { usePublishedPackages } from "@/hooks/usePublishedPackages";
 import { 
   Sheet,
   SheetContent,
@@ -27,121 +31,22 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-// Mock data for packages
-const packages = [
-  {
-    id: 1,
-    title: "Best of Vietnam in 14 Days",
-    destination: "Vietnam",
-    duration: "14 days",
-    price: 899,
-    originalPrice: 1998,
-    discount: 55,
-    rating: 4.8,
-    reviews: 127,
-    image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=400&h=300&fit=crop",
-    operator: "Intrepid Travel",
-    packageType: "group",
-    groupSize: "12-16",
-    includes: ["Accommodation", "Some meals", "Transport", "Guide"],
-    features: ["Small Groups", "Cultural", "Adventure"]
-  },
-  {
-    id: 2,
-    title: "Turkey Adventure - 12 Days",
-    destination: "Turkey",
-    duration: "12 days",
-    price: 1299,
-    originalPrice: 1899,
-    discount: 32,
-    rating: 4.9,
-    reviews: 89,
-    image: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=400&h=300&fit=crop",
-    operator: "G Adventures",
-    packageType: "private",
-    groupSize: "4-8",
-    includes: ["Accommodation", "Most meals", "Transport", "Guide"],
-    features: ["Cultural", "Historical", "Food"]
-  },
-  {
-    id: 3,
-    title: "Morocco Desert Experience",
-    destination: "Morocco",
-    duration: "8 days",
-    price: 756,
-    originalPrice: 1200,
-    discount: 37,
-    rating: 4.7,
-    reviews: 156,
-    image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=400&h=300&fit=crop",
-    operator: "On The Go Tours",
-    packageType: "group",
-    groupSize: "8-12",
-    includes: ["Accommodation", "Some meals", "Transport", "Guide"],
-    features: ["Desert", "Cultural", "Small Groups"]
-  },
-  {
-    id: 4,
-    title: "Japan Highlights Tour",
-    destination: "Japan",
-    duration: "10 days",
-    price: 2199,
-    originalPrice: 2899,
-    discount: 24,
-    rating: 4.9,
-    reviews: 203,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-    operator: "Trafalgar",
-    packageType: "private",
-    groupSize: "2-6",
-    includes: ["Accommodation", "Most meals", "Transport", "Guide"],
-    features: ["Cultural", "Temples", "Modern Cities"]
-  },
-  {
-    id: 5,
-    title: "Peru Inca Trail Adventure",
-    destination: "Peru",
-    duration: "15 days",
-    price: 1499,
-    originalPrice: 2199,
-    discount: 32,
-    rating: 4.8,
-    reviews: 94,
-    image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?w=400&h=300&fit=crop",
-    operator: "Intrepid Travel",
-    packageType: "group",
-    groupSize: "12-16",
-    includes: ["Accommodation", "Most meals", "Transport", "Guide"],
-    features: ["Adventure", "Hiking", "Ancient Sites"]
-  },
-  {
-    id: 6,
-    title: "Italian Highlights",
-    destination: "Italy",
-    duration: "9 days",
-    price: 1189,
-    originalPrice: 1599,
-    discount: 26,
-    rating: 4.6,
-    reviews: 178,
-    image: "https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=400&h=300&fit=crop",
-    operator: "Cosmos",
-    packageType: "private",
-    groupSize: "4-10",
-    includes: ["Accommodation", "Some meals", "Transport", "Guide"],
-    features: ["Cultural", "Food", "Art"]
-  }
+const categories = [
+  { value: 'adventure', label: 'Adventure' },
+  { value: 'cultural', label: 'Cultural' },
+  { value: 'relaxation', label: 'Relaxation' },
+  { value: 'business', label: 'Business' },
+  { value: 'family', label: 'Family' },
+  { value: 'romantic', label: 'Romantic' },
+  { value: 'solo', label: 'Solo Travel' }
 ];
 
-const destinations = ["All Destinations", "Vietnam", "Turkey", "Morocco", "Japan", "Peru", "Italy"];
-const operators = ["All Operators", "Intrepid Travel", "G Adventures", "On The Go Tours", "Trafalgar", "Cosmos"];
-const packageTypes = ["All Types", "Group", "Private"];
-
 export default function PackagesList() {
+  const { packages, loading, error } = usePublishedPackages();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDestination, setSelectedDestination] = useState("All Destinations");
-  const [selectedPackageType, setSelectedPackageType] = useState("All Types");
-  const [priceRange, setPriceRange] = useState([0, 3000]);
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("All Levels");
+  const [priceRange, setPriceRange] = useState([0, 5000]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("price-low");
   const [showFilters, setShowFilters] = useState(false);
@@ -149,19 +54,19 @@ export default function PackagesList() {
   const filteredPackages = packages.filter(pkg => {
     const matchesSearch = pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          pkg.destination.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDestination = selectedDestination === "All Destinations" || pkg.destination === selectedDestination;
-    const matchesPackageType = selectedPackageType === "All Types" || pkg.packageType.toLowerCase() === selectedPackageType.toLowerCase();
-    const matchesPrice = pkg.price >= priceRange[0] && pkg.price <= priceRange[1];
+    const matchesCategory = selectedCategory === "All Categories" || pkg.category === selectedCategory;
+    const matchesDifficulty = selectedDifficulty === "All Levels" || pkg.difficulty_level === selectedDifficulty;
+    const matchesPrice = pkg.base_price >= priceRange[0] && pkg.base_price <= priceRange[1];
 
-    return matchesSearch && matchesDestination && matchesPackageType && matchesPrice;
+    return matchesSearch && matchesCategory && matchesDifficulty && matchesPrice;
   });
 
   const sortedPackages = [...filteredPackages].sort((a, b) => {
     switch (sortBy) {
-      case "price-low": return a.price - b.price;
-      case "price-high": return b.price - a.price;
-      case "rating": return b.rating - a.rating;
-      case "duration": return parseInt(a.duration) - parseInt(b.duration);
+      case "price-low": return Number(a.base_price) - Number(b.base_price);
+      case "price-high": return Number(b.base_price) - Number(a.base_price);
+      case "duration": return a.duration_days - b.duration_days;
+      case "newest": return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime();
       default: return 0;
     }
   });
@@ -175,7 +80,7 @@ export default function PackagesList() {
           <Slider
             value={priceRange}
             onValueChange={setPriceRange}
-            max={3000}
+            max={5000}
             step={50}
             className="w-full"
           />
@@ -186,37 +91,67 @@ export default function PackagesList() {
         </div>
       </div>
 
-      {/* Destination */}
+      {/* Category */}
       <div>
-        <h3 className="font-semibold mb-3 text-sm">Destination</h3>
-        <Select value={selectedDestination} onValueChange={setSelectedDestination}>
+        <h3 className="font-semibold mb-3 text-sm">Category</h3>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {destinations.map(dest => (
-              <SelectItem key={dest} value={dest}>{dest}</SelectItem>
+            <SelectItem value="All Categories">All Categories</SelectItem>
+            {categories.map(cat => (
+              <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Package Type */}
+      {/* Difficulty */}
       <div>
-        <h3 className="font-semibold mb-3 text-sm">Package Type</h3>
-        <Select value={selectedPackageType} onValueChange={setSelectedPackageType}>
+        <h3 className="font-semibold mb-3 text-sm">Difficulty</h3>
+        <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {packageTypes.map(type => (
-              <SelectItem key={type} value={type}>{type}</SelectItem>
-            ))}
+            <SelectItem value="All Levels">All Levels</SelectItem>
+            <SelectItem value="easy">Easy</SelectItem>
+            <SelectItem value="moderate">Moderate</SelectItem>
+            <SelectItem value="challenging">Challenging</SelectItem>
+            <SelectItem value="extreme">Extreme</SelectItem>
           </SelectContent>
         </Select>
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <HeaderSection />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="lg" />
+        </div>
+        <FooterSection />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <HeaderSection />
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading packages: {error}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+        <FooterSection />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -230,7 +165,7 @@ export default function PackagesList() {
               Discover Amazing Tours
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Find and book the perfect tour from thousands of options worldwide
+              Find and book the perfect tour from our curated selection
             </p>
           </div>
 
@@ -239,7 +174,7 @@ export default function PackagesList() {
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                placeholder="Search destinations, tours, or activities..."
+                placeholder="Search destinations, packages..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-12 h-14 text-lg border-2 border-gray-200 focus:border-blue-500"
@@ -258,9 +193,9 @@ export default function PackagesList() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-semibold">Filters</h2>
                   <Button variant="ghost" size="sm" onClick={() => {
-                    setSelectedDestination("All Destinations");
-                    setSelectedPackageType("All Types");
-                    setPriceRange([0, 3000]);
+                    setSelectedCategory("All Categories");
+                    setSelectedDifficulty("All Levels");
+                    setPriceRange([0, 5000]);
                   }}>
                     Clear All
                   </Button>
@@ -307,7 +242,7 @@ export default function PackagesList() {
                   <SelectContent>
                     <SelectItem value="price-low">Price: Low to High</SelectItem>
                     <SelectItem value="price-high">Price: High to Low</SelectItem>
-                    <SelectItem value="rating">Highest Rated</SelectItem>
+                    <SelectItem value="newest">Newest First</SelectItem>
                     <SelectItem value="duration">Duration</SelectItem>
                   </SelectContent>
                 </Select>
@@ -335,133 +270,117 @@ export default function PackagesList() {
             </div>
 
             {/* Package Grid */}
-            <div className={`grid gap-6 ${
-              viewMode === "grid" 
-                ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3" 
-                : "grid-cols-1"
-            }`}>
-              {sortedPackages.map((pkg) => (
-                <Card key={pkg.id} className="overflow-hidden hover:shadow-lg transition-shadow bg-white">
-                  <div className="relative">
-                    <img
-                      src={pkg.image}
-                      alt={pkg.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <Badge className="bg-red-500 text-white font-semibold">
-                        -{pkg.discount}% OFF
-                      </Badge>
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      <Badge className={`${pkg.packageType === 'group' ? 'bg-blue-500' : 'bg-green-500'} text-white font-semibold`}>
-                        {pkg.packageType.charAt(0).toUpperCase() + pkg.packageType.slice(1)}
-                      </Badge>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute bottom-3 right-3 bg-white/90 hover:bg-white"
-                    >
-                      <Heart className="w-4 h-4" />
-                    </Button>
-                  </div>
+            {sortedPackages.length > 0 ? (
+              <div className={`grid gap-6 ${
+                viewMode === "grid" 
+                  ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3" 
+                  : "grid-cols-1"
+              }`}>
+                {sortedPackages.map((pkg) => {
+                  const primaryImage = pkg.package_media?.find(m => m.is_primary) || pkg.package_media?.[0];
+                  const imageUrl = primaryImage?.file_path || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=300&fit=crop";
                   
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      {/* Operator */}
-                      <p className="text-sm text-blue-600 font-medium">{pkg.operator}</p>
-                      
-                      {/* Title */}
-                      <h3 className="font-semibold text-lg leading-tight line-clamp-2">
-                        {pkg.title}
-                      </h3>
-                      
-                      {/* Details */}
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {pkg.duration}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          {pkg.groupSize}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          {pkg.destination}
-                        </div>
-                      </div>
-                      
-                      {/* Rating */}
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                          <span className="font-medium">{pkg.rating}</span>
-                        </div>
-                        <span className="text-gray-500 text-sm">({pkg.reviews} reviews)</span>
-                      </div>
-                      
-                      {/* Features */}
-                      <div className="flex flex-wrap gap-1">
-                        {pkg.features.slice(0, 3).map((feature, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {feature}
+                  return (
+                    <Card key={pkg.id} className="overflow-hidden hover:shadow-lg transition-shadow bg-white">
+                      <div className="relative">
+                        <img
+                          src={imageUrl}
+                          alt={pkg.title}
+                          className="w-full h-48 object-cover"
+                        />
+                        {pkg.featured && (
+                          <Badge className="absolute top-3 left-3 bg-blue-500 text-white font-semibold">
+                            FEATURED
                           </Badge>
-                        ))}
-                      </div>
-                      
-                      {/* Price */}
-                      <div className="flex items-center justify-between pt-2 border-t">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 line-through">
-                              ${pkg.originalPrice}
-                            </span>
-                            <span className="text-2xl font-bold text-gray-900">
-                              ${pkg.price}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-500">per person</p>
-                        </div>
-                        <Button asChild className="bg-blue-600 hover:bg-blue-700">
-                          <Link to={`/packages/${pkg.id}`}>
-                            View Details
-                          </Link>
+                        )}
+                        <Badge className="absolute top-3 right-3 bg-green-500 text-white font-semibold capitalize">
+                          {pkg.category}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute bottom-3 right-3 bg-white/90 hover:bg-white"
+                        >
+                          <Heart className="w-4 h-4" />
                         </Button>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Empty State */}
-            {sortedPackages.length === 0 && (
-              <div className="text-center py-12">
-                <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                  <Search className="w-12 h-12 text-gray-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No tours found</h3>
-                <p className="text-gray-600 mb-6">Try adjusting your filters or search terms</p>
-                <Button onClick={() => {
-                  setSearchTerm("");
-                  setSelectedDestination("All Destinations");
-                  setSelectedPackageType("All Types");
-                  setPriceRange([0, 3000]);
-                }}>
-                  Clear All Filters
-                </Button>
+                      
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          {/* Title */}
+                          <h3 className="font-semibold text-lg leading-tight line-clamp-2">
+                            {pkg.title}
+                          </h3>
+                          
+                          {/* Details */}
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              {pkg.duration_days} days
+                            </div>
+                            {pkg.max_participants && (
+                              <div className="flex items-center gap-1">
+                                <Users className="w-4 h-4" />
+                                Max {pkg.max_participants}
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              {pkg.destination}
+                            </div>
+                          </div>
+                          
+                          {/* Rating */}
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                              <span className="font-medium">4.8</span>
+                            </div>
+                            <span className="text-gray-500 text-sm">(24 reviews)</span>
+                          </div>
+                          
+                          {/* Difficulty */}
+                          {pkg.difficulty_level && (
+                            <Badge variant="secondary" className="text-xs capitalize">
+                              {pkg.difficulty_level}
+                            </Badge>
+                          )}
+                          
+                          {/* Price */}
+                          <div className="flex items-center justify-between pt-2 border-t">
+                            <div>
+                              <span className="text-2xl font-bold text-gray-900">
+                                ${pkg.base_price}
+                              </span>
+                              <p className="text-sm text-gray-500">per person</p>
+                            </div>
+                            <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                              <Link to={`/packages/${pkg.id}`}>
+                                View Details
+                              </Link>
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
-            )}
-
-            {/* Load More */}
-            {sortedPackages.length > 0 && (
-              <div className="text-center mt-12">
-                <Button variant="outline" size="lg">
-                  Load More Tours
-                </Button>
-              </div>
+            ) : (
+              <EmptyState
+                icon="search"
+                title="No tours found"
+                description="Try adjusting your filters or search terms"
+                action={{
+                  label: "Clear All Filters",
+                  onClick: () => {
+                    setSearchTerm("");
+                    setSelectedCategory("All Categories");
+                    setSelectedDifficulty("All Levels");
+                    setPriceRange([0, 5000]);
+                  }
+                }}
+              />
             )}
           </div>
         </div>

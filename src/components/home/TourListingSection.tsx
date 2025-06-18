@@ -1,23 +1,12 @@
 
 import { ToursSection } from "./ToursSection";
-
-interface Tour {
-  id: number;
-  title: string;
-  duration: string;
-  rating: number;
-  reviews: number;
-  originalPrice: number;
-  currentPrice: number;
-  discount: number;
-  image: string;
-  isNew?: boolean;
-}
+import { EmptyState } from "@/components/ui/empty-state";
+import type { PackageWithMedia } from "@/hooks/usePublishedPackages";
 
 interface TourListingSectionProps {
   title: string;
   description: string;
-  tours: Tour[];
+  packages: PackageWithMedia[];
   showViewAll?: boolean;
   backgroundClass?: string;
 }
@@ -25,7 +14,7 @@ interface TourListingSectionProps {
 export function TourListingSection({ 
   title, 
   description, 
-  tours, 
+  packages, 
   showViewAll = true, 
   backgroundClass = "" 
 }: TourListingSectionProps) {
@@ -37,7 +26,16 @@ export function TourListingSection({
           <p className="text-gray-600">{description}</p>
         </div>
       </div>
-      <ToursSection tours={tours} showViewAll={showViewAll} />
+      
+      {packages.length > 0 ? (
+        <ToursSection packages={packages} showViewAll={showViewAll} />
+      ) : (
+        <EmptyState
+          icon="package"
+          title="No packages available"
+          description="Check back soon for new travel experiences"
+        />
+      )}
     </section>
   );
 }

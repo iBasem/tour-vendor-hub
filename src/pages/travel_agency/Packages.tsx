@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Search, Filter, Package, Loader2, Eye, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, Filter, Package, Loader2, Eye, Edit, Trash2, MoreVertical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -49,7 +49,7 @@ export default function Packages() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin" />
+        <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin" />
       </div>
     );
   }
@@ -57,8 +57,8 @@ export default function Packages() {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Error loading packages: {error}</p>
-        <Button onClick={() => window.location.reload()} className="mt-4">
+        <p className="text-red-600 text-sm sm:text-base">Error loading packages: {error}</p>
+        <Button onClick={() => window.location.reload()} className="mt-4 text-sm sm:text-base">
           Retry
         </Button>
       </div>
@@ -68,94 +68,94 @@ export default function Packages() {
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between sm:gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Travel Packages</h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your travel packages and experiences</p>
+          <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1">Manage your travel packages and experiences</p>
         </div>
         <Button 
           onClick={() => navigate("/travel_agency/packages/create")}
-          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3"
+          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
           Create Package
         </Button>
       </div>
 
       {/* Search and Filter Section */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
           <Input
             placeholder="Search packages..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-10 sm:h-11 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
+            className="pl-8 sm:pl-10 h-8 sm:h-10 lg:h-11 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-sm lg:text-base"
           />
         </div>
-        <Button variant="outline" className="w-full sm:w-auto border-gray-200 hover:bg-gray-50 text-sm sm:text-base px-4 sm:px-6">
-          <Filter className="w-4 h-4 mr-2" />
+        <Button variant="outline" className="w-full sm:w-auto border-gray-200 hover:bg-gray-50 text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6">
+          <Filter className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
           Filter
         </Button>
       </div>
 
       {/* Packages Grid */}
       {filteredPackages.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {filteredPackages.map((pkg) => (
             <Card 
               key={pkg.id} 
               className="cursor-pointer hover:shadow-lg transition-all duration-200 border-gray-200 hover:-translate-y-1 bg-white"
             >
-              <CardHeader className="pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 line-clamp-2 flex-1">
+              <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 lg:px-6 pt-3 sm:pt-4 lg:pt-6">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-sm sm:text-base lg:text-lg xl:text-xl font-semibold text-gray-900 line-clamp-2 flex-1 leading-tight">
                     {pkg.title}
                   </CardTitle>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <Eye className="w-4 h-4" />
+                      <Button variant="ghost" size="sm" className="h-6 w-6 sm:h-8 sm:w-8 p-0">
+                        <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => togglePublishStatus(pkg)}>
+                    <DropdownMenuContent align="end" className="w-40 sm:w-48">
+                      <DropdownMenuItem onClick={() => togglePublishStatus(pkg)} className="text-xs sm:text-sm">
                         {pkg.status === 'published' ? 'Unpublish' : 'Publish'}
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Edit className="w-4 h-4 mr-2" />
+                      <DropdownMenuItem className="text-xs sm:text-sm">
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => handleDeletePackage(pkg.id, pkg.title)}
-                        className="text-red-600"
+                        className="text-red-600 text-xs sm:text-sm"
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
-                <p className="text-sm text-gray-600">{pkg.destination}</p>
-                <p className="text-sm text-gray-600">{pkg.duration_days} days, {pkg.duration_nights} nights</p>
+              <CardContent className="space-y-2 sm:space-y-3 lg:space-y-4 px-3 sm:px-4 lg:px-6 pb-3 sm:pb-4 lg:pb-6">
+                <p className="text-xs sm:text-sm text-gray-600">{pkg.destination}</p>
+                <p className="text-xs sm:text-sm text-gray-600">{pkg.duration_days} days, {pkg.duration_nights} nights</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">
+                  <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-blue-600">
                     ${pkg.base_price}
                   </p>
                   <Badge 
                     variant={pkg.status === 'published' ? 'default' : 'secondary'}
-                    className={pkg.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                    className={`text-xs ${pkg.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' : ''}`}
                   >
                     {pkg.status}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                  <span className="text-sm text-gray-600">
+                <div className="flex items-center justify-between pt-1 sm:pt-2 border-t border-gray-100">
+                  <span className="text-xs sm:text-sm text-gray-600">
                     {pkg.itineraries?.length || 0} day{(pkg.itineraries?.length || 0) !== 1 ? 's' : ''} planned
                   </span>
-                  <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-sm">
+                  <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs sm:text-sm h-6 sm:h-8 px-2 sm:px-3">
                     View Details
                   </Button>
                 </div>
@@ -165,21 +165,21 @@ export default function Packages() {
         </div>
       ) : (
         <div className="text-center py-8 sm:py-12">
-          <div className="w-16 sm:w-20 lg:w-24 h-16 sm:h-20 lg:h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-            <Package className="w-8 sm:w-10 lg:w-12 h-8 sm:h-10 lg:h-12 text-gray-400" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 mx-auto mb-3 sm:mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <Package className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 text-gray-400" />
           </div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
             {searchTerm ? 'No packages found' : 'No packages yet'}
           </h3>
-          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+          <p className="text-xs sm:text-sm lg:text-base text-gray-600 mb-3 sm:mb-4 lg:mb-6 max-w-md mx-auto">
             {searchTerm 
               ? 'Try adjusting your search terms' 
               : 'Create your first travel package to get started'
             }
           </p>
           {!searchTerm && (
-            <Button onClick={() => navigate("/travel_agency/packages/create")} className="text-sm sm:text-base px-4 sm:px-6">
-              <Plus className="w-4 h-4 mr-2" />
+            <Button onClick={() => navigate("/travel_agency/packages/create")} className="text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6">
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Create Package
             </Button>
           )}

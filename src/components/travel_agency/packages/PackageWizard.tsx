@@ -1,20 +1,10 @@
 
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import { WizardProgress } from "@/components/packages/wizard/WizardProgress";
-import { WizardNavigation } from "@/components/packages/wizard/WizardNavigation";
+import { Progress } from "@/components/ui/progress";
 import { WizardStepContent } from "@/components/packages/wizard/WizardStepContent";
-
-const steps = [
-  { id: 1, title: "Basic Info", description: "Package details and location" },
-  { id: 2, title: "Itinerary", description: "Day-by-day activities" },
-  { id: 3, title: "Pricing", description: "Costs and inclusions" },
-  { id: 4, title: "Media", description: "Photos and videos" },
-  { id: 5, title: "Review", description: "Final review and publish" }
-];
+import { useCreatePackage } from "@/hooks/useCreatePackage";
 
 interface PackageWizardProps {
   isOpen: boolean;
@@ -24,86 +14,171 @@ interface PackageWizardProps {
 export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    basicInfo: {},
+    basicInfo: {
+      title: '',
+      description: '',
+      destination: '',
+      category: '',
+      difficulty_level: 'moderate',
+      duration_days: 1,
+      duration_nights: 0,
+      max_participants: 20,
+      featured: false
+    },
     itinerary: [],
-    pricing: {},
-    media: [],
-    isPublished: false
+    pricing: {
+      base_price: 0,
+      inclusions: [],
+      exclusions: [],
+      cancellation_policy: '',
+      terms_conditions: ''
+    },
+    media: []
   });
 
-  const handleNext = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
+  const { createPackage, loading } = useCreatePackage();
 
-  const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  const totalSteps = 5;
+  const progress = (currentStep / totalSteps) * 100;
 
-  const handleStepClick = (stepId: number) => {
-    setCurrentStep(stepId);
-  };
-
-  const handleFormDataUpdate = (stepKey: string, data: any) => {
+  const updateFormData = (stepKey: string, data: any) => {
     setFormData(prev => ({
       ...prev,
       [stepKey]: data
     }));
   };
 
-  const handlePublish = () => {
-    console.log("Publishing package:", formData);
-    onClose();
+  const handleFormDataUpdate = (data: any) => {
+    setFormData(data);
+  };
+
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const result = await createPackage(formData);
+    if (result.success) {
+      onClose();
+      // Reset form
+      setCurrentStep(1);
+      setFormData({
+        basicInfo: {
+          title: '',
+          description: '',
+          destination: '',
+          category: '',
+          difficulty_level: 'moderate',
+          duration_days: 1,
+          duration_nights: 0,
+          max_participants: 20,
+          featured: false
+        },
+        itinerary: [],
+        pricing: {
+          base_price: 0,
+          inclusions: [],
+          exclusions: [],
+          cancellation_policy: '',
+          terms_conditions: ''
+        },
+        media: []
+      });
+    }
+  };
+
+  const getStepTitle = (step: number) => {
+    switch (step) {
+      case 1: return "Basic Information";
+      case 2: return "Itinerary";
+      case 3: return "Pricing & Policies";
+      case 4: return "Media & Photos";
+      case 5: return "Review & Publish";
+      default: return "";
+    }
+  };
+
+  const isStepValid = (step: number) => {
+    switch (step) {
+      case 1:
+        return formData.basicInfo.title && formData.basicInfo.destination && 
+               formData.basicInfo.category && formData.basicInfo.duration_days > 0;
+      case 2:
+        return true; // Itinerary is optional
+      case 3:
+        return formData.pricing.base_price > 0;
+      case 4:
+        return true; // Media is optional
+      case 5:
+        return true;
+      default:
+        return false;
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Create New Package</DialogTitle>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
+          <DialogTitle className="text-2xl font-bold">
+            Create New Package - {getStepTitle(currentStep)}
+          </DialogTitle>
+          <div className="mt-4">
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>Step {currentStep} of {totalSteps}</span>
+              <span>{Math.round(progress)}% Complete</span>
+            </div>
+            <Progress value={progress} className="w-full" />
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
-          <Card>
-            <CardContent className="p-0">
-              <WizardProgress
-                steps={steps}
-                currentStep={currentStep}
-                onStepClick={handleStepClick}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{steps[currentStep - 1].title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <WizardStepContent
-                currentStep={currentStep}
-                formData={formData}
-                onUpdate={handleFormDataUpdate}
-                onFormDataUpdate={setFormData}
-              />
-            </CardContent>
-          </Card>
-
-          <WizardNavigation
+        <div className="mb-6">
+          <WizardStepContent
             currentStep={currentStep}
-            totalSteps={steps.length}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-            onClose={onClose}
-            onPublish={handlePublish}
+            formData={formData}
+            onUpdate={updateFormData}
+            onFormDataUpdate={handleFormDataUpdate}
           />
+        </div>
+
+        <div className="flex justify-between pt-4 border-t">
+          <Button
+            variant="outline"
+            onClick={prevStep}
+            disabled={currentStep === 1}
+          >
+            Previous
+          </Button>
+
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            
+            {currentStep === totalSteps ? (
+              <Button 
+                onClick={handleSubmit} 
+                disabled={loading || !isStepValid(currentStep)}
+              >
+                {loading ? 'Creating...' : 'Create Package'}
+              </Button>
+            ) : (
+              <Button 
+                onClick={nextStep} 
+                disabled={!isStepValid(currentStep)}
+              >
+                Next
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
   DialogContent,
@@ -20,29 +21,42 @@ interface AuthModalProps {
 
 export function AuthModal({ isOpen, onClose, initialMode = "signin", userType = "traveler" }: AuthModalProps) {
   const [mode, setMode] = useState<"signin" | "signup">(initialMode);
+  const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
-  const handleFormSubmit = (formData: any) => {
+  const handleFormSubmit = async (formData: any) => {
     console.log("Auth attempt:", { mode, userType, ...formData });
     
-    if (userType === "agency") {
-      navigate("/dashboard");
-    } else if (userType === "traveler") {
-      navigate("/traveler/dashboard");
+    try {
+      if (mode === "signin") {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) {
+          console.error("Sign in error:", error);
+          return;
+        }
+      } else {
+        const userData = {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          role: userType,
+          ...(userType === "agency" && { company_name: formData.companyName || "" })
+        };
+        
+        const { error } = await signUp(formData.email, formData.password, userData);
+        if (error) {
+          console.error("Sign up error:", error);
+          return;
+        }
+      }
+      
+      onClose();
+    } catch (err) {
+      console.error("Auth error:", err);
     }
-    
-    onClose();
   };
 
   const handleGoogleAuth = () => {
     console.log("Google auth attempt:", { mode, userType });
-    
-    if (userType === "agency") {
-      navigate("/dashboard");
-    } else if (userType === "traveler") {
-      navigate("/traveler/dashboard");
-    }
-    
     onClose();
   };
 

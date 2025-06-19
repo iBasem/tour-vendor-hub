@@ -21,7 +21,9 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   }
 
   if (!user) {
-    return <Navigate to="/auth" state={{ from: location }} replace />
+    // Determine redirect URL based on required role
+    const authType = requiredRole === 'agency' ? 'agency' : 'traveler'
+    return <Navigate to={`/auth?type=${authType}`} state={{ from: location }} replace />
   }
 
   if (requiredRole && profile?.role !== requiredRole) {

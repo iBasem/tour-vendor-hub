@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { MapPin, Loader2, Users, Building } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { RoleBasedRedirect } from '@/components/auth/RoleBasedRedirect'
 
 export default function AuthPage() {
   const { user, profile, signIn, signUp, loading: authLoading } = useAuth()
@@ -41,17 +42,10 @@ export default function AuthPage() {
     }
   }, [userTypeFromUrl])
 
-  // Redirect authenticated users to appropriate dashboard
-  useEffect(() => {
-    if (user && profile && !authLoading) {
-      const redirectPath = profile.role === 'admin' ? '/admin' : 
-                          profile.role === 'agency' ? '/travel_agency' : 
-                          '/traveler/dashboard'
-      
-      const from = location.state?.from?.pathname || redirectPath
-      navigate(from, { replace: true })
-    }
-  }, [user, profile, authLoading, navigate, location])
+  // If user is already authenticated, handle role-based redirect
+  if (user && profile && !authLoading) {
+    return <RoleBasedRedirect />
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

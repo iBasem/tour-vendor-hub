@@ -48,6 +48,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_itineraries_package_id"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "itineraries_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
@@ -94,6 +101,20 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_package_bookings_package_id"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_package_bookings_traveler_id"
+            columns: ["traveler_id"]
+            isOneToOne: false
+            referencedRelation: "travelers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "package_bookings_package_id_fkey"
             columns: ["package_id"]
@@ -151,6 +172,13 @@ export type Database = {
           package_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_package_media_package_id"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "package_media_package_id_fkey"
             columns: ["package_id"]
@@ -234,6 +262,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_packages_agency_id"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "travel_agencies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "packages_agency_id_fkey"
             columns: ["agency_id"]
@@ -366,7 +401,10 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       user_role: "traveler" | "agency" | "admin"

@@ -12,6 +12,8 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   const { user, profile, loading } = useAuth()
   const location = useLocation()
 
+  console.log('ProtectedRoute - User:', user?.id, 'Profile:', profile?.role, 'Required:', requiredRole, 'Loading:', loading)
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -21,18 +23,20 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   }
 
   if (!user) {
-    // Determine redirect URL based on required role
     const authType = requiredRole === 'agency' ? 'agency' : 'traveler'
+    console.log('No user, redirecting to auth with type:', authType)
     return <Navigate to={`/auth?type=${authType}`} state={{ from: location }} replace />
   }
 
   if (requiredRole && profile?.role !== requiredRole) {
-    // Redirect to appropriate dashboard based on user role
+    console.log('Role mismatch. User role:', profile?.role, 'Required role:', requiredRole)
     const redirectPath = profile?.role === 'admin' ? '/admin' : 
                         profile?.role === 'agency' ? '/travel_agency' : 
                         '/traveler/dashboard'
+    console.log('Redirecting to:', redirectPath)
     return <Navigate to={redirectPath} replace />
   }
 
+  console.log('Access granted, rendering children')
   return <>{children}</>
 }

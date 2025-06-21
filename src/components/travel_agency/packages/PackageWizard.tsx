@@ -49,6 +49,8 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
 
   const { createPackage, loading } = useCreatePackage();
 
+  console.log('PackageWizard - Current step:', currentStep, 'Form data:', formData);
+
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
 
@@ -61,23 +63,27 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
   };
 
   const handleFormDataUpdate = (data: any) => {
+    console.log('Full form data update:', data);
     setFormData(data);
   };
 
   const nextStep = () => {
-    if (currentStep < totalSteps) {
+    console.log('Next step clicked, current step:', currentStep, 'Valid:', isStepValid(currentStep));
+    if (currentStep < totalSteps && isStepValid(currentStep)) {
       setCurrentStep(currentStep + 1);
     }
   };
 
   const prevStep = () => {
+    console.log('Previous step clicked, current step:', currentStep);
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const handleSubmit = async () => {
-    // Transform the data to match the expected structure for the backend
+    console.log('Submit clicked, form data:', formData);
+    
     const transformedData = {
       basicInfo: formData.basicInfo,
       itinerary: formData.itinerary,
@@ -91,58 +97,63 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
       media: formData.media
     };
 
-    // Extract inclusions from the complex structure
     if (formData.pricing.inclusions) {
       Object.entries(formData.pricing.inclusions).forEach(([key, value]: [string, any]) => {
-        if (value.included && value.details) {
+        if (value?.included && value?.details) {
           transformedData.pricing.inclusions.push(...value.details);
         }
       });
       
-      // Add additional inclusions if they exist
       if (formData.pricing.additionalInclusions && Array.isArray(formData.pricing.additionalInclusions)) {
         transformedData.pricing.inclusions.push(...formData.pricing.additionalInclusions);
       }
     }
 
-    const result = await createPackage(transformedData);
-    if (result.success) {
-      onClose();
-      // Reset form
-      setCurrentStep(1);
-      setFormData({
-        basicInfo: {
-          title: '',
-          description: '',
-          destination: '',
-          category: '',
-          difficulty_level: 'moderate',
-          duration_days: 1,
-          duration_nights: 0,
-          max_participants: 20,
-          featured: false
-        },
-        itinerary: [],
-        pricing: {
-          currency: "USD",
-          basePrice: "",
-          base_price: 0,
-          inclusions: {
-            accommodation: { included: false, details: [] },
-            meals: { included: false, details: [] },
-            transportation: { included: false, details: [] },
-            activities: { included: false, details: [] },
-            guides: { included: false, details: [] },
-            insurance: { included: false, details: [] },
-            other: { included: false, details: [] }
+    console.log('Transformed data for submission:', transformedData);
+
+    try {
+      const result = await createPackage(transformedData);
+      console.log('Package creation result:', result);
+      
+      if (result.success) {
+        onClose();
+        setCurrentStep(1);
+        setFormData({
+          basicInfo: {
+            title: '',
+            description: '',
+            destination: '',
+            category: '',
+            difficulty_level: 'moderate',
+            duration_days: 1,
+            duration_nights: 0,
+            max_participants: 20,
+            featured: false
           },
-          additionalInclusions: [],
-          exclusions: [],
-          cancellation_policy: '',
-          terms_conditions: ''
-        },
-        media: []
-      });
+          itinerary: [],
+          pricing: {
+            currency: "USD",
+            basePrice: "",
+            base_price: 0,
+            inclusions: {
+              accommodation: { included: false, details: [] },
+              meals: { included: false, details: [] },
+              transportation: { included: false, details: [] },
+              activities: { included: false, details: [] },
+              guides: { included: false, details: [] },
+              insurance: { included: false, details: [] },
+              other: { included: false, details: [] }
+            },
+            additionalInclusions: [],
+            exclusions: [],
+            cancellation_policy: '',
+            terms_conditions: ''
+          },
+          media: []
+        });
+      }
+    } catch (error) {
+      console.error('Package creation failed:', error);
     }
   };
 
@@ -158,22 +169,41 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
   };
 
   const isStepValid = (step: number) => {
+    console.log(`Validating step ${step}`);
+    
     switch (step) {
       case 1:
-        console.log('Validating step 1:', formData.basicInfo);
-        return !!(formData.basicInfo.title && 
+        const basicInfoValid = !!(formData.basicInfo.title && 
                  formData.basicInfo.destination && 
                  formData.basicInfo.category && 
                  formData.basicInfo.duration_days > 0);
+        console.log('Step 1 validation:', {
+          title: formData.basicInfo.title,
+          destination: formData.basicInfo.destination,
+          category: formData.basicInfo.category,
+          duration: formData.basicInfo.duration_days,
+          valid: basicInfoValid
+        });
+        return basicInfoValid;
       case 2:
-        return true; // Itinerary is optional
+        console.log('Step 2 validation: true (itinerary is optional)');
+        return true;
       case 3:
-        return !!(formData.pricing.basePrice && parseFloat(formData.pricing.basePrice) > 0);
+        const pricingValid = !!(formData.pricing.basePrice && parseFloat(formData.pricing.basePrice) > 0);
+        console.log('Step 3 validation:', {
+          basePrice: formData.pricing.basePrice,
+          parsed: parseFloat(formData.pricing.basePrice),
+          valid: pricingValid
+        });
+        return pricingValid;
       case 4:
-        return true; // Media is optional
+        console.log('Step 4 validation: true (media is optional)');
+        return true;
       case 5:
+        console.log('Step 5 validation: true');
         return true;
       default:
+        console.log('Unknown step validation: false');
         return false;
     }
   };

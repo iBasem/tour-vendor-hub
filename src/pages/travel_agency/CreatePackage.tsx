@@ -4,9 +4,13 @@ import { PackageWizard } from "@/components/travel_agency/packages/PackageWizard
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Package, MapPin, Users, DollarSign } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function CreatePackage() {
   const [showWizard, setShowWizard] = useState(false);
+  const navigate = useNavigate();
+
+  console.log('CreatePackage page loaded, showWizard:', showWizard);
 
   const features = [
     {
@@ -30,6 +34,17 @@ export default function CreatePackage() {
       description: "Set base prices, inclusions, exclusions, and cancellation policies"
     }
   ];
+
+  const handleWizardClose = () => {
+    console.log('Wizard closed, navigating back to packages');
+    setShowWizard(false);
+    navigate('/travel_agency/packages');
+  };
+
+  const handleStartWizard = () => {
+    console.log('Starting wizard');
+    setShowWizard(true);
+  };
 
   return (
     <div className="container mx-auto py-6 space-y-8">
@@ -68,7 +83,7 @@ export default function CreatePackage() {
             that your customers will love.
           </p>
           <Button 
-            onClick={() => setShowWizard(true)} 
+            onClick={handleStartWizard} 
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
             size="lg"
           >
@@ -80,7 +95,7 @@ export default function CreatePackage() {
 
       <PackageWizard
         isOpen={showWizard}
-        onClose={() => setShowWizard(false)}
+        onClose={handleWizardClose}
       />
     </div>
   );

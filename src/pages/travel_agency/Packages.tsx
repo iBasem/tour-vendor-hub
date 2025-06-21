@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Search, Filter, Package, Loader2, Eye, Edit, Trash2, MoreVertical } from "lucide-react";
+import { Plus, Search, Filter, Package, Loader2, Edit, Trash2, MoreVertical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -20,12 +20,20 @@ export default function Packages() {
   const navigate = useNavigate();
   const { packages, loading, error, deletePackage, updatePackage } = usePackages();
 
+  console.log('Packages page - Current packages:', packages?.length, 'Loading:', loading, 'Error:', error);
+
+  const handleCreatePackage = () => {
+    console.log('Navigating to create package page');
+    navigate("/travel_agency/packages/create");
+  };
+
   const handleDeletePackage = async (packageId: string, title: string) => {
     if (confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
       try {
         await deletePackage(packageId);
         toast.success("Package deleted successfully");
       } catch (error) {
+        console.error('Delete package error:', error);
         toast.error("Failed to delete package");
       }
     }
@@ -37,6 +45,7 @@ export default function Packages() {
       await updatePackage(pkg.id, { status: newStatus });
       toast.success(`Package ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
     } catch (error) {
+      console.error('Update package status error:', error);
       toast.error("Failed to update package status");
     }
   };
@@ -74,7 +83,7 @@ export default function Packages() {
           <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1">Manage your travel packages and experiences</p>
         </div>
         <Button 
-          onClick={() => navigate("/travel_agency/packages/create")}
+          onClick={handleCreatePackage}
           className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3"
         >
           <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
@@ -178,7 +187,7 @@ export default function Packages() {
             }
           </p>
           {!searchTerm && (
-            <Button onClick={() => navigate("/travel_agency/packages/create")} className="text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6">
+            <Button onClick={handleCreatePackage} className="text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6">
               <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Create Package
             </Button>

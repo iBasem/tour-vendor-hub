@@ -16,35 +16,9 @@ interface PricingStepProps {
 }
 
 export function PricingStep({ data, onUpdate }: PricingStepProps) {
-  const [formData, setFormData] = useState({
-    currency: "USD",
-    basePrice: "",
-    originalPrice: "",
-    discount: "",
-    tourOptions: {
-      group: {
-        price: "",
-        description: "Join a small group of like-minded travelers",
-        minSize: 12,
-        maxSize: 16,
-        features: ["Fixed itinerary", "Group guide", "Shared experiences", "Best value"]
-      },
-      private: {
-        price: "",
-        description: "Exclusive tour just for you and your companions",
-        minSize: 2,
-        maxSize: 8,
-        features: ["Private guide", "Flexible schedule", "Personalized service", "VIP treatment"]
-      },
-      customizable: {
-        price: "",
-        description: "Tailor the tour to your preferences",
-        minSize: 4,
-        maxSize: 12,
-        features: ["Custom itinerary", "Choose activities", "Flexible dates", "Personal touches"]
-      }
-    },
-    inclusions: {
+  const [formData, setFormData] = useState(() => {
+    // Initialize with proper structure
+    const defaultInclusions = {
       accommodation: { included: false, details: [] },
       meals: { included: false, details: [] },
       transportation: { included: false, details: [] },
@@ -52,15 +26,48 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
       guides: { included: false, details: [] },
       insurance: { included: false, details: [] },
       other: { included: false, details: [] }
-    },
-    additionalInclusions: [],
-    exclusions: [],
-    newInclusion: "",
-    newExclusion: "",
-    availabilities: [
-      { date: "", price: "", spotsLeft: "" }
-    ],
-    ...data
+    };
+
+    return {
+      currency: "USD",
+      basePrice: "",
+      originalPrice: "",
+      discount: "",
+      tourOptions: {
+        group: {
+          price: "",
+          description: "Join a small group of like-minded travelers",
+          minSize: 12,
+          maxSize: 16,
+          features: ["Fixed itinerary", "Group guide", "Shared experiences", "Best value"]
+        },
+        private: {
+          price: "",
+          description: "Exclusive tour just for you and your companions",
+          minSize: 2,
+          maxSize: 8,
+          features: ["Private guide", "Flexible schedule", "Personalized service", "VIP treatment"]
+        },
+        customizable: {
+          price: "",
+          description: "Tailor the tour to your preferences",
+          minSize: 4,
+          maxSize: 12,
+          features: ["Custom itinerary", "Choose activities", "Flexible dates", "Personal touches"]
+        }
+      },
+      inclusions: defaultInclusions,
+      additionalInclusions: [],
+      exclusions: [],
+      newInclusion: "",
+      newExclusion: "",
+      availabilities: [
+        { date: "", price: "", spotsLeft: "" }
+      ],
+      // Merge with existing data, ensuring proper structure
+      ...data,
+      inclusions: data?.inclusions ? { ...defaultInclusions, ...data.inclusions } : defaultInclusions
+    };
   });
 
   useEffect(() => {
@@ -313,7 +320,7 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id={key}
-                  checked={formData.inclusions[key].included}
+                  checked={formData.inclusions[key]?.included || false}
                   onCheckedChange={(checked) => handleInclusionToggle(key, checked as boolean)}
                 />
                 <Label htmlFor={key} className="flex items-center gap-2">
@@ -322,7 +329,7 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
                 </Label>
               </div>
 
-              {formData.inclusions[key].included && (
+              {formData.inclusions[key]?.included && (
                 <div className="ml-6 space-y-2">
                   {key === 'meals' && (
                     <div className="grid grid-cols-3 gap-2">
@@ -376,7 +383,7 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
                   )}
 
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {formData.inclusions[key].details.map((detail: string, index: number) => (
+                    {(formData.inclusions[key]?.details || []).map((detail: string, index: number) => (
                       <Badge key={index} variant="secondary" className="flex items-center gap-1">
                         {detail}
                         <X

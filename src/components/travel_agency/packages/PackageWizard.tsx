@@ -27,8 +27,18 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
     },
     itinerary: [],
     pricing: {
+      currency: "USD",
+      basePrice: "",
       base_price: 0,
-      inclusions: [],
+      inclusions: {
+        accommodation: { included: false, details: [] },
+        meals: { included: false, details: [] },
+        transportation: { included: false, details: [] },
+        activities: { included: false, details: [] },
+        guides: { included: false, details: [] },
+        insurance: { included: false, details: [] },
+        other: { included: false, details: [] }
+      },
       exclusions: [],
       cancellation_policy: '',
       terms_conditions: ''
@@ -66,7 +76,35 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
   };
 
   const handleSubmit = async () => {
-    const result = await createPackage(formData);
+    // Transform the data to match the expected structure for the backend
+    const transformedData = {
+      basicInfo: formData.basicInfo,
+      itinerary: formData.itinerary,
+      pricing: {
+        base_price: parseFloat(formData.pricing.basePrice) || 0,
+        inclusions: [],
+        exclusions: formData.pricing.exclusions || [],
+        cancellation_policy: formData.pricing.cancellation_policy || '',
+        terms_conditions: formData.pricing.terms_conditions || ''
+      },
+      media: formData.media
+    };
+
+    // Extract inclusions from the complex structure
+    if (formData.pricing.inclusions) {
+      Object.entries(formData.pricing.inclusions).forEach(([key, value]: [string, any]) => {
+        if (value.included && value.details) {
+          transformedData.pricing.inclusions.push(...value.details);
+        }
+      });
+      
+      // Add additional inclusions
+      if (formData.pricing.additionalInclusions) {
+        transformedData.pricing.inclusions.push(...formData.pricing.additionalInclusions);
+      }
+    }
+
+    const result = await createPackage(transformedData);
     if (result.success) {
       onClose();
       // Reset form
@@ -85,8 +123,18 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
         },
         itinerary: [],
         pricing: {
+          currency: "USD",
+          basePrice: "",
           base_price: 0,
-          inclusions: [],
+          inclusions: {
+            accommodation: { included: false, details: [] },
+            meals: { included: false, details: [] },
+            transportation: { included: false, details: [] },
+            activities: { included: false, details: [] },
+            guides: { included: false, details: [] },
+            insurance: { included: false, details: [] },
+            other: { included: false, details: [] }
+          },
           exclusions: [],
           cancellation_policy: '',
           terms_conditions: ''
@@ -118,7 +166,7 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
       case 2:
         return true; // Itinerary is optional
       case 3:
-        return formData.pricing.base_price > 0;
+        return !!(formData.pricing.basePrice && parseFloat(formData.pricing.basePrice) > 0);
       case 4:
         return true; // Media is optional
       case 5:

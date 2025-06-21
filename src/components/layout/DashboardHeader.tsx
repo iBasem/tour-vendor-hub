@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { AppSidebar } from "./AppSidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -14,9 +13,37 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NavLink, useLocation } from "react-router-dom";
+import {
+  BarChart3,
+  Package,
+  Calendar,
+  Users,
+  UserCheck,
+  Images,
+  MessageSquare,
+  Tag,
+  Star,
+  BookOpen,
+  MapPin
+} from "lucide-react";
+
+const menuItems = [
+  { title: "Dashboard", url: "/travel_agency", icon: BarChart3 },
+  { title: "Packages", url: "/travel_agency/packages", icon: Package },
+  { title: "Bookings", url: "/travel_agency/bookings", icon: BookOpen },
+  { title: "Calendar", url: "/travel_agency/calendar", icon: Calendar },
+  { title: "Travelers", url: "/travel_agency/travelers", icon: Users },
+  { title: "Guides", url: "/travel_agency/guides", icon: UserCheck },
+  { title: "Gallery", url: "/travel_agency/gallery", icon: Images },
+  { title: "Messages", url: "/travel_agency/messages", icon: MessageSquare },
+  { title: "Deals", url: "/travel_agency/deals", icon: Tag },
+  { title: "Feedback", url: "/travel_agency/feedback", icon: Star },
+];
 
 export function DashboardHeader() {
   const { user, profile, signOut } = useAuth();
+  const location = useLocation();
 
   const getUserDisplayName = () => {
     if (!profile) return 'User';
@@ -56,7 +83,55 @@ export function DashboardHeader() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64">
-              <AppSidebar />
+              <div className="flex flex-col h-full bg-white">
+                {/* Brand Header */}
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-xl font-bold text-gray-900">Travelle</span>
+                  </div>
+                </div>
+
+                {/* Navigation Menu */}
+                <div className="px-3 py-4 flex-1">
+                  <div className="space-y-1">
+                    {menuItems.map((item) => (
+                      <NavLink
+                        key={item.title}
+                        to={item.url}
+                        end={item.url === "/travel_agency"}
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-sm w-full ${
+                            isActive
+                              ? "bg-blue-50 text-blue-700 font-semibold shadow-sm border-l-4 border-blue-600"
+                              : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                          }`
+                        }
+                      >
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="truncate">{item.title}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Upgrade Section */}
+                <div className="mt-auto p-4 border-t border-gray-200">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                    <h3 className="font-semibold text-blue-900 mb-2 text-sm">
+                      Enhance Your Experience!
+                    </h3>
+                    <p className="text-xs text-blue-700 mb-3 opacity-90">
+                      Unlock premium features
+                    </p>
+                    <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-lg text-xs font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm">
+                      Upgrade Now
+                    </button>
+                  </div>
+                </div>
+              </div>
             </SheetContent>
           </Sheet>
 

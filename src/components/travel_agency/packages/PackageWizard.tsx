@@ -42,6 +42,7 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
   const progress = (currentStep / totalSteps) * 100;
 
   const updateFormData = (stepKey: string, data: any) => {
+    console.log(`Updating ${stepKey} with:`, data);
     setFormData(prev => ({
       ...prev,
       [stepKey]: data
@@ -109,8 +110,11 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
   const isStepValid = (step: number) => {
     switch (step) {
       case 1:
-        return formData.basicInfo.title && formData.basicInfo.destination && 
-               formData.basicInfo.category && formData.basicInfo.duration_days > 0;
+        console.log('Validating step 1:', formData.basicInfo);
+        return !!(formData.basicInfo.title && 
+                 formData.basicInfo.destination && 
+                 formData.basicInfo.category && 
+                 formData.basicInfo.duration_days > 0);
       case 2:
         return true; // Itinerary is optional
       case 3:

@@ -28,14 +28,22 @@ export function BasicInfoStep({ data, onUpdate }: BasicInfoStepProps) {
     cities: [],
     newCity: { name: "", description: "", image: "" },
     rating: 4.5,
+    category: "",
+    difficulty_level: "moderate",
+    duration_days: 1,
+    duration_nights: 0,
+    max_participants: 20,
+    featured: false,
     ...data
   });
 
   useEffect(() => {
+    console.log('BasicInfoStep formData updated:', formData);
     onUpdate(formData);
   }, [formData, onUpdate]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number | boolean) => {
+    console.log(`Updating field ${field} with value:`, value);
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -128,36 +136,69 @@ export function BasicInfoStep({ data, onUpdate }: BasicInfoStepProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration *</Label>
+              <Label htmlFor="category">Category *</Label>
+              <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="adventure">Adventure</SelectItem>
+                  <SelectItem value="cultural">Cultural</SelectItem>
+                  <SelectItem value="relaxation">Relaxation</SelectItem>
+                  <SelectItem value="family">Family</SelectItem>
+                  <SelectItem value="luxury">Luxury</SelectItem>
+                  <SelectItem value="budget">Budget</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="duration_days">Duration (Days) *</Label>
               <Input
-                id="duration"
-                value={formData.duration}
-                onChange={(e) => handleInputChange("duration", e.target.value)}
-                placeholder="e.g., 14 days"
+                id="duration_days"
+                type="number"
+                min="1"
+                value={formData.duration_days}
+                onChange={(e) => handleInputChange("duration_days", parseInt(e.target.value) || 1)}
+                placeholder="e.g., 14"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maxGroupSize">Max Group Size</Label>
+              <Label htmlFor="duration_nights">Duration (Nights)</Label>
               <Input
-                id="maxGroupSize"
+                id="duration_nights"
                 type="number"
-                value={formData.maxGroupSize}
-                onChange={(e) => handleInputChange("maxGroupSize", e.target.value)}
+                min="0"
+                value={formData.duration_nights}
+                onChange={(e) => handleInputChange("duration_nights", parseInt(e.target.value) || 0)}
+                placeholder="e.g., 13"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="max_participants">Max Participants</Label>
+              <Input
+                id="max_participants"
+                type="number"
+                min="1"
+                value={formData.max_participants}
+                onChange={(e) => handleInputChange("max_participants", parseInt(e.target.value) || 20)}
                 placeholder="e.g., 16"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="packageType">Package Type *</Label>
-              <Select value={formData.packageType} onValueChange={(value) => handleInputChange("packageType", value)}>
+              <Label htmlFor="difficulty_level">Difficulty Level</Label>
+              <Select value={formData.difficulty_level} onValueChange={(value) => handleInputChange("difficulty_level", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select package type" />
+                  <SelectValue placeholder="Select difficulty" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="group">Group Tour</SelectItem>
-                  <SelectItem value="private">Private Tour</SelectItem>
-                  <SelectItem value="customizable">Customizable Tour</SelectItem>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="moderate">Moderate</SelectItem>
+                  <SelectItem value="challenging">Challenging</SelectItem>
+                  <SelectItem value="expert">Expert</SelectItem>
                 </SelectContent>
               </Select>
             </div>

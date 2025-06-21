@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +12,7 @@ type PackageMedia = Database['public']['Tables']['package_media']['Row'];
 
 export interface PackageWithDetails extends Package {
   itineraries?: Itinerary[];
-  media?: PackageMedia[];
+  package_media?: PackageMedia[];
 }
 
 export function usePackages() {
@@ -31,8 +30,8 @@ export function usePackages() {
         .from('packages')
         .select(`
           *,
-          itineraries (*),
-          package_media (*)
+          itineraries!itineraries_package_id_fkey (*),
+          package_media!package_media_package_id_fkey (*)
         `)
         .order('created_at', { ascending: false });
 

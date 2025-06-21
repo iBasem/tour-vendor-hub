@@ -39,6 +39,7 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
         insurance: { included: false, details: [] },
         other: { included: false, details: [] }
       },
+      additionalInclusions: [],
       exclusions: [],
       cancellation_policy: '',
       terms_conditions: ''
@@ -98,8 +99,8 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
         }
       });
       
-      // Add additional inclusions
-      if (formData.pricing.additionalInclusions) {
+      // Add additional inclusions if they exist
+      if (formData.pricing.additionalInclusions && Array.isArray(formData.pricing.additionalInclusions)) {
         transformedData.pricing.inclusions.push(...formData.pricing.additionalInclusions);
       }
     }
@@ -135,6 +136,7 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
             insurance: { included: false, details: [] },
             other: { included: false, details: [] }
           },
+          additionalInclusions: [],
           exclusions: [],
           cancellation_policy: '',
           terms_conditions: ''

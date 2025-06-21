@@ -29,11 +29,11 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
     };
 
     return {
-      currency: "USD",
-      basePrice: "",
-      originalPrice: "",
-      discount: "",
-      tourOptions: {
+      currency: data?.currency || "USD",
+      basePrice: data?.basePrice || "",
+      originalPrice: data?.originalPrice || "",
+      discount: data?.discount || "",
+      tourOptions: data?.tourOptions || {
         group: {
           price: "",
           description: "Join a small group of like-minded travelers",
@@ -56,17 +56,16 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
           features: ["Custom itinerary", "Choose activities", "Flexible dates", "Personal touches"]
         }
       },
-      inclusions: defaultInclusions,
-      additionalInclusions: [],
-      exclusions: [],
+      inclusions: data?.inclusions ? { ...defaultInclusions, ...data.inclusions } : defaultInclusions,
+      additionalInclusions: data?.additionalInclusions || [],
+      exclusions: data?.exclusions || [],
       newInclusion: "",
       newExclusion: "",
-      availabilities: [
+      availabilities: data?.availabilities || [
         { date: "", price: "", spotsLeft: "" }
       ],
-      // Merge with existing data, ensuring proper structure
-      ...data,
-      inclusions: data?.inclusions ? { ...defaultInclusions, ...data.inclusions } : defaultInclusions
+      cancellation_policy: data?.cancellation_policy || '',
+      terms_conditions: data?.terms_conditions || ''
     };
   });
 
@@ -515,6 +514,31 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
               </div>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      {/* Policies */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Policies & Terms</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Cancellation Policy</Label>
+            <Input
+              value={formData.cancellation_policy}
+              onChange={(e) => handleInputChange("cancellation_policy", e.target.value)}
+              placeholder="e.g., Free cancellation up to 7 days before departure"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Terms & Conditions</Label>
+            <Input
+              value={formData.terms_conditions}
+              onChange={(e) => handleInputChange("terms_conditions", e.target.value)}
+              placeholder="e.g., Valid passport required, minimum age 18"
+            />
+          </div>
         </CardContent>
       </Card>
     </div>

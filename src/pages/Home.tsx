@@ -1,4 +1,4 @@
-
+import { useTranslation } from "react-i18next";
 import { HeaderSection } from "@/components/home/HeaderSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { DestinationsSection } from "@/components/home/DestinationsSection";
@@ -9,6 +9,7 @@ import { usePublishedPackages } from "@/hooks/usePublishedPackages";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export default function Home() {
+  const { t } = useTranslation();
   const { packages: featuredPackages, loading: featuredLoading } = useFeaturedPackages(4);
   const { packages: allPackages, loading: allLoading } = usePublishedPackages();
 
@@ -43,23 +44,23 @@ export default function Home() {
       <DestinationsSection />
       
       <TourListingSection
-        title="Featured Adventures"
-        description="Discover our most popular adventures"
+        titleKey="tours.featuredAdventures"
+        descriptionKey="tours.featuredDescription"
         packages={featuredPackages}
         showViewAll={true}
         backgroundClass="bg-gray-50"
       />
       
       <TourListingSection
-        title="Latest Adventures"
-        description="Explore our newest tour offerings"
+        titleKey="tours.latestAdventures"
+        descriptionKey="tours.latestDescription"
         packages={latestPackages}
         showViewAll={true}
       />
       
       <TourListingSection
-        title="Recently Added"
-        description="Fresh travel experiences await"
+        titleKey="tours.recentlyAdded"
+        descriptionKey="tours.recentDescription"
         packages={recentPackages}
         showViewAll={false}
         backgroundClass="bg-gray-50"

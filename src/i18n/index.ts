@@ -5,7 +5,10 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import en from './locales/en.json';
 import ar from './locales/ar.json';
 
-i18n
+// Initialize i18n synchronously without React binding at module level
+const i18nInstance = i18n.createInstance();
+
+i18nInstance
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
@@ -20,7 +23,10 @@ i18n
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage']
+    },
+    react: {
+      useSuspense: false
     }
   });
 
-export default i18n;
+export default i18nInstance;

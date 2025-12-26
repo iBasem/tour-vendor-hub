@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface BookingNavigationProps {
   currentStep: number;
@@ -10,6 +11,8 @@ interface BookingNavigationProps {
 }
 
 export function BookingNavigation({ currentStep, onNext, onPrevious, isLastStep }: BookingNavigationProps) {
+  const { t } = useTranslation();
+  
   if (isLastStep) return null;
 
   return (
@@ -20,12 +23,12 @@ export function BookingNavigation({ currentStep, onNext, onPrevious, isLastStep 
         disabled={currentStep === 1}
         className="w-full sm:w-auto"
       >
-        <ChevronLeft className="w-4 h-4 mr-2" />
-        Previous
+        <ChevronLeft className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+        {t('common.previous')}
       </Button>
       <Button onClick={onNext} className="w-full sm:w-auto">
-        Next
-        <ChevronRight className="w-4 h-4 ml-2" />
+        {t('common.next')}
+        <ChevronRight className="w-4 h-4 ltr:ml-2 rtl:mr-2" />
       </Button>
     </div>
   );

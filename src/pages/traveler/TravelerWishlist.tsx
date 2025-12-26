@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { 
   Heart, 
   Star, 
@@ -70,6 +71,7 @@ const wishlistItems = [
 
 export default function TravelerWishlist() {
   const [items, setItems] = useState(wishlistItems);
+  const { t } = useTranslation();
 
   const removeFromWishlist = (id: number) => {
     setItems(items.filter(item => item.id !== id));
@@ -91,22 +93,22 @@ export default function TravelerWishlist() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Wishlist</h1>
-          <p className="text-gray-600">{items.length} tours saved for later</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('travelerDashboard.myWishlist')}</h1>
+          <p className="text-gray-600">{items.length} {t('travelerDashboard.toursSavedForLater')}</p>
         </div>
         <Button variant="outline">
-          <Share2 className="w-4 h-4 mr-2" />
-          Share Wishlist
+          <Share2 className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+          {t('travelerDashboard.shareWishlist')}
         </Button>
       </div>
 
       {items.length === 0 ? (
         <Card className="p-12 text-center">
           <Heart className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Your wishlist is empty</h3>
-          <p className="text-gray-600 mb-6">Start exploring and save tours you love!</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('travelerDashboard.wishlistEmpty')}</h3>
+          <p className="text-gray-600 mb-6">{t('travelerDashboard.startExploring')}</p>
           <Link to="/">
-            <Button>Browse Tours</Button>
+            <Button>{t('travelerDashboard.browseTours')}</Button>
           </Link>
         </Card>
       ) : (
@@ -122,7 +124,7 @@ export default function TravelerWishlist() {
                   />
                   {item.discount > 0 && (
                     <Badge className="absolute top-2 left-2 bg-red-500 text-white">
-                      -{item.discount}% OFF
+                      -{item.discount}% {t('common.off')}
                     </Badge>
                   )}
                   <div className="absolute top-2 right-2 flex gap-2">
@@ -161,7 +163,7 @@ export default function TravelerWishlist() {
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       {item.discount > 0 && (
-                        <span className="text-sm text-gray-500 line-through mr-2">
+                        <span className="text-sm text-gray-500 line-through ltr:mr-2 rtl:ml-2">
                           ${item.originalPrice.toLocaleString()}
                         </span>
                       )}
@@ -173,12 +175,12 @@ export default function TravelerWishlist() {
                   <div className="flex gap-2">
                     <Link to={`/dashboard/packages/${item.id}`} className="flex-1">
                       <Button className="w-full" size="sm">
-                        View Details
+                        {t('common.viewDetails')}
                       </Button>
                     </Link>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    Added {new Date(item.addedDate).toLocaleDateString()}
+                    {t('common.added')} {new Date(item.addedDate).toLocaleDateString()}
                   </p>
                 </div>
               </CardContent>

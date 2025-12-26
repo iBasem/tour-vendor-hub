@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { User, Plus, Trash2 } from 'lucide-react';
 import { BookingFormData } from '../BookingWizard';
+import { useTranslation } from 'react-i18next';
 
 interface BookingStep2Props {
   formData: BookingFormData;
@@ -13,6 +14,8 @@ interface BookingStep2Props {
 }
 
 export function BookingStep2({ formData, updateFormData }: BookingStep2Props) {
+  const { t } = useTranslation();
+
   const updateLeadTraveler = (field: string, value: string) => {
     updateFormData({
       leadTraveler: {
@@ -65,55 +68,55 @@ export function BookingStep2({ formData, updateFormData }: BookingStep2Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="w-5 h-5" />
-            Lead Traveler Information
+            {t('booking.leadTravelerInfo')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="lead-first-name">First Name *</Label>
+              <Label htmlFor="lead-first-name">{t('auth.firstName')} *</Label>
               <Input
                 id="lead-first-name"
                 value={formData.leadTraveler.firstName}
                 onChange={(e) => updateLeadTraveler('firstName', e.target.value)}
-                placeholder="Enter first name"
+                placeholder={t('booking.enterFirstName')}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="lead-last-name">Last Name *</Label>
+              <Label htmlFor="lead-last-name">{t('auth.lastName')} *</Label>
               <Input
                 id="lead-last-name"
                 value={formData.leadTraveler.lastName}
                 onChange={(e) => updateLeadTraveler('lastName', e.target.value)}
-                placeholder="Enter last name"
+                placeholder={t('booking.enterLastName')}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="lead-email">Email Address *</Label>
+              <Label htmlFor="lead-email">{t('booking.emailAddress')} *</Label>
               <Input
                 id="lead-email"
                 type="email"
                 value={formData.leadTraveler.email}
                 onChange={(e) => updateLeadTraveler('email', e.target.value)}
-                placeholder="Enter email address"
+                placeholder={t('booking.enterEmail')}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="lead-phone">Phone Number *</Label>
+              <Label htmlFor="lead-phone">{t('booking.phoneNumber')} *</Label>
               <Input
                 id="lead-phone"
                 type="tel"
                 value={formData.leadTraveler.phone}
                 onChange={(e) => updateLeadTraveler('phone', e.target.value)}
-                placeholder="Enter phone number"
+                placeholder={t('booking.enterPhone')}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="lead-dob">Date of Birth *</Label>
+              <Label htmlFor="lead-dob">{t('booking.dateOfBirth')} *</Label>
               <Input
                 id="lead-dob"
                 type="date"
@@ -123,22 +126,22 @@ export function BookingStep2({ formData, updateFormData }: BookingStep2Props) {
               />
             </div>
             <div>
-              <Label htmlFor="lead-nationality">Nationality *</Label>
+              <Label htmlFor="lead-nationality">{t('booking.nationality')} *</Label>
               <Input
                 id="lead-nationality"
                 value={formData.leadTraveler.nationality}
                 onChange={(e) => updateLeadTraveler('nationality', e.target.value)}
-                placeholder="Enter nationality"
+                placeholder={t('booking.enterNationality')}
                 required
               />
             </div>
             <div className="md:col-span-2">
-              <Label htmlFor="lead-passport">Passport Number *</Label>
+              <Label htmlFor="lead-passport">{t('booking.passportNumber')} *</Label>
               <Input
                 id="lead-passport"
                 value={formData.leadTraveler.passportNumber}
                 onChange={(e) => updateLeadTraveler('passportNumber', e.target.value)}
-                placeholder="Enter passport number"
+                placeholder={t('booking.enterPassport')}
                 required
               />
             </div>
@@ -153,12 +156,12 @@ export function BookingStep2({ formData, updateFormData }: BookingStep2Props) {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5" />
-                Additional Travelers ({currentTravelers - 1} of {totalTravelersNeeded - 1})
+                {t('booking.additionalTravelers')} ({currentTravelers - 1} / {totalTravelersNeeded - 1})
               </CardTitle>
               {currentTravelers < totalTravelersNeeded && (
                 <Button onClick={addAdditionalTraveler} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Traveler
+                  <Plus className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                  {t('booking.addTraveler')}
                 </Button>
               )}
             </div>
@@ -166,44 +169,44 @@ export function BookingStep2({ formData, updateFormData }: BookingStep2Props) {
           <CardContent>
             {formData.additionalTravelers.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <p>Click "Add Traveler" to add information for additional travelers</p>
+                <p>{t('booking.clickAddTraveler')}</p>
               </div>
             ) : (
               <div className="space-y-6">
                 {formData.additionalTravelers.map((traveler, index) => (
                   <div key={index} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-medium">Traveler {index + 2}</h4>
+                      <h4 className="font-medium">{t('booking.travelerSingular')} {index + 2}</h4>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => removeAdditionalTraveler(index)}
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Remove
+                        <Trash2 className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                        {t('common.remove')}
                       </Button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label>First Name *</Label>
+                        <Label>{t('auth.firstName')} *</Label>
                         <Input
                           value={traveler.firstName}
                           onChange={(e) => updateAdditionalTraveler(index, 'firstName', e.target.value)}
-                          placeholder="Enter first name"
+                          placeholder={t('booking.enterFirstName')}
                           required
                         />
                       </div>
                       <div>
-                        <Label>Last Name *</Label>
+                        <Label>{t('auth.lastName')} *</Label>
                         <Input
                           value={traveler.lastName}
                           onChange={(e) => updateAdditionalTraveler(index, 'lastName', e.target.value)}
-                          placeholder="Enter last name"
+                          placeholder={t('booking.enterLastName')}
                           required
                         />
                       </div>
                       <div>
-                        <Label>Date of Birth *</Label>
+                        <Label>{t('booking.dateOfBirth')} *</Label>
                         <Input
                           type="date"
                           value={traveler.dateOfBirth}
@@ -212,20 +215,20 @@ export function BookingStep2({ formData, updateFormData }: BookingStep2Props) {
                         />
                       </div>
                       <div>
-                        <Label>Nationality *</Label>
+                        <Label>{t('booking.nationality')} *</Label>
                         <Input
                           value={traveler.nationality}
                           onChange={(e) => updateAdditionalTraveler(index, 'nationality', e.target.value)}
-                          placeholder="Enter nationality"
+                          placeholder={t('booking.enterNationality')}
                           required
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <Label>Passport Number *</Label>
+                        <Label>{t('booking.passportNumber')} *</Label>
                         <Input
                           value={traveler.passportNumber}
                           onChange={(e) => updateAdditionalTraveler(index, 'passportNumber', e.target.value)}
-                          placeholder="Enter passport number"
+                          placeholder={t('booking.enterPassport')}
                           required
                         />
                       </div>

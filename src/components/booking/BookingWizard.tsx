@@ -8,6 +8,7 @@ import { BookingStep2 } from './wizard-steps/BookingStep2';
 import { BookingStep3 } from './wizard-steps/BookingStep3';
 import { BookingStep4 } from './wizard-steps/BookingStep4';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface BookingWizardProps {
   isOpen: boolean;
@@ -57,6 +58,7 @@ export interface BookingFormData {
 }
 
 export function BookingWizard({ isOpen, onClose, packageData, selectedDate }: BookingWizardProps) {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<BookingFormData>({
     selectedDate: selectedDate || '',
@@ -101,7 +103,7 @@ export function BookingWizard({ isOpen, onClose, packageData, selectedDate }: Bo
   const handleSubmit = async () => {
     try {
       console.log('Booking submitted:', formData);
-      toast.success('Booking request submitted successfully! We will contact you shortly to confirm your booking.');
+      toast.success(t('booking.bookingSubmitted'));
       onClose();
       
       // Reset form
@@ -130,7 +132,7 @@ export function BookingWizard({ isOpen, onClose, packageData, selectedDate }: Bo
         termsAccepted: false,
       });
     } catch (error) {
-      toast.error('Failed to submit booking request. Please try again.');
+      toast.error(t('booking.bookingFailed'));
     }
   };
 
@@ -172,15 +174,20 @@ export function BookingWizard({ isOpen, onClose, packageData, selectedDate }: Bo
     }
   };
 
+  const getTourTypeLabel = () => {
+    if (!packageData.tourType) return '';
+    return packageData.tourType === 'group' ? t('booking.groupTour') : t('booking.privateTour');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
-            Request Booking - {packageData.title}
+            {t('booking.requestBooking')} - {packageData.title}
             {packageData.tourType && (
               <div className="text-sm font-normal text-gray-600 mt-1">
-                {packageData.tourType.charAt(0).toUpperCase() + packageData.tourType.slice(1)} Tour
+                {getTourTypeLabel()}
               </div>
             )}
           </DialogTitle>

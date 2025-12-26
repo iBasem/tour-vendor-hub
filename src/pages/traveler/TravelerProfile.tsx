@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "react-i18next";
 import { 
   User, 
   Mail, 
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 
 export default function TravelerProfile() {
+  const { t } = useTranslation();
   const [profileData, setProfileData] = useState({
     firstName: "John",
     lastName: "Doe",
@@ -66,8 +68,8 @@ export default function TravelerProfile() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">My Profile</h1>
-        <Button>Save Changes</Button>
+        <h1 className="text-2xl font-bold">{t('travelerDashboard.myProfile')}</h1>
+        <Button>{t('travelerDashboard.saveChanges')}</Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -90,8 +92,8 @@ export default function TravelerProfile() {
             <CardTitle>{profileData.firstName} {profileData.lastName}</CardTitle>
             <p className="text-gray-600">{profileData.email}</p>
             <div className="flex justify-center gap-2 mt-4">
-              <Badge variant="secondary">Verified Traveler</Badge>
-              <Badge variant="outline">12 Countries</Badge>
+              <Badge variant="secondary">{t('travelerDashboard.verifiedTraveler')}</Badge>
+              <Badge variant="outline">12 {t('travelerDashboard.countriesVisited')}</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -102,11 +104,11 @@ export default function TravelerProfile() {
               </div>
               <div className="flex items-center gap-3 text-sm text-gray-600">
                 <Calendar className="w-4 h-4" />
-                <span>Member since 2023</span>
+                <span>{t('travelerDashboard.memberSince')} 2023</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-gray-600">
                 <User className="w-4 h-4" />
-                <span>5 Completed Tours</span>
+                <span>5 {t('travelerDashboard.completedTours')}</span>
               </div>
             </div>
           </CardContent>
@@ -119,13 +121,13 @@ export default function TravelerProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5" />
-                Personal Information
+                {t('travelerDashboard.personalInformation')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">{t('auth.firstName')}</Label>
                   <Input
                     id="firstName"
                     value={profileData.firstName}
@@ -133,7 +135,7 @@ export default function TravelerProfile() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">{t('auth.lastName')}</Label>
                   <Input
                     id="lastName"
                     value={profileData.lastName}
@@ -142,7 +144,7 @@ export default function TravelerProfile() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -152,7 +154,7 @@ export default function TravelerProfile() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="phone">{t('travelerDashboard.phone')}</Label>
                   <Input
                     id="phone"
                     value={profileData.phone}
@@ -160,7 +162,7 @@ export default function TravelerProfile() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                  <Label htmlFor="dateOfBirth">{t('booking.dateOfBirth')}</Label>
                   <Input
                     id="dateOfBirth"
                     type="date"
@@ -171,7 +173,7 @@ export default function TravelerProfile() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="nationality">Nationality</Label>
+                  <Label htmlFor="nationality">{t('booking.nationality')}</Label>
                   <Input
                     id="nationality"
                     value={profileData.nationality}
@@ -179,7 +181,7 @@ export default function TravelerProfile() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="address">Address</Label>
+                  <Label htmlFor="address">{t('travelerDashboard.address')}</Label>
                   <Input
                     id="address"
                     value={profileData.address}
@@ -188,7 +190,7 @@ export default function TravelerProfile() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="bio">Bio</Label>
+                <Label htmlFor="bio">{t('travelerDashboard.bio')}</Label>
                 <Textarea
                   id="bio"
                   value={profileData.bio}
@@ -204,13 +206,13 @@ export default function TravelerProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Phone className="w-5 h-5" />
-                Emergency Contact
+                {t('travelerDashboard.emergencyContact')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="emergencyName">Name</Label>
+                  <Label htmlFor="emergencyName">{t('travelerDashboard.name')}</Label>
                   <Input
                     id="emergencyName"
                     value={profileData.emergencyContact.name}
@@ -221,7 +223,7 @@ export default function TravelerProfile() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="emergencyPhone">Phone</Label>
+                  <Label htmlFor="emergencyPhone">{t('travelerDashboard.phone')}</Label>
                   <Input
                     id="emergencyPhone"
                     value={profileData.emergencyContact.phone}
@@ -233,7 +235,7 @@ export default function TravelerProfile() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="emergencyRelationship">Relationship</Label>
+                <Label htmlFor="emergencyRelationship">{t('travelerDashboard.relationship')}</Label>
                 <Input
                   id="emergencyRelationship"
                   value={profileData.emergencyContact.relationship}
@@ -251,14 +253,14 @@ export default function TravelerProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="w-5 h-5" />
-                Notification Preferences
+                {t('travelerDashboard.notificationPreferences')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="emailBookings">Email for Bookings</Label>
-                  <p className="text-sm text-gray-600">Receive emails about your bookings and trips</p>
+                  <Label htmlFor="emailBookings">{t('travelerDashboard.emailForBookings')}</Label>
+                  <p className="text-sm text-gray-600">{t('travelerDashboard.emailForBookingsDesc')}</p>
                 </div>
                 <Switch
                   id="emailBookings"
@@ -269,8 +271,8 @@ export default function TravelerProfile() {
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="emailPromotions">Email Promotions</Label>
-                  <p className="text-sm text-gray-600">Receive promotional emails and deals</p>
+                  <Label htmlFor="emailPromotions">{t('travelerDashboard.emailPromotions')}</Label>
+                  <p className="text-sm text-gray-600">{t('travelerDashboard.emailPromotionsDesc')}</p>
                 </div>
                 <Switch
                   id="emailPromotions"
@@ -281,8 +283,8 @@ export default function TravelerProfile() {
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="smsReminders">SMS Reminders</Label>
-                  <p className="text-sm text-gray-600">Get text reminders for upcoming trips</p>
+                  <Label htmlFor="smsReminders">{t('travelerDashboard.smsReminders')}</Label>
+                  <p className="text-sm text-gray-600">{t('travelerDashboard.smsRemindersDesc')}</p>
                 </div>
                 <Switch
                   id="smsReminders"
@@ -293,8 +295,8 @@ export default function TravelerProfile() {
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="pushNotifications">Push Notifications</Label>
-                  <p className="text-sm text-gray-600">Receive push notifications in the app</p>
+                  <Label htmlFor="pushNotifications">{t('travelerDashboard.pushNotifications')}</Label>
+                  <p className="text-sm text-gray-600">{t('travelerDashboard.pushNotificationsDesc')}</p>
                 </div>
                 <Switch
                   id="pushNotifications"
@@ -310,14 +312,14 @@ export default function TravelerProfile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="w-5 h-5" />
-                Privacy Settings
+                {t('travelerDashboard.privacySettings')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="profileVisible">Public Profile</Label>
-                  <p className="text-sm text-gray-600">Make your profile visible to other travelers</p>
+                  <Label htmlFor="profileVisible">{t('travelerDashboard.publicProfile')}</Label>
+                  <p className="text-sm text-gray-600">{t('travelerDashboard.publicProfileDesc')}</p>
                 </div>
                 <Switch
                   id="profileVisible"
@@ -328,8 +330,8 @@ export default function TravelerProfile() {
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="showTravelHistory">Show Travel History</Label>
-                  <p className="text-sm text-gray-600">Display your past trips on your profile</p>
+                  <Label htmlFor="showTravelHistory">{t('travelerDashboard.showTravelHistory')}</Label>
+                  <p className="text-sm text-gray-600">{t('travelerDashboard.showTravelHistoryDesc')}</p>
                 </div>
                 <Switch
                   id="showTravelHistory"
@@ -340,8 +342,8 @@ export default function TravelerProfile() {
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="allowMessages">Allow Messages</Label>
-                  <p className="text-sm text-gray-600">Let other travelers send you messages</p>
+                  <Label htmlFor="allowMessages">{t('travelerDashboard.allowMessages')}</Label>
+                  <p className="text-sm text-gray-600">{t('travelerDashboard.allowMessagesDesc')}</p>
                 </div>
                 <Switch
                   id="allowMessages"

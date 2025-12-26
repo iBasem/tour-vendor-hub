@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { 
   BookOpen, 
   Heart, 
@@ -46,15 +47,25 @@ const recentlyViewed = [
 ];
 
 export default function TravelerDashboard() {
+  const { t } = useTranslation();
+
+  const getStatusTranslation = (status: string) => {
+    switch (status) {
+      case "Confirmed": return t('travelerDashboard.confirmed');
+      case "Pending": return t('travelerDashboard.pending');
+      default: return status;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
-        <h1 className="text-2xl font-bold mb-2">Welcome back, John!</h1>
-        <p className="text-blue-100 mb-4">Ready for your next adventure? Discover new destinations and manage your trips.</p>
+        <h1 className="text-2xl font-bold mb-2">{t('travelerDashboard.welcomeBack')}, John!</h1>
+        <p className="text-blue-100 mb-4">{t('travelerDashboard.readyForAdventure')}</p>
         <Link to="/">
           <Button className="bg-white text-blue-600 hover:bg-gray-100">
-            Explore New Tours
+            {t('travelerDashboard.exploreNewTours')}
           </Button>
         </Link>
       </div>
@@ -65,7 +76,7 @@ export default function TravelerDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Active Bookings</p>
+                <p className="text-sm text-gray-600">{t('travelerDashboard.activeBookings')}</p>
                 <p className="text-2xl font-bold">2</p>
               </div>
               <BookOpen className="w-8 h-8 text-blue-600" />
@@ -76,7 +87,7 @@ export default function TravelerDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Wishlist Items</p>
+                <p className="text-sm text-gray-600">{t('travelerDashboard.wishlistItems')}</p>
                 <p className="text-2xl font-bold">8</p>
               </div>
               <Heart className="w-8 h-8 text-red-500" />
@@ -87,7 +98,7 @@ export default function TravelerDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Reviews Given</p>
+                <p className="text-sm text-gray-600">{t('travelerDashboard.reviewsGiven')}</p>
                 <p className="text-2xl font-bold">5</p>
               </div>
               <Star className="w-8 h-8 text-yellow-500" />
@@ -98,7 +109,7 @@ export default function TravelerDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Countries Visited</p>
+                <p className="text-sm text-gray-600">{t('travelerDashboard.countriesVisited')}</p>
                 <p className="text-2xl font-bold">12</p>
               </div>
               <MapPin className="w-8 h-8 text-green-600" />
@@ -113,10 +124,10 @@ export default function TravelerDashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
-              Upcoming Trips
+              {t('travelerDashboard.upcomingTrips')}
             </CardTitle>
             <Link to="/traveler/dashboard/bookings">
-              <Button variant="outline" size="sm">View All</Button>
+              <Button variant="outline" size="sm">{t('common.viewAll')}</Button>
             </Link>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -135,7 +146,7 @@ export default function TravelerDashboard() {
                   </p>
                 </div>
                 <Badge variant={booking.status === "Confirmed" ? "default" : "secondary"}>
-                  {booking.status}
+                  {getStatusTranslation(booking.status)}
                 </Badge>
               </div>
             ))}
@@ -147,10 +158,10 @@ export default function TravelerDashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5" />
-              Recently Viewed
+              {t('travelerDashboard.recentlyViewed')}
             </CardTitle>
             <Link to="/traveler/dashboard/wishlist">
-              <Button variant="outline" size="sm">View Wishlist</Button>
+              <Button variant="outline" size="sm">{t('travelerDashboard.viewWishlist')}</Button>
             </Link>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -163,7 +174,7 @@ export default function TravelerDashboard() {
                 />
                 <div className="flex-1">
                   <h4 className="font-medium">{tour.title}</h4>
-                  <p className="text-sm text-gray-600">From {tour.price}</p>
+                  <p className="text-sm text-gray-600">{t('common.from')} {tour.price}</p>
                 </div>
                 <Button size="sm" variant="outline">
                   <Heart className="w-4 h-4" />

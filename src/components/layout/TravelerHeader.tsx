@@ -6,6 +6,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { TravelerSidebar } from "./TravelerSidebar";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +19,7 @@ import {
 
 export function TravelerHeader() {
   const { profile, signOut } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await signOut();
@@ -50,20 +53,23 @@ export function TravelerHeader() {
           <div className="relative flex-1 max-w-xs sm:max-w-md">
             <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-3 h-3 sm:w-4 sm:h-4" />
             <Input
-              placeholder="Search destinations, tours..."
-              className="pl-7 sm:pl-10 bg-gray-50 border-0 h-8 sm:h-9 lg:h-10 text-xs sm:text-sm"
+              placeholder={t('travelerDashboard.searchDestinationsTours')}
+              className="ltr:pl-7 rtl:pr-7 sm:ltr:pl-10 sm:rtl:pr-10 bg-gray-50 border-0 h-8 sm:h-9 lg:h-10 text-xs sm:text-sm"
             />
           </div>
         </div>
 
         {/* Right side controls */}
         <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+          
           {/* Browse Tours link */}
           <Link 
             to="/" 
             className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium hidden sm:block"
           >
-            Browse Tours
+            {t('travelerDashboard.browseTours')}
           </Link>
           
           {/* Notifications */}
@@ -86,20 +92,20 @@ export function TravelerHeader() {
                   <div className="text-xs sm:text-sm font-medium">
                     {profile?.first_name} {profile?.last_name}
                   </div>
-                  <div className="text-[10px] sm:text-xs text-gray-500">Traveler</div>
+                  <div className="text-[10px] sm:text-xs text-gray-500">{t('common.traveler')}</div>
                 </div>
                 <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 hidden md:block" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 sm:w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('travelerDashboard.myAccount')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to="/traveler/profile" className="w-full cursor-pointer">Profile</Link>
+                <Link to="/traveler/dashboard/profile" className="w-full cursor-pointer">{t('travelerDashboard.profile')}</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>{t('dashboard.settings')}</DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                Logout
+                {t('travelerDashboard.logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

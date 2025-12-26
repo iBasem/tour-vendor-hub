@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar, Users, MapPin } from 'lucide-react';
 import { BookingFormData } from '../BookingWizard';
+import { useTranslation } from 'react-i18next';
 
 interface BookingStep1Props {
   formData: BookingFormData;
@@ -23,13 +24,15 @@ interface BookingStep1Props {
 }
 
 export function BookingStep1({ formData, updateFormData, packageData }: BookingStep1Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
-            Select Travel Date
+            {t('booking.selectTravelDate')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -51,12 +54,12 @@ export function BookingStep1({ formData, updateFormData, packageData }: BookingS
                   <div>
                     <div className="font-medium">{availability.date}</div>
                     <div className="text-sm text-gray-600">
-                      {availability.spotsLeft} spots left
+                      {availability.spotsLeft} {t('booking.spotsLeft')}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="font-medium">${availability.price}</div>
-                    <div className="text-sm text-gray-600">per person</div>
+                    <div className="text-sm text-gray-600">{t('common.perPerson')}</div>
                   </div>
                 </div>
               </button>
@@ -69,13 +72,13 @@ export function BookingStep1({ formData, updateFormData, packageData }: BookingS
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
-            Number of Travelers
+            {t('booking.numberOfTravelers')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="travelers">How many people will be traveling?</Label>
+              <Label htmlFor="travelers">{t('booking.howManyTraveling')}</Label>
               <Select
                 value={formData.travelers.toString()}
                 onValueChange={(value) => {
@@ -92,12 +95,12 @@ export function BookingStep1({ formData, updateFormData, packageData }: BookingS
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select number of travelers" />
+                  <SelectValue placeholder={t('booking.selectNumberTravelers')} />
                 </SelectTrigger>
                 <SelectContent>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
                     <SelectItem key={num} value={num.toString()}>
-                      {num} {num === 1 ? 'Traveler' : 'Travelers'}
+                      {num} {num === 1 ? t('booking.travelerSingular') : t('booking.travelerPlural')}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -108,14 +111,14 @@ export function BookingStep1({ formData, updateFormData, packageData }: BookingS
               <div className="p-4 bg-blue-50 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium">Selected Date: {formData.selectedDate}</div>
-                    <div className="text-sm text-gray-600">{formData.travelers} travelers</div>
+                    <div className="font-medium">{t('booking.selectedDate')}: {formData.selectedDate}</div>
+                    <div className="text-sm text-gray-600">{formData.travelers} {formData.travelers === 1 ? t('booking.travelerSingular') : t('booking.travelerPlural')}</div>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-blue-600">
                       ${formData.totalAmount}
                     </div>
-                    <div className="text-sm text-gray-600">Total estimated cost</div>
+                    <div className="text-sm text-gray-600">{t('booking.totalEstimatedCost')}</div>
                   </div>
                 </div>
               </div>
@@ -128,17 +131,17 @@ export function BookingStep1({ formData, updateFormData, packageData }: BookingS
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MapPin className="w-5 h-5" />
-            Special Requests
+            {t('booking.specialRequests')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div>
             <Label htmlFor="special-requests">
-              Any special requests or requirements? (Optional)
+              {t('booking.specialRequestsOptional')}
             </Label>
             <Textarea
               id="special-requests"
-              placeholder="e.g., dietary restrictions, accessibility needs, celebration occasions..."
+              placeholder={t('booking.specialRequestsPlaceholder')}
               value={formData.specialRequests}
               onChange={(e) => updateFormData({ specialRequests: e.target.value })}
               className="mt-2"

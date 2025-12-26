@@ -1,5 +1,5 @@
-
 import { NavLink, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   BarChart3,
   Package,
@@ -21,37 +21,42 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-
-const menuItems = [
-  { title: "Dashboard", url: "/travel_agency", icon: BarChart3 },
-  { title: "Packages", url: "/travel_agency/packages", icon: Package },
-  { title: "Bookings", url: "/travel_agency/bookings", icon: BookOpen },
-  { title: "Calendar", url: "/travel_agency/calendar", icon: Calendar },
-  { title: "Travelers", url: "/travel_agency/travelers", icon: Users },
-  { title: "Guides", url: "/travel_agency/guides", icon: UserCheck },
-  { title: "Gallery", url: "/travel_agency/gallery", icon: Images },
-  { title: "Messages", url: "/travel_agency/messages", icon: MessageSquare },
-  { title: "Deals", url: "/travel_agency/deals", icon: Tag },
-  { title: "Feedback", url: "/travel_agency/feedback", icon: Star },
-];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
+  const menuItems = [
+    { title: t('dashboard.overview'), url: "/travel_agency", icon: BarChart3 },
+    { title: t('dashboard.packages'), url: "/travel_agency/packages", icon: Package },
+    { title: t('dashboard.bookings'), url: "/travel_agency/bookings", icon: BookOpen },
+    { title: t('dashboard.calendar'), url: "/travel_agency/calendar", icon: Calendar },
+    { title: t('dashboard.travelers'), url: "/travel_agency/travelers", icon: Users },
+    { title: t('dashboard.guides'), url: "/travel_agency/guides", icon: UserCheck },
+    { title: t('dashboard.gallery'), url: "/travel_agency/gallery", icon: Images },
+    { title: t('dashboard.messages'), url: "/travel_agency/messages", icon: MessageSquare },
+    { title: t('dashboard.deals'), url: "/travel_agency/deals", icon: Tag },
+    { title: t('dashboard.feedback'), url: "/travel_agency/feedback", icon: Star },
+  ];
 
   console.log('AppSidebar - Current path:', location.pathname, 'Sidebar state:', state);
 
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar className="border-r border-gray-200" collapsible="icon">
+    <Sidebar 
+      className="hidden lg:flex border-gray-200" 
+      collapsible="icon"
+      side={isRTL ? "right" : "left"}
+    >
       <SidebarContent className="bg-white">
         {/* Brand Header */}
         <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
               <MapPin className="w-4 h-4 text-white" />
             </div>
@@ -66,16 +71,16 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
                       end={item.url === "/travel_agency"}
                       className={({ isActive }) => {
                         console.log(`NavLink ${item.title} - isActive:`, isActive, 'URL:', item.url, 'Current:', location.pathname);
-                        return `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-sm w-full ${
+                        return `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-sm w-full ${isRTL ? 'flex-row-reverse text-right' : 'text-left'} ${
                           isActive
-                            ? "bg-blue-50 text-blue-700 font-semibold shadow-sm border-l-4 border-blue-600"
+                            ? `bg-blue-50 text-blue-700 font-semibold shadow-sm ${isRTL ? 'border-r-4 border-blue-600' : 'border-l-4 border-blue-600'}`
                             : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                         }`;
                       }}
@@ -93,22 +98,20 @@ export function AppSidebar() {
         {/* Upgrade Section - Only show when not collapsed */}
         {!isCollapsed && (
           <div className="mt-auto p-4 border-t border-gray-200">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+            <div className={`bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 ${isRTL ? 'text-right' : 'text-left'}`}>
               <h3 className="font-semibold text-blue-900 mb-2 text-sm">
-                Enhance Your Experience!
+                {t('agencyDashboard.enhanceExperience')}
               </h3>
               <p className="text-xs text-blue-700 mb-3 opacity-90">
-                Unlock premium features
+                {t('agencyDashboard.unlockPremium')}
               </p>
               <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-lg text-xs font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm">
-                Upgrade Now
+                {t('agencyDashboard.upgradeNow')}
               </button>
             </div>
           </div>
         )}
       </SidebarContent>
-      
-      <SidebarTrigger className="absolute -right-4 top-4 bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow w-8 h-8" />
     </Sidebar>
   );
 }

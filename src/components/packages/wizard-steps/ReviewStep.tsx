@@ -1,4 +1,5 @@
 
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,8 @@ interface ReviewStepProps {
 }
 
 export function ReviewStep({ data, onUpdate }: ReviewStepProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { basicInfo, itinerary, pricing, media } = data;
 
   const handlePublishToggle = (isPublished: boolean) => {
@@ -19,16 +22,16 @@ export function ReviewStep({ data, onUpdate }: ReviewStepProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div>
-        <h3 className="text-lg font-semibold mb-2">Review Your Package</h3>
-        <p className="text-gray-600">Review all details before publishing your package</p>
+        <h3 className="text-lg font-semibold mb-2">{t('packageWizard.reviewYourPackage')}</h3>
+        <p className="text-gray-600">{t('packageWizard.reviewAllDetails')}</p>
       </div>
 
       {/* Package Preview */}
       <Card>
         <CardHeader>
-          <CardTitle>Package Preview</CardTitle>
+          <CardTitle>{t('packageWizard.packagePreview')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -50,26 +53,26 @@ export function ReviewStep({ data, onUpdate }: ReviewStepProps) {
             {/* Package Info */}
             <div className="space-y-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{basicInfo.title || "Package Title"}</h2>
-                <div className="flex items-center gap-2 text-gray-600 mt-1">
+                <h2 className="text-xl font-bold text-gray-900">{basicInfo.title || t('packageWizard.packageTitle')}</h2>
+                <div className={`flex items-center gap-2 text-gray-600 mt-1 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
                   <MapPin className="w-4 h-4" />
-                  <span className="capitalize">{basicInfo.destination || "Destination"}</span>
+                  <span className="capitalize">{basicInfo.destination || t('packageWizard.destination')}</span>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className={`flex items-center gap-2 text-sm text-gray-600 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
                   <Clock className="w-4 h-4" />
-                  <span>{basicInfo.duration || "Duration"}</span>
+                  <span>{basicInfo.duration || t('tours.duration')}</span>
                 </div>
                 {basicInfo.maxGroupSize && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className={`flex items-center gap-2 text-sm text-gray-600 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
                     <Users className="w-4 h-4" />
-                    <span>Max {basicInfo.maxGroupSize} people</span>
+                    <span>{t('tours.max')} {basicInfo.maxGroupSize}</span>
                   </div>
                 )}
                 {basicInfo.difficulty && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className={`flex items-center gap-2 text-sm text-gray-600 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
                     <Star className="w-4 h-4" />
                     <Badge variant="outline" className="capitalize">
                       {basicInfo.difficulty}
@@ -82,21 +85,21 @@ export function ReviewStep({ data, onUpdate }: ReviewStepProps) {
                 <div className="text-2xl font-bold text-blue-600">
                   {pricing.currency} {pricing.basePrice || "0"}
                 </div>
-                <div className="text-sm text-gray-600">per person</div>
+                <div className="text-sm text-gray-600">{t('packageWizard.perPerson')}</div>
               </div>
             </div>
           </div>
 
           {/* Description */}
           <div className="mt-6">
-            <h3 className="font-semibold mb-2">Description</h3>
-            <p className="text-gray-700">{basicInfo.description || "No description provided"}</p>
+            <h3 className="font-semibold mb-2">{t('packageWizard.description')}</h3>
+            <p className="text-gray-700">{basicInfo.description || t('packageWizard.noDescriptionProvided')}</p>
           </div>
 
           {/* Highlights */}
           {basicInfo.highlights && basicInfo.highlights.length > 0 && (
             <div className="mt-6">
-              <h3 className="font-semibold mb-2">Highlights</h3>
+              <h3 className="font-semibold mb-2">{t('packageWizard.highlights')}</h3>
               <div className="flex flex-wrap gap-2">
                 {basicInfo.highlights.map((highlight: string, index: number) => (
                   <Badge key={index} variant="secondary">
@@ -114,13 +117,13 @@ export function ReviewStep({ data, onUpdate }: ReviewStepProps) {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-blue-600">{itinerary.length}</div>
-            <div className="text-sm text-gray-600">Days</div>
+            <div className="text-sm text-gray-600">{t('packageWizard.days')}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600">{media.length}</div>
-            <div className="text-sm text-gray-600">Media Files</div>
+            <div className="text-sm text-gray-600">{t('packageWizard.mediaFiles')}</div>
           </CardContent>
         </Card>
         <Card>
@@ -128,7 +131,7 @@ export function ReviewStep({ data, onUpdate }: ReviewStepProps) {
             <div className="text-2xl font-bold text-purple-600">
               {Object.values(pricing.inclusions || {}).filter(Boolean).length}
             </div>
-            <div className="text-sm text-gray-600">Inclusions</div>
+            <div className="text-sm text-gray-600">{t('packageWizard.inclusions')}</div>
           </CardContent>
         </Card>
         <Card>
@@ -136,7 +139,7 @@ export function ReviewStep({ data, onUpdate }: ReviewStepProps) {
             <div className="text-2xl font-bold text-orange-600">
               {pricing.currency} {pricing.basePrice || "0"}
             </div>
-            <div className="text-sm text-gray-600">Base Price</div>
+            <div className="text-sm text-gray-600">{t('packageWizard.basePrice')}</div>
           </CardContent>
         </Card>
       </div>
@@ -144,23 +147,23 @@ export function ReviewStep({ data, onUpdate }: ReviewStepProps) {
       {/* Publishing Options */}
       <Card>
         <CardHeader>
-          <CardTitle>Publishing Options</CardTitle>
+          <CardTitle>{t('packageWizard.publishingOptions')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
+          <div className={`flex items-center space-x-2 ${isRTL ? 'space-x-reverse' : ''}`}>
             <Checkbox
               id="publish"
               checked={data.isPublished}
               onCheckedChange={handlePublishToggle}
             />
-            <Label htmlFor="publish">Publish package immediately</Label>
+            <Label htmlFor="publish">{t('packageWizard.publishImmediately')}</Label>
           </div>
           
           <div className="text-sm text-gray-600">
             {data.isPublished ? (
-              <p>✓ Your package will be published and visible to customers immediately.</p>
+              <p>✓ {t('packageWizard.willBePublished')}</p>
             ) : (
-              <p>Your package will be saved as a draft. You can publish it later from the packages list.</p>
+              <p>{t('packageWizard.savedAsDraft')}</p>
             )}
           </div>
         </CardContent>

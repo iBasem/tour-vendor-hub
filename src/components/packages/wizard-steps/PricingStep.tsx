@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { BasePricing } from "./pricing/BasePricing";
 import { InclusionsManager } from "./pricing/InclusionsManager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,9 @@ interface PricingStepProps {
 }
 
 export function PricingStep({ data, onUpdate }: PricingStepProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
   const [formData, setFormData] = useState(() => {
     const defaultInclusions = {
       accommodation: { included: false, details: [] },
@@ -125,7 +129,7 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <BasePricing 
         data={formData}
         onUpdate={handleInputChange}
@@ -141,14 +145,14 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
       {/* Additional Inclusions */}
       <Card>
         <CardHeader>
-          <CardTitle>Additional Inclusions</CardTitle>
+          <CardTitle>{t('packageWizard.additionalInclusions')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
+          <div className={`flex gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Input
               value={formData.newInclusion}
               onChange={(e) => handleInputChange("newInclusion", e.target.value)}
-              placeholder="e.g., Professional photography session"
+              placeholder={t('packageWizard.additionalInclusionPlaceholder')}
               onKeyPress={(e) => e.key === "Enter" && addAdditionalInclusion()}
             />
             <Button type="button" onClick={addAdditionalInclusion} size="sm">
@@ -172,14 +176,14 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
       {/* Exclusions */}
       <Card>
         <CardHeader>
-          <CardTitle>What's Not Included</CardTitle>
+          <CardTitle>{t('packageWizard.whatsNotIncluded')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
+          <div className={`flex gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Input
               value={formData.newExclusion}
               onChange={(e) => handleInputChange("newExclusion", e.target.value)}
-              placeholder="e.g., International flights"
+              placeholder={t('packageWizard.exclusionPlaceholder')}
               onKeyPress={(e) => e.key === "Enter" && addExclusion()}
             />
             <Button type="button" onClick={addExclusion} size="sm">
@@ -203,23 +207,23 @@ export function PricingStep({ data, onUpdate }: PricingStepProps) {
       {/* Policies */}
       <Card>
         <CardHeader>
-          <CardTitle>Policies & Terms</CardTitle>
+          <CardTitle>{t('packageWizard.policiesAndTerms')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Cancellation Policy</Label>
+            <Label>{t('packageWizard.cancellationPolicy')}</Label>
             <Input
               value={formData.cancellation_policy}
               onChange={(e) => handleInputChange("cancellation_policy", e.target.value)}
-              placeholder="e.g., Free cancellation up to 7 days before departure"
+              placeholder={t('packageWizard.cancellationPlaceholder')}
             />
           </div>
           <div className="space-y-2">
-            <Label>Terms & Conditions</Label>
+            <Label>{t('packageWizard.termsAndConditions')}</Label>
             <Input
               value={formData.terms_conditions}
               onChange={(e) => handleInputChange("terms_conditions", e.target.value)}
-              placeholder="e.g., Valid passport required, minimum age 18"
+              placeholder={t('packageWizard.termsPlaceholder')}
             />
           </div>
         </CardContent>

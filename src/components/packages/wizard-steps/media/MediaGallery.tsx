@@ -1,4 +1,5 @@
 
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X, Video } from "lucide-react";
@@ -24,14 +25,17 @@ export function MediaGallery({
   onSetPrimary,
   onUpdateCaption
 }: MediaGalleryProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
   if (media.length === 0) return null;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Uploaded Media ({media.length})</CardTitle>
+        <CardTitle>{t('agencyDashboard.mediaGallery')} ({media.length})</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {media.map((item) => (
             <div key={item.id} className="relative group">
@@ -49,12 +53,12 @@ export function MediaGallery({
                 )}
                 
                 {item.isPrimary && (
-                  <div className="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                    Primary
+                  <div className={`absolute top-2 ${isRTL ? 'right-2' : 'left-2'} bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium`}>
+                    {t('agencyDashboard.published')}
                   </div>
                 )}
                 
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className={`absolute top-2 ${isRTL ? 'left-2' : 'right-2'} opacity-0 group-hover:opacity-100 transition-opacity`}>
                   <Button
                     size="sm"
                     variant="destructive"
@@ -70,7 +74,7 @@ export function MediaGallery({
                   type="text"
                   value={item.caption}
                   onChange={(e) => onUpdateCaption(item.id, e.target.value)}
-                  placeholder="Add a caption..."
+                  placeholder={t('common.add') + "..."}
                   className="w-full text-sm border rounded px-2 py-1"
                 />
                 
@@ -81,7 +85,7 @@ export function MediaGallery({
                     onClick={() => onSetPrimary(item.id)}
                     className="w-full"
                   >
-                    Set as Primary
+                    {t('agencyDashboard.publish')}
                   </Button>
                 )}
               </div>

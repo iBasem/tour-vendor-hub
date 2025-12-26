@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { MediaUploadArea } from "./media/MediaUploadArea";
 import { MediaGallery } from "./media/MediaGallery";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,8 @@ interface MediaItem {
 }
 
 export function MediaStep({ data, onUpdate }: MediaStepProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [media, setMedia] = useState<MediaItem[]>(data);
   const [dragOver, setDragOver] = useState(false);
 
@@ -42,7 +45,7 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
       isPrimary: index === 0 && media.length === 0
     }));
     setMedia(prev => [...prev, ...newImages]);
-    toast.success("Sample images added successfully!");
+    toast.success(t('packageWizard.sampleImagesAdded'));
   };
 
   const handleFileUpload = async (files: FileList) => {
@@ -67,10 +70,10 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
       }
       
       setMedia(prev => [...prev, ...newMediaItems]);
-      toast.success(`${newMediaItems.length} file(s) uploaded successfully!`);
+      toast.success(`${newMediaItems.length} ${t('packageWizard.filesUploaded')}`);
     } catch (error) {
       console.error('File upload error:', error);
-      toast.error("Failed to upload files");
+      toast.error(t('packageWizard.failedToUpload'));
     }
   };
 
@@ -119,10 +122,10 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div>
-        <h3 className="text-lg font-semibold mb-2">Package Media</h3>
-        <p className="text-gray-600">Upload photos and videos to showcase your package</p>
+        <h3 className="text-lg font-semibold mb-2">{t('packageWizard.packageMedia')}</h3>
+        <p className="text-gray-600">{t('packageWizard.uploadPhotosVideos')}</p>
       </div>
 
       <div className="space-y-4">
@@ -137,14 +140,14 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
           <div className="space-y-4">
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Upload your photos and videos
+                {t('packageWizard.uploadYourMedia')}
               </h3>
               <p className="text-gray-600 mb-4">
-                Drag and drop files here, or click to browse
+                {t('packageWizard.dragDropFiles')}
               </p>
             </div>
             
-            <div className="flex gap-2 justify-center">
+            <div className={`flex gap-2 justify-center ${isRTL ? 'flex-row-reverse' : ''}`}>
               <input
                 type="file"
                 id="photo-upload"
@@ -156,7 +159,7 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
               <label htmlFor="photo-upload">
                 <Button type="button" variant="outline" asChild>
                   <span className="cursor-pointer">
-                    Add Photos
+                    {t('packageWizard.addPhotos')}
                   </span>
                 </Button>
               </label>
@@ -172,13 +175,13 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
               <label htmlFor="video-upload">
                 <Button type="button" variant="outline" asChild>
                   <span className="cursor-pointer">
-                    Add Videos
+                    {t('packageWizard.addVideos')}
                   </span>
                 </Button>
               </label>
               
               <Button onClick={addMockImages} className="bg-blue-600 hover:bg-blue-700">
-                Add Sample Images
+                {t('packageWizard.addSampleImages')}
               </Button>
             </div>
           </div>
@@ -193,12 +196,12 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
       />
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-medium text-blue-900 mb-2">Media Guidelines</h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Upload high-quality images (minimum 1200x800px)</li>
-          <li>• The first image will be used as the primary package image</li>
-          <li>• Supported formats: JPG, PNG, GIF, MP4, MOV</li>
-          <li>• Maximum file size: 10MB per file</li>
+        <h4 className="font-medium text-blue-900 mb-2">{t('packageWizard.mediaGuidelines')}</h4>
+        <ul className={`text-sm text-blue-800 space-y-1 ${isRTL ? 'pr-4' : 'pl-4'}`}>
+          <li>• {t('packageWizard.guidelineMinResolution')}</li>
+          <li>• {t('packageWizard.guidelinePrimaryImage')}</li>
+          <li>• {t('packageWizard.guidelineFormats')}</li>
+          <li>• {t('packageWizard.guidelineMaxSize')}</li>
         </ul>
       </div>
     </div>

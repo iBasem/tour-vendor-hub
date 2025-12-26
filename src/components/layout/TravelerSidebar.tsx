@@ -16,7 +16,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 
@@ -43,14 +42,14 @@ export function TravelerSidebar() {
 
   return (
     <Sidebar 
-      className={isCollapsed ? "w-16" : "w-64"} 
+      className="hidden lg:flex"
       collapsible="icon"
       side={isRTL ? "right" : "left"}
     >
-      <SidebarContent className="bg-white border-gray-200" style={{ borderInlineEnd: '1px solid #e5e7eb' }}>
-        <div className="p-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
+      <SidebarContent className="bg-white border-gray-200">
+        <div className="p-4 border-b border-gray-200">
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
               <MapPin className="w-5 h-5 text-white" />
             </div>
             {!isCollapsed && (
@@ -87,7 +86,7 @@ export function TravelerSidebar() {
         </SidebarGroup>
 
         {!isCollapsed && (
-          <div className="mt-auto p-4" style={{ borderTop: '1px solid #e5e7eb' }}>
+          <div className="mt-auto p-4 border-t border-gray-200">
             <div className={`bg-blue-50 rounded-lg p-4 ${isRTL ? 'text-right' : 'text-left'}`}>
               <h3 className="font-medium text-blue-900 mb-2">
                 {t('travelerDashboard.planNextAdventure')}
@@ -99,8 +98,6 @@ export function TravelerSidebar() {
           </div>
         )}
       </SidebarContent>
-      
-      <SidebarTrigger className={`absolute top-4 bg-white border border-gray-200 shadow-sm ${isRTL ? '-left-4' : '-right-4'}`} />
     </Sidebar>
   );
 }

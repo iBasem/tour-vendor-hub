@@ -1,18 +1,21 @@
 
 import { Progress } from '@/components/ui/progress';
-
-const STEPS = [
-  { id: 1, title: 'Travel Details', description: 'Select dates and travelers' },
-  { id: 2, title: 'Traveler Info', description: 'Personal information' },
-  { id: 3, title: 'Add-ons', description: 'Additional services' },
-  { id: 4, title: 'Review & Book', description: 'Confirm and pay' },
-];
+import { useTranslation } from 'react-i18next';
 
 interface BookingProgressBarProps {
   currentStep: number;
 }
 
 export function BookingProgressBar({ currentStep }: BookingProgressBarProps) {
+  const { t } = useTranslation();
+
+  const STEPS = [
+    { id: 1, title: t('booking.travelDetails'), description: t('booking.selectDatesAndTravelers') },
+    { id: 2, title: t('booking.travelerInfo'), description: t('booking.personalInformation') },
+    { id: 3, title: t('booking.addOns'), description: t('booking.additionalServices') },
+    { id: 4, title: t('booking.reviewAndBook'), description: t('booking.confirmAndPay') },
+  ];
+
   const progress = (currentStep / STEPS.length) * 100;
 
   return (

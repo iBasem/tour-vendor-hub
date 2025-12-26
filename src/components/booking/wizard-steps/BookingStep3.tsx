@@ -6,24 +6,27 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bed, Utensils, Shield, Car } from 'lucide-react';
 import { BookingFormData } from '../BookingWizard';
+import { useTranslation } from 'react-i18next';
 
 interface BookingStep3Props {
   formData: BookingFormData;
   updateFormData: (updates: Partial<BookingFormData>) => void;
 }
 
-const DIETARY_OPTIONS = [
-  'Vegetarian',
-  'Vegan',
-  'Gluten-free',
-  'Halal',
-  'Kosher',
-  'Nut allergies',
-  'Dairy-free',
-  'Other'
-];
-
 export function BookingStep3({ formData, updateFormData }: BookingStep3Props) {
+  const { t } = useTranslation();
+
+  const DIETARY_OPTIONS = [
+    { key: 'Vegetarian', label: t('booking.vegetarian') },
+    { key: 'Vegan', label: t('booking.vegan') },
+    { key: 'Gluten-free', label: t('booking.glutenFree') },
+    { key: 'Halal', label: t('booking.halal') },
+    { key: 'Kosher', label: t('booking.kosher') },
+    { key: 'Nut allergies', label: t('booking.nutAllergies') },
+    { key: 'Dairy-free', label: t('booking.dairyFree') },
+    { key: 'Other', label: t('booking.other') }
+  ];
+
   const toggleDietaryRestriction = (restriction: string) => {
     const current = formData.dietaryRestrictions;
     const updated = current.includes(restriction)
@@ -40,13 +43,13 @@ export function BookingStep3({ formData, updateFormData }: BookingStep3Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bed className="w-5 h-5" />
-            Room Preference
+            {t('booking.roomPreference')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <Label>Preferred room type</Label>
+              <Label>{t('booking.preferredRoomType')}</Label>
               <Select
                 value={formData.roomPreference}
                 onValueChange={(value) => updateFormData({ roomPreference: value })}
@@ -55,11 +58,11 @@ export function BookingStep3({ formData, updateFormData }: BookingStep3Props) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="single">Single Room</SelectItem>
-                  <SelectItem value="double">Double Room</SelectItem>
-                  <SelectItem value="twin">Twin Beds</SelectItem>
-                  <SelectItem value="family">Family Room</SelectItem>
-                  <SelectItem value="suite">Suite</SelectItem>
+                  <SelectItem value="single">{t('booking.singleRoom')}</SelectItem>
+                  <SelectItem value="double">{t('booking.doubleRoom')}</SelectItem>
+                  <SelectItem value="twin">{t('booking.twinBeds')}</SelectItem>
+                  <SelectItem value="family">{t('booking.familyRoom')}</SelectItem>
+                  <SelectItem value="suite">{t('booking.suite')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -72,25 +75,25 @@ export function BookingStep3({ formData, updateFormData }: BookingStep3Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Utensils className="w-5 h-5" />
-            Dietary Requirements
+            {t('booking.dietaryRequirements')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <Label>Select any dietary restrictions or preferences</Label>
+            <Label>{t('booking.selectDietaryRestrictions')}</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {DIETARY_OPTIONS.map((option) => (
-                <div key={option} className="flex items-center space-x-2">
+                <div key={option.key} className="flex items-center space-x-2">
                   <Checkbox
-                    id={`dietary-${option}`}
-                    checked={formData.dietaryRestrictions.includes(option)}
-                    onCheckedChange={() => toggleDietaryRestriction(option)}
+                    id={`dietary-${option.key}`}
+                    checked={formData.dietaryRestrictions.includes(option.key)}
+                    onCheckedChange={() => toggleDietaryRestriction(option.key)}
                   />
                   <Label
-                    htmlFor={`dietary-${option}`}
+                    htmlFor={`dietary-${option.key}`}
                     className="text-sm font-normal cursor-pointer"
                   >
-                    {option}
+                    {option.label}
                   </Label>
                 </div>
               ))}
@@ -104,7 +107,7 @@ export function BookingStep3({ formData, updateFormData }: BookingStep3Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5" />
-            Travel Insurance
+            {t('booking.travelInsurance')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -117,10 +120,10 @@ export function BookingStep3({ formData, updateFormData }: BookingStep3Props) {
               />
               <div className="space-y-1">
                 <Label htmlFor="travel-insurance" className="cursor-pointer">
-                  Add comprehensive travel insurance (+$49 per person)
+                  {t('booking.addTravelInsurance')}
                 </Label>
                 <p className="text-sm text-gray-600">
-                  Covers trip cancellation, medical emergencies, and lost luggage
+                  {t('booking.travelInsuranceDesc')}
                 </p>
               </div>
             </div>
@@ -133,7 +136,7 @@ export function BookingStep3({ formData, updateFormData }: BookingStep3Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Car className="w-5 h-5" />
-            Airport Transfer
+            {t('booking.airportTransfer')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -146,10 +149,10 @@ export function BookingStep3({ formData, updateFormData }: BookingStep3Props) {
               />
               <div className="space-y-1">
                 <Label htmlFor="airport-transfer" className="cursor-pointer">
-                  Add round-trip airport transfer (+$35 per person)
+                  {t('booking.addAirportTransfer')}
                 </Label>
                 <p className="text-sm text-gray-600">
-                  Private transfer from/to the airport for your convenience
+                  {t('booking.airportTransferDesc')}
                 </p>
               </div>
             </div>
@@ -160,29 +163,29 @@ export function BookingStep3({ formData, updateFormData }: BookingStep3Props) {
       {/* Cost Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Cost Summary</CardTitle>
+          <CardTitle>{t('booking.costSummary')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span>Tour package ({formData.travelers} travelers)</span>
+              <span>{t('booking.tourPackage')} ({formData.travelers} {formData.travelers === 1 ? t('booking.travelerSingular') : t('booking.travelerPlural')})</span>
               <span>${formData.totalAmount}</span>
             </div>
             {formData.travelInsurance && (
               <div className="flex justify-between text-sm">
-                <span>Travel insurance ({formData.travelers} × $49)</span>
+                <span>{t('booking.travelInsurance')} ({formData.travelers} × $49)</span>
                 <span>+${49 * formData.travelers}</span>
               </div>
             )}
             {formData.airportTransfer && (
               <div className="flex justify-between text-sm">
-                <span>Airport transfer ({formData.travelers} × $35)</span>
+                <span>{t('booking.airportTransfer')} ({formData.travelers} × $35)</span>
                 <span>+${35 * formData.travelers}</span>
               </div>
             )}
             <hr className="my-2" />
             <div className="flex justify-between font-medium text-lg">
-              <span>Total Estimated Cost</span>
+              <span>{t('booking.totalEstimatedCost')}</span>
               <span className="text-blue-600">
                 ${formData.totalAmount + 
                   (formData.travelInsurance ? 49 * formData.travelers : 0) + 

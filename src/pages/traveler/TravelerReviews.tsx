@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "react-i18next";
 import { 
   Star, 
   MapPin, 
@@ -63,6 +64,7 @@ export default function TravelerReviews() {
   const [activeReviews, setActiveReviews] = useState(reviews);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [selectedTour, setSelectedTour] = useState<any>(null);
+  const { t } = useTranslation();
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -81,8 +83,8 @@ export default function TravelerReviews() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Reviews</h1>
-        <p className="text-gray-600">Share your travel experiences and help other travelers</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('travelerDashboard.myReviews')}</h1>
+        <p className="text-gray-600">{t('travelerDashboard.shareExperiences')}</p>
       </div>
 
       {/* Pending Reviews */}
@@ -91,7 +93,7 @@ export default function TravelerReviews() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5" />
-              Write a Review
+              {t('travelerDashboard.writeAReview')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -109,11 +111,11 @@ export default function TravelerReviews() {
                     {tour.destination}
                     <span>•</span>
                     <Calendar className="w-4 h-4" />
-                    Completed {new Date(tour.completedDate).toLocaleDateString()}
+                    {t('travelerDashboard.completed')} {new Date(tour.completedDate).toLocaleDateString()}
                   </div>
                 </div>
                 <Button onClick={() => startReview(tour)}>
-                  Write Review
+                  {t('travelerDashboard.writeReview')}
                 </Button>
               </div>
             ))}
@@ -125,11 +127,11 @@ export default function TravelerReviews() {
       {showReviewForm && selectedTour && (
         <Card>
           <CardHeader>
-            <CardTitle>Write Review for {selectedTour.tourTitle}</CardTitle>
+            <CardTitle>{t('travelerDashboard.writeReview')} - {selectedTour.tourTitle}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Rating</label>
+              <label className="block text-sm font-medium mb-2">{t('travelerDashboard.rating')}</label>
               <div className="flex gap-1">
                 {Array.from({ length: 5 }, (_, i) => (
                   <Star key={i} className="w-6 h-6 text-gray-300 hover:text-yellow-500 cursor-pointer" />
@@ -137,24 +139,24 @@ export default function TravelerReviews() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Review Title</label>
+              <label className="block text-sm font-medium mb-2">{t('travelerDashboard.reviewTitle')}</label>
               <input 
                 type="text" 
                 className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="Give your review a title"
+                placeholder={t('travelerDashboard.giveReviewTitle')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Your Review</label>
+              <label className="block text-sm font-medium mb-2">{t('travelerDashboard.yourReview')}</label>
               <Textarea 
                 className="min-h-32"
-                placeholder="Share your experience..."
+                placeholder={t('travelerDashboard.shareExperience')}
               />
             </div>
             <div className="flex gap-2">
-              <Button>Submit Review</Button>
+              <Button>{t('travelerDashboard.submitReview')}</Button>
               <Button variant="outline" onClick={() => setShowReviewForm(false)}>
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
           </CardContent>
@@ -163,7 +165,7 @@ export default function TravelerReviews() {
 
       {/* Published Reviews */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Your Published Reviews</h2>
+        <h2 className="text-xl font-semibold">{t('travelerDashboard.publishedReviews')}</h2>
         {activeReviews.map((review) => (
           <Card key={review.id}>
             <CardContent className="p-6">
@@ -207,10 +209,10 @@ export default function TravelerReviews() {
                   
                   <div className="flex items-center justify-between">
                     <Badge variant="outline">
-                      {review.helpful} people found this helpful
+                      {review.helpful} {t('travelerDashboard.peopleFoundHelpful')}
                     </Badge>
                     <span className="text-sm text-gray-500">
-                      Reviewed on {new Date(review.date).toLocaleDateString()}
+                      {t('travelerDashboard.reviewedOn')} {new Date(review.date).toLocaleDateString()}
                     </span>
                   </div>
                 </div>

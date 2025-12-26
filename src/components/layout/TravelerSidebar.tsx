@@ -1,5 +1,6 @@
 
 import { NavLink, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   BarChart3,
   BookOpen,
@@ -20,17 +21,18 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const menuItems = [
-  { title: "Dashboard", url: "/traveler/dashboard", icon: BarChart3 },
-  { title: "My Bookings", url: "/traveler/dashboard/bookings", icon: BookOpen },
-  { title: "Wishlist", url: "/traveler/dashboard/wishlist", icon: Heart },
-  { title: "Reviews", url: "/traveler/dashboard/reviews", icon: Star },
-  { title: "Profile", url: "/traveler/dashboard/profile", icon: User },
-];
-
 export function TravelerSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const menuItems = [
+    { title: t('dashboard.overview'), url: "/traveler/dashboard", icon: BarChart3 },
+    { title: t('travelerDashboard.myBookings'), url: "/traveler/dashboard/bookings", icon: BookOpen },
+    { title: t('travelerDashboard.myWishlist'), url: "/traveler/dashboard/wishlist", icon: Heart },
+    { title: t('travelerDashboard.myReviews'), url: "/traveler/dashboard/reviews", icon: Star },
+    { title: t('travelerDashboard.profile'), url: "/traveler/dashboard/profile", icon: User },
+  ];
 
   const isActive = (path: string) => {
     if (path === "/traveler/dashboard") return location.pathname === "/traveler/dashboard";
@@ -57,7 +59,7 @@ export function TravelerSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
@@ -84,10 +86,10 @@ export function TravelerSidebar() {
           <div className="mt-auto p-4 border-t border-gray-200">
             <div className="bg-blue-50 rounded-lg p-4">
               <h3 className="font-medium text-blue-900 mb-2">
-                Plan Your Next Adventure!
+                {t('travelerDashboard.planNextAdventure')}
               </h3>
               <NavLink to="/" className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors block text-center">
-                Browse Tours
+                {t('travelerDashboard.browseTours')}
               </NavLink>
             </div>
           </div>

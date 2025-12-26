@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "react-i18next";
 import { 
   Calendar, 
   MapPin, 
@@ -55,6 +56,7 @@ const bookings = [
 
 export default function TravelerBookings() {
   const [activeTab, setActiveTab] = useState("all");
+  const { t } = useTranslation();
 
   const filteredBookings = bookings.filter(booking => {
     if (activeTab === "all") return true;
@@ -72,18 +74,27 @@ export default function TravelerBookings() {
     }
   };
 
+  const getStatusTranslation = (status: string) => {
+    switch (status) {
+      case "Confirmed": return t('travelerDashboard.confirmed');
+      case "Pending": return t('travelerDashboard.pending');
+      case "Completed": return t('travelerDashboard.completed');
+      default: return status;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Bookings</h1>
-        <p className="text-gray-600">Manage your travel bookings and trip details</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('travelerDashboard.myBookings')}</h1>
+        <p className="text-gray-600">{t('travelerDashboard.manageBookings')}</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="all">All Bookings</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
+          <TabsTrigger value="all">{t('travelerDashboard.allBookings')}</TabsTrigger>
+          <TabsTrigger value="upcoming">{t('travelerDashboard.upcoming')}</TabsTrigger>
+          <TabsTrigger value="completed">{t('travelerDashboard.completed')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="space-y-4 mt-6">
@@ -102,7 +113,7 @@ export default function TravelerBookings() {
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">{booking.title}</h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3 flex-wrap">
                           <div className="flex items-center gap-1">
                             <MapPin className="w-4 h-4" />
                             {booking.destination}
@@ -117,14 +128,14 @@ export default function TravelerBookings() {
                           </div>
                           <div className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
-                            {booking.travelers} travelers
+                            {booking.travelers} {booking.travelers === 1 ? t('booking.travelerSingular') : t('booking.travelerPlural')}
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600">Booking Ref: {booking.bookingRef}</p>
+                        <p className="text-sm text-gray-600">{t('travelerDashboard.bookingRef')}: {booking.bookingRef}</p>
                       </div>
                       <div className="text-right">
                         <Badge className={getStatusColor(booking.status)}>
-                          {booking.status}
+                          {getStatusTranslation(booking.status)}
                         </Badge>
                         <p className="text-xl font-bold text-gray-900 mt-2">{booking.price}</p>
                       </div>
@@ -132,17 +143,17 @@ export default function TravelerBookings() {
                     
                     <div className="flex gap-2 flex-wrap">
                       <Button size="sm" variant="outline">
-                        <Download className="w-4 h-4 mr-2" />
-                        Download Voucher
+                        <Download className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                        {t('travelerDashboard.downloadVoucher')}
                       </Button>
                       <Button size="sm" variant="outline">
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Contact Support
+                        <MessageSquare className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                        {t('travelerDashboard.contactSupport')}
                       </Button>
                       {booking.status === "Completed" && (
                         <Button size="sm" variant="outline">
-                          <Star className="w-4 h-4 mr-2" />
-                          Write Review
+                          <Star className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                          {t('travelerDashboard.writeReview')}
                         </Button>
                       )}
                     </div>

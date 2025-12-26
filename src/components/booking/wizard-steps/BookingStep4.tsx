@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, Users, MapPin, CreditCard, Check } from 'lucide-react';
 import { BookingFormData } from '../BookingWizard';
+import { useTranslation } from 'react-i18next';
 
 interface BookingStep4Props {
   formData: BookingFormData;
@@ -20,6 +21,8 @@ interface BookingStep4Props {
 }
 
 export function BookingStep4({ formData, updateFormData, packageData, onSubmit }: BookingStep4Props) {
+  const { t } = useTranslation();
+  
   const totalCost = formData.totalAmount + 
     (formData.travelInsurance ? 49 * formData.travelers : 0) +
     (formData.airportTransfer ? 35 * formData.travelers : 0);
@@ -37,7 +40,7 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Check className="w-5 h-5" />
-            Booking Summary
+            {t('booking.bookingSummary')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -46,7 +49,7 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
               <MapPin className="w-5 h-5 text-gray-500" />
               <div>
                 <div className="font-medium">{packageData.title}</div>
-                <div className="text-sm text-gray-600">Tour Package</div>
+                <div className="text-sm text-gray-600">{t('booking.tourPackage')}</div>
               </div>
             </div>
             
@@ -54,16 +57,16 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
               <Calendar className="w-5 h-5 text-gray-500" />
               <div>
                 <div className="font-medium">{formData.selectedDate}</div>
-                <div className="text-sm text-gray-600">Departure Date</div>
+                <div className="text-sm text-gray-600">{t('booking.departureDate')}</div>
               </div>
             </div>
             
             <div className="flex items-center gap-3">
               <Users className="w-5 h-5 text-gray-500" />
               <div>
-                <div className="font-medium">{formData.travelers} {formData.travelers === 1 ? 'Traveler' : 'Travelers'}</div>
+                <div className="font-medium">{formData.travelers} {formData.travelers === 1 ? t('booking.travelerSingular') : t('booking.travelerPlural')}</div>
                 <div className="text-sm text-gray-600">
-                  Lead: {formData.leadTraveler.firstName} {formData.leadTraveler.lastName}
+                  {t('booking.lead')}: {formData.leadTraveler.firstName} {formData.leadTraveler.lastName}
                 </div>
               </div>
             </div>
@@ -74,13 +77,13 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
       {/* Traveler Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Traveler Information</CardTitle>
+          <CardTitle>{t('booking.travelerInformation')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="p-3 bg-gray-50 rounded-lg">
               <div className="font-medium">
-                {formData.leadTraveler.firstName} {formData.leadTraveler.lastName} (Lead)
+                {formData.leadTraveler.firstName} {formData.leadTraveler.lastName} ({t('booking.lead')})
               </div>
               <div className="text-sm text-gray-600">{formData.leadTraveler.email}</div>
             </div>
@@ -90,7 +93,7 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
                 <div className="font-medium">
                   {traveler.firstName} {traveler.lastName}
                 </div>
-                <div className="text-sm text-gray-600">Additional Traveler</div>
+                <div className="text-sm text-gray-600">{t('booking.additionalTraveler')}</div>
               </div>
             ))}
           </div>
@@ -101,33 +104,33 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
       {(formData.travelInsurance || formData.airportTransfer || formData.dietaryRestrictions.length > 0) && (
         <Card>
           <CardHeader>
-            <CardTitle>Additional Services</CardTitle>
+            <CardTitle>{t('booking.additionalServices')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span>Room Preference:</span>
-                <span className="capitalize">{formData.roomPreference} room</span>
+                <span>{t('booking.roomPreference')}:</span>
+                <span className="capitalize">{formData.roomPreference}</span>
               </div>
               
               {formData.dietaryRestrictions.length > 0 && (
                 <div className="flex justify-between">
-                  <span>Dietary Requirements:</span>
+                  <span>{t('booking.dietaryRequirements')}:</span>
                   <span>{formData.dietaryRestrictions.join(', ')}</span>
                 </div>
               )}
               
               {formData.travelInsurance && (
                 <div className="flex justify-between">
-                  <span>Travel Insurance:</span>
-                  <span>Added (+${49 * formData.travelers})</span>
+                  <span>{t('booking.travelInsurance')}:</span>
+                  <span>{t('common.added')} (+${49 * formData.travelers})</span>
                 </div>
               )}
               
               {formData.airportTransfer && (
                 <div className="flex justify-between">
-                  <span>Airport Transfer:</span>
-                  <span>Added (+${35 * formData.travelers})</span>
+                  <span>{t('booking.airportTransfer')}:</span>
+                  <span>{t('common.added')} (+${35 * formData.travelers})</span>
                 </div>
               )}
             </div>
@@ -140,13 +143,13 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5" />
-            Payment Method
+            {t('booking.paymentMethod')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <Label>Select payment method</Label>
+              <Label>{t('booking.selectPaymentMethod')}</Label>
               <Select
                 value={formData.paymentMethod}
                 onValueChange={(value) => updateFormData({ paymentMethod: value })}
@@ -155,19 +158,19 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="card">Credit/Debit Card</SelectItem>
-                  <SelectItem value="paypal">PayPal</SelectItem>
-                  <SelectItem value="bank">Bank Transfer</SelectItem>
+                  <SelectItem value="card">{t('booking.creditDebitCard')}</SelectItem>
+                  <SelectItem value="paypal">{t('booking.paypal')}</SelectItem>
+                  <SelectItem value="bank">{t('booking.bankTransfer')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div className="p-4 bg-blue-50 rounded-lg">
               <div className="text-sm text-blue-800 mb-2">
-                <strong>Payment Notice:</strong>
+                <strong>{t('booking.paymentNotice')}</strong>
               </div>
               <div className="text-sm text-blue-700">
-                A deposit of 25% is required to confirm your booking. The remaining balance will be due 30 days before departure.
+                {t('booking.paymentNoticeDesc')}
               </div>
             </div>
           </div>
@@ -177,25 +180,25 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
       {/* Cost Breakdown */}
       <Card>
         <CardHeader>
-          <CardTitle>Final Cost Breakdown</CardTitle>
+          <CardTitle>{t('booking.finalCostBreakdown')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span>Tour Package ({formData.travelers} × ${formData.totalAmount / formData.travelers})</span>
+              <span>{t('booking.tourPackage')} ({formData.travelers} × ${formData.totalAmount / formData.travelers})</span>
               <span>${formData.totalAmount}</span>
             </div>
             
             {formData.travelInsurance && (
               <div className="flex justify-between text-sm">
-                <span>Travel Insurance ({formData.travelers} × $49)</span>
+                <span>{t('booking.travelInsurance')} ({formData.travelers} × $49)</span>
                 <span>+${49 * formData.travelers}</span>
               </div>
             )}
             
             {formData.airportTransfer && (
               <div className="flex justify-between text-sm">
-                <span>Airport Transfer ({formData.travelers} × $35)</span>
+                <span>{t('booking.airportTransfer')} ({formData.travelers} × $35)</span>
                 <span>+${35 * formData.travelers}</span>
               </div>
             )}
@@ -203,12 +206,12 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
             <hr className="my-3" />
             
             <div className="flex justify-between font-bold text-lg">
-              <span>Total Amount</span>
+              <span>{t('booking.totalAmount')}</span>
               <span className="text-blue-600">${totalCost}</span>
             </div>
             
             <div className="flex justify-between text-sm text-gray-600">
-              <span>Deposit Required (25%)</span>
+              <span>{t('booking.depositRequired')}</span>
               <span>${Math.round(totalCost * 0.25)}</span>
             </div>
           </div>
@@ -227,10 +230,10 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
               />
               <div className="space-y-1">
                 <Label htmlFor="terms" className="cursor-pointer text-sm">
-                  I agree to the Terms & Conditions, Privacy Policy, and Cancellation Policy
+                  {t('booking.agreeToTerms')}
                 </Label>
                 <p className="text-xs text-gray-500">
-                  By checking this box, you acknowledge that you have read and agree to our terms and policies.
+                  {t('booking.agreeToTermsDesc')}
                 </p>
               </div>
             </div>
@@ -241,11 +244,11 @@ export function BookingStep4({ formData, updateFormData, packageData, onSubmit }
               className="w-full bg-blue-600 hover:bg-blue-700"
               size="lg"
             >
-              Submit Booking Request
+              {t('booking.submitBookingRequest')}
             </Button>
             
             <p className="text-xs text-gray-500 text-center">
-              This is a booking request. We will contact you within 24 hours to confirm availability and process payment.
+              {t('booking.bookingRequestNote')}
             </p>
           </div>
         </CardContent>

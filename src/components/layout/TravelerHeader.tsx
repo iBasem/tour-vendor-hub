@@ -1,4 +1,3 @@
-
 import { Search, Bell, ChevronDown, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { TravelerSidebar } from "./TravelerSidebar";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +16,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function TravelerHeader() {
+  const { profile, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
+  const getInitials = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase();
+    }
+    return "U";
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="flex items-center justify-between px-3 sm:px-4 lg:px-8 py-2 sm:py-3 lg:py-4">
@@ -66,11 +79,13 @@ export function TravelerHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-1 sm:gap-2 p-0.5 sm:p-1 lg:p-2">
                 <Avatar className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback className="text-[10px] sm:text-xs lg:text-sm">JD</AvatarFallback>
+                  <AvatarImage src={profile?.avatar_url || "/placeholder.svg"} />
+                  <AvatarFallback className="text-[10px] sm:text-xs lg:text-sm">{getInitials()}</AvatarFallback>
                 </Avatar>
                 <div className="text-left hidden md:block">
-                  <div className="text-xs sm:text-sm font-medium">John Doe</div>
+                  <div className="text-xs sm:text-sm font-medium">
+                    {profile?.first_name} {profile?.last_name}
+                  </div>
                   <div className="text-[10px] sm:text-xs text-gray-500">Traveler</div>
                 </div>
                 <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 hidden md:block" />
@@ -79,11 +94,13 @@ export function TravelerHeader() {
             <DropdownMenuContent align="end" className="w-48 sm:w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link to="/traveler/dashboard/profile">Profile</Link>
+              <DropdownMenuItem asChild>
+                <Link to="/traveler/profile" className="w-full cursor-pointer">Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

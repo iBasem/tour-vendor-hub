@@ -1,5 +1,5 @@
 
-import { Search, Bell, ChevronDown, Menu } from "lucide-react";
+import { Search, Bell, ChevronDown, Menu, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,8 +13,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function AdminHeader() {
+  const { signOut, profile } = useAuth();
+  
+  const handleLogout = async () => {
+    await signOut();
+  };
+  
+  const getInitials = () => {
+    const first = profile?.first_name?.[0] || '';
+    const last = profile?.last_name?.[0] || '';
+    return (first + last).toUpperCase() || 'AD';
+  };
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
@@ -63,11 +75,13 @@ export function AdminHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 p-1 sm:p-2">
                 <Avatar className="w-7 h-7 sm:w-8 sm:h-8">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback className="text-xs sm:text-sm">AD</AvatarFallback>
+                  <AvatarImage src={profile?.avatar_url || "/placeholder.svg"} />
+                  <AvatarFallback className="text-xs sm:text-sm">{getInitials()}</AvatarFallback>
                 </Avatar>
                 <div className="text-left hidden sm:block">
-                  <div className="text-sm font-medium">Admin User</div>
+                  <div className="text-sm font-medium">
+                    {profile?.first_name || 'Admin'} {profile?.last_name || 'User'}
+                  </div>
                   <div className="text-xs text-gray-500">System Admin</div>
                 </div>
                 <ChevronDown className="w-4 h-4 hidden sm:block" />
@@ -80,7 +94,10 @@ export function AdminHeader() {
               <DropdownMenuItem>System Settings</DropdownMenuItem>
               <DropdownMenuItem>Security</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

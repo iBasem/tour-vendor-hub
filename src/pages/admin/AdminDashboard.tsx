@@ -1,82 +1,99 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Users, 
   Building2, 
-  Package, 
   BookOpen, 
   DollarSign, 
-  TrendingUp, 
-  TrendingDown,
+  TrendingUp,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  RefreshCw
 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { useAdminDashboard } from "@/hooks/useAdminDashboard";
+import { formatDistanceToNow } from "date-fns";
 
-const revenueData = [
-  { name: "Jan", bookings: 145, revenue: 12400 },
-  { name: "Feb", bookings: 168, revenue: 15200 },
-  { name: "Mar", bookings: 192, revenue: 18900 },
-  { name: "Apr", bookings: 158, revenue: 14800 },
-  { name: "May", bookings: 210, revenue: 22100 },
-  { name: "Jun", bookings: 234, revenue: 26500 },
-];
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
 
-const pendingActions = [
-  {
-    id: 1,
-    type: "Agency Approval",
-    title: "Dream Vacations Ltd.",
-    description: "New travel agency pending verification",
-    priority: "high",
-    time: "2 hours ago"
-  },
-  {
-    id: 2,
-    type: "Tour Review",
-    title: "Bali Adventure Package",
-    description: "Tour package needs content review",
-    priority: "medium",
-    time: "4 hours ago"
-  },
-  {
-    id: 3,
-    type: "Refund Request",
-    title: "Booking #TB-2024-1456",
-    description: "Customer requesting full refund",
-    priority: "high",
-    time: "6 hours ago"
+const formatActionType = (type: string) => {
+  return type
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const getPriorityColor = (priority: string) => {
+  switch (priority) {
+    case 'urgent': return 'bg-red-100 text-red-800';
+    case 'high': return 'bg-orange-100 text-orange-800';
+    case 'medium': return 'bg-yellow-100 text-yellow-800';
+    case 'low': return 'bg-green-100 text-green-800';
+    default: return 'bg-gray-100 text-gray-800';
   }
-];
+};
 
-const recentActivity = [
-  {
-    id: 1,
-    user: "Sarah Johnson",
-    action: "completed booking for Tokyo Explorer",
-    time: "10 minutes ago",
-    type: "booking"
-  },
-  {
-    id: 2,
-    user: "Adventure Tours Co.",
-    action: "listed new package: Mountain Trek Nepal",
-    time: "1 hour ago",
-    type: "listing"
-  },
-  {
-    id: 3,
-    user: "Mike Chen",
-    action: "registered as new traveler",
-    time: "2 hours ago",
-    type: "registration"
+const getActivityTypeColor = (type: string) => {
+  switch (type) {
+    case 'booking': return 'bg-blue-100 text-blue-800';
+    case 'registration': return 'bg-green-100 text-green-800';
+    case 'listing': return 'bg-purple-100 text-purple-800';
+    case 'verification': return 'bg-orange-100 text-orange-800';
+    default: return 'bg-gray-100 text-gray-800';
   }
-];
+};
 
 export default function AdminDashboard() {
+  const { 
+    stats, 
+    activityLogs, 
+    pendingActions, 
+    revenueData, 
+    loading, 
+    refetch,
+    updatePendingAction 
+  } = useAdminDashboard();
+
+  const handleResolveAction = async (actionId: string) => {
+    await updatePendingAction(actionId, 'resolved');
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-20 mb-2" />
+                <Skeleton className="h-4 w-32" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -85,7 +102,10 @@ export default function AdminDashboard() {
           <p className="text-gray-600">Overview of your Travelle marketplace</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline">Export Report</Button>
+          <Button variant="outline" onClick={refetch}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
           <Button>Quick Actions</Button>
         </div>
       </div>
@@ -98,10 +118,10 @@ export default function AdminDashboard() {
             <Users className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8,542</div>
+            <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
             <div className="flex items-center text-sm text-green-600">
               <TrendingUp className="w-4 h-4 mr-1" />
-              +12.5% from last month
+              +{stats.usersGrowth}% from last month
             </div>
           </CardContent>
         </Card>
@@ -112,10 +132,10 @@ export default function AdminDashboard() {
             <Building2 className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">156</div>
+            <div className="text-2xl font-bold">{stats.totalAgencies}</div>
             <div className="flex items-center text-sm text-green-600">
               <TrendingUp className="w-4 h-4 mr-1" />
-              +8 new this month
+              +{stats.agenciesGrowth} new this month
             </div>
           </CardContent>
         </Card>
@@ -126,10 +146,10 @@ export default function AdminDashboard() {
             <BookOpen className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,367</div>
+            <div className="text-2xl font-bold">{stats.totalBookings.toLocaleString()}</div>
             <div className="flex items-center text-sm text-green-600">
               <TrendingUp className="w-4 h-4 mr-1" />
-              +18.2% from last month
+              +{stats.bookingsGrowth}% from last month
             </div>
           </CardContent>
         </Card>
@@ -140,10 +160,10 @@ export default function AdminDashboard() {
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$124,892</div>
+            <div className="text-2xl font-bold">{formatCurrency(stats.platformRevenue)}</div>
             <div className="flex items-center text-sm text-green-600">
               <TrendingUp className="w-4 h-4 mr-1" />
-              +24.8% from last month
+              +{stats.revenueGrowth}% from last month
             </div>
           </CardContent>
         </Card>
@@ -193,26 +213,52 @@ export default function AdminDashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Pending Actions</CardTitle>
-              <Badge variant="destructive">3</Badge>
+              <Badge variant="destructive">{pendingActions.length}</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {pendingActions.map((action) => (
-              <div key={action.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      {action.type}
-                    </Badge>
-                    <span className="text-xs text-gray-500">{action.time}</span>
-                  </div>
-                  <h4 className="font-medium text-sm mt-1">{action.title}</h4>
-                  <p className="text-xs text-gray-600">{action.description}</p>
-                </div>
+            {pendingActions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                <CheckCircle className="w-12 h-12 mb-2 text-green-500" />
+                <p className="text-sm">All caught up!</p>
               </div>
-            ))}
-            <Button className="w-full" size="sm">View All Actions</Button>
+            ) : (
+              pendingActions.slice(0, 3).map((action) => (
+                <div key={action.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {formatActionType(action.action_type)}
+                      </Badge>
+                      <Badge className={`text-xs ${getPriorityColor(action.priority)}`}>
+                        {action.priority}
+                      </Badge>
+                    </div>
+                    <h4 className="font-medium text-sm mt-1">{action.title}</h4>
+                    <p className="text-xs text-gray-600">{action.description}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(action.created_at), { addSuffix: true })}
+                      </span>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-6 text-xs"
+                        onClick={() => handleResolveAction(action.id)}
+                      >
+                        Resolve
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+            {pendingActions.length > 3 && (
+              <Button className="w-full" size="sm" variant="outline">
+                View All Actions ({pendingActions.length})
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -226,25 +272,33 @@ export default function AdminDashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-start gap-3">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback>{activity.user[0]}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <p className="text-sm">
-                    <span className="font-medium">{activity.user}</span> {activity.action}
-                  </p>
-                  <span className="text-xs text-gray-500">{activity.time}</span>
+          {activityLogs.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>No recent activity</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {activityLogs.map((activity) => (
+                <div key={activity.id} className="flex items-start gap-3">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src="/placeholder.svg" />
+                    <AvatarFallback>{activity.user_name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="text-sm">
+                      <span className="font-medium">{activity.user_name}</span> {activity.action_description}
+                    </p>
+                    <span className="text-xs text-gray-500">
+                      {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                    </span>
+                  </div>
+                  <Badge className={`text-xs ${getActivityTypeColor(activity.action_type)}`}>
+                    {activity.action_type}
+                  </Badge>
                 </div>
-                <Badge variant="outline" className="text-xs">
-                  {activity.type}
-                </Badge>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

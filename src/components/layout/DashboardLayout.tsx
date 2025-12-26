@@ -1,4 +1,3 @@
-
 import { Outlet, useLocation } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import { DashboardHeader } from "./DashboardHeader";
@@ -6,10 +5,13 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const DashboardLayout = () => {
   const { user, profile, loading } = useAuth();
   const location = useLocation();
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
 
   console.log('DashboardLayout - User:', user?.id, 'Profile:', profile?.role, 'Path:', location.pathname);
 
@@ -34,9 +36,9 @@ const DashboardLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50">
+      <div className="min-h-screen flex w-full bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
         <AppSidebar />
-        <SidebarInset className="flex-1">
+        <SidebarInset className="flex-1 flex flex-col">
           <DashboardHeader />
           <main className="flex-1 p-4 lg:p-6 xl:p-8 max-w-7xl mx-auto w-full">
             <Outlet />

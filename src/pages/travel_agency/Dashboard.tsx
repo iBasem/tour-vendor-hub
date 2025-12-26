@@ -1,11 +1,13 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Package, Calendar, DollarSign } from "lucide-react";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { useTranslation } from "react-i18next";
 
 export default function Dashboard() {
   const { stats, loading, error } = useDashboardStats();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
 
   if (loading) {
     return (
@@ -18,13 +20,13 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Error loading dashboard: {error}</p>
+        <p className="text-red-600">{t('agencyDashboard.errorLoadingDashboard')}: {error}</p>
       </div>
     );
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(isRTL ? 'ar-SA' : 'en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
@@ -33,69 +35,69 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Travel Agency Dashboard</h1>
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
+      <h1 className="text-3xl font-bold">{t('agencyDashboard.title')}</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Packages</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <CardTitle className="text-sm font-medium">{t('agencyDashboard.totalPackages')}</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL ? 'text-right' : ''}>
             <div className="text-2xl font-bold">{stats.totalPackages}</div>
             <p className="text-xs text-muted-foreground">
               {stats.totalPackages === 0 
-                ? "Create your first package"
-                : "Active travel packages"
+                ? t('agencyDashboard.createFirstPackage')
+                : t('agencyDashboard.activePackages')
               }
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <CardTitle className="text-sm font-medium">{t('agencyDashboard.totalBookings')}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL ? 'text-right' : ''}>
             <div className="text-2xl font-bold">{stats.totalBookings}</div>
             <p className="text-xs text-muted-foreground">
               {stats.totalBookings === 0 
-                ? "No bookings yet"
-                : "Customer bookings"
+                ? t('agencyDashboard.noBookingsYet')
+                : t('agencyDashboard.customerBookings')
               }
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <CardTitle className="text-sm font-medium">{t('agencyDashboard.totalCustomers')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL ? 'text-right' : ''}>
             <div className="text-2xl font-bold">{stats.totalCustomers}</div>
             <p className="text-xs text-muted-foreground">
               {stats.totalCustomers === 0 
-                ? "No customers yet"
-                : "Unique travelers"
+                ? t('agencyDashboard.noCustomersYet')
+                : t('agencyDashboard.uniqueTravelers')
               }
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <CardTitle className="text-sm font-medium">{t('agencyDashboard.totalRevenue')}</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL ? 'text-right' : ''}>
             <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
             <p className="text-xs text-muted-foreground">
               {stats.totalRevenue === 0 
-                ? "No revenue yet"
-                : "Total earnings"
+                ? t('agencyDashboard.noRevenueYet')
+                : t('agencyDashboard.totalEarnings')
               }
             </p>
           </CardContent>
@@ -106,9 +108,9 @@ export default function Dashboard() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Package className="w-16 h-16 text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Welcome to your dashboard!</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('agencyDashboard.welcomeToDashboard')}</h3>
             <p className="text-gray-600 text-center mb-6">
-              Start by creating your first travel package to begin attracting customers.
+              {t('agencyDashboard.startByCreating')}
             </p>
           </CardContent>
         </Card>

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Search, Filter, Package, Loader2, Edit, Trash2, MoreVertical } from "lucide-react";
@@ -8,6 +7,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { usePackages } from "@/hooks/usePackages";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,22 +19,20 @@ export default function Packages() {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { packages, loading, error, deletePackage, updatePackage } = usePackages();
-
-  console.log('Packages page - Current packages:', packages?.length, 'Loading:', loading, 'Error:', error);
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
 
   const handleCreatePackage = () => {
-    console.log('Navigating to create package page');
     navigate("/travel_agency/packages/create");
   };
 
   const handleDeletePackage = async (packageId: string, title: string) => {
-    if (confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+    if (confirm(`${t('common.delete')} "${title}"?`)) {
       try {
         await deletePackage(packageId);
-        toast.success("Package deleted successfully");
+        toast.success(t('common.delete') + ' ' + t('agencyDashboard.published'));
       } catch (error) {
-        console.error('Delete package error:', error);
-        toast.error("Failed to delete package");
+        toast.error(t('agencyDashboard.errorLoadingPackages'));
       }
     }
   };
@@ -43,10 +41,9 @@ export default function Packages() {
     try {
       const newStatus = pkg.status === 'published' ? 'draft' : 'published';
       await updatePackage(pkg.id, { status: newStatus });
-      toast.success(`Package ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
+      toast.success(newStatus === 'published' ? t('agencyDashboard.published') : t('agencyDashboard.draft'));
     } catch (error) {
-      console.error('Update package status error:', error);
-      toast.error("Failed to update package status");
+      toast.error(t('agencyDashboard.errorLoadingPackages'));
     }
   };
 
@@ -66,45 +63,45 @@ export default function Packages() {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600 text-sm sm:text-base">Error loading packages: {error}</p>
+        <p className="text-red-600 text-sm sm:text-base">{t('agencyDashboard.errorLoadingPackages')}: {error}</p>
         <Button onClick={() => window.location.reload()} className="mt-4 text-sm sm:text-base">
-          Retry
+          {t('common.retry')}
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header Section */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between sm:gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Travel Packages</h1>
-          <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1">Manage your travel packages and experiences</p>
+      <div className={`flex flex-col gap-3 sm:flex-row sm:items-center justify-between sm:gap-4 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
+        <div className={isRTL ? 'text-right' : ''}>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{t('agencyDashboard.travelPackages')}</h1>
+          <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1">{t('agencyDashboard.managePackages')}</p>
         </div>
         <Button 
           onClick={handleCreatePackage}
-          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3"
+          className={`w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 ${isRTL ? 'flex-row-reverse' : ''}`}
         >
-          <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-          Create Package
+          <Plus className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
+          {t('agencyDashboard.createPackage')}
         </Button>
       </div>
 
       {/* Search and Filter Section */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+      <div className={`flex flex-col gap-3 sm:flex-row sm:gap-4 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
         <div className="relative flex-1">
-          <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+          <Search className={`absolute top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-400 ${isRTL ? 'right-2 sm:right-3' : 'left-2 sm:left-3'}`} />
           <Input
-            placeholder="Search packages..."
+            placeholder={t('agencyDashboard.searchPackages')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8 sm:pl-10 h-8 sm:h-10 lg:h-11 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-sm lg:text-base"
+            className={`h-8 sm:h-10 lg:h-11 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-sm lg:text-base ${isRTL ? 'pr-8 sm:pr-10 text-right' : 'pl-8 sm:pl-10'}`}
           />
         </div>
-        <Button variant="outline" className="w-full sm:w-auto border-gray-200 hover:bg-gray-50 text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6">
-          <Filter className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-          Filter
+        <Button variant="outline" className={`w-full sm:w-auto border-gray-200 hover:bg-gray-50 text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <Filter className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
+          {t('agencyDashboard.filter')}
         </Button>
       </div>
 
@@ -112,12 +109,9 @@ export default function Packages() {
       {filteredPackages.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {filteredPackages.map((pkg) => (
-            <Card 
-              key={pkg.id} 
-              className="cursor-pointer hover:shadow-lg transition-all duration-200 border-gray-200 hover:-translate-y-1 bg-white"
-            >
-              <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 lg:px-6 pt-3 sm:pt-4 lg:pt-6">
-                <div className="flex items-start justify-between gap-2">
+            <Card key={pkg.id} className="cursor-pointer hover:shadow-lg transition-all duration-200 border-gray-200 hover:-translate-y-1 bg-white">
+              <CardHeader className={`pb-2 sm:pb-3 px-3 sm:px-4 lg:px-6 pt-3 sm:pt-4 lg:pt-6 ${isRTL ? 'text-right' : ''}`}>
+                <div className={`flex items-start justify-between gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <CardTitle className="text-sm sm:text-base lg:text-lg xl:text-xl font-semibold text-gray-900 line-clamp-2 flex-1 leading-tight">
                     {pkg.title}
                   </CardTitle>
@@ -127,29 +121,29 @@ export default function Packages() {
                         <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-40 sm:w-48">
+                    <DropdownMenuContent align={isRTL ? "start" : "end"} className="w-40 sm:w-48">
                       <DropdownMenuItem onClick={() => togglePublishStatus(pkg)} className="text-xs sm:text-sm">
-                        {pkg.status === 'published' ? 'Unpublish' : 'Publish'}
+                        {pkg.status === 'published' ? t('agencyDashboard.unpublish') : t('agencyDashboard.publish')}
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-xs sm:text-sm">
-                        <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        Edit
+                      <DropdownMenuItem className={`text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <Edit className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
+                        {t('common.edit')}
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => handleDeletePackage(pkg.id, pkg.title)}
-                        className="text-red-600 text-xs sm:text-sm"
+                        className={`text-red-600 text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}
                       >
-                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        Delete
+                        <Trash2 className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
+                        {t('common.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2 sm:space-y-3 lg:space-y-4 px-3 sm:px-4 lg:px-6 pb-3 sm:pb-4 lg:pb-6">
+              <CardContent className={`space-y-2 sm:space-y-3 lg:space-y-4 px-3 sm:px-4 lg:px-6 pb-3 sm:pb-4 lg:pb-6 ${isRTL ? 'text-right' : ''}`}>
                 <p className="text-xs sm:text-sm text-gray-600">{pkg.destination}</p>
-                <p className="text-xs sm:text-sm text-gray-600">{pkg.duration_days} days, {pkg.duration_nights} nights</p>
-                <div className="flex items-center justify-between">
+                <p className="text-xs sm:text-sm text-gray-600">{pkg.duration_days} {t('common.days')}, {pkg.duration_nights} {t('agencyDashboard.nights')}</p>
+                <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-blue-600">
                     ${pkg.base_price}
                   </p>
@@ -157,15 +151,15 @@ export default function Packages() {
                     variant={pkg.status === 'published' ? 'default' : 'secondary'}
                     className={`text-xs ${pkg.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' : ''}`}
                   >
-                    {pkg.status}
+                    {pkg.status === 'published' ? t('agencyDashboard.published') : t('agencyDashboard.draft')}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between pt-1 sm:pt-2 border-t border-gray-100">
+                <div className={`flex items-center justify-between pt-1 sm:pt-2 border-t border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <span className="text-xs sm:text-sm text-gray-600">
-                    {pkg.itineraries?.length || 0} day{(pkg.itineraries?.length || 0) !== 1 ? 's' : ''} planned
+                    {pkg.itineraries?.length || 0} {(pkg.itineraries?.length || 0) !== 1 ? t('agencyDashboard.daysPlannedPlural') : t('agencyDashboard.daysPlanned')}
                   </span>
                   <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs sm:text-sm h-6 sm:h-8 px-2 sm:px-3">
-                    View Details
+                    {t('common.viewDetails')}
                   </Button>
                 </div>
               </CardContent>
@@ -178,18 +172,18 @@ export default function Packages() {
             <Package className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 text-gray-400" />
           </div>
           <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
-            {searchTerm ? 'No packages found' : 'No packages yet'}
+            {searchTerm ? t('agencyDashboard.noPackagesFound') : t('agencyDashboard.noPackagesYet')}
           </h3>
           <p className="text-xs sm:text-sm lg:text-base text-gray-600 mb-3 sm:mb-4 lg:mb-6 max-w-md mx-auto">
             {searchTerm 
-              ? 'Try adjusting your search terms' 
-              : 'Create your first travel package to get started'
+              ? t('agencyDashboard.tryAdjustingSearch')
+              : t('agencyDashboard.createFirstPackageDesc')
             }
           </p>
           {!searchTerm && (
-            <Button onClick={handleCreatePackage} className="text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6">
-              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Create Package
+            <Button onClick={handleCreatePackage} className={`text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <Plus className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
+              {t('agencyDashboard.createPackage')}
             </Button>
           )}
         </div>

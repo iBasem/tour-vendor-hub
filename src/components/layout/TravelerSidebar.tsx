@@ -1,4 +1,3 @@
-
 import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -24,7 +23,8 @@ import {
 export function TravelerSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
 
   const menuItems = [
     { title: t('dashboard.overview'), url: "/traveler/dashboard", icon: BarChart3 },
@@ -42,10 +42,14 @@ export function TravelerSidebar() {
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
-      <SidebarContent className="bg-white border-r border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center gap-2">
+    <Sidebar 
+      className={isCollapsed ? "w-16" : "w-64"} 
+      collapsible="icon"
+      side={isRTL ? "right" : "left"}
+    >
+      <SidebarContent className="bg-white border-gray-200" style={{ borderInlineEnd: '1px solid #e5e7eb' }}>
+        <div className="p-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
+          <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <MapPin className="w-5 h-5 text-white" />
             </div>
@@ -65,14 +69,14 @@ export function TravelerSidebar() {
                       to={item.url}
                       end={item.url === "/traveler/dashboard"}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                        `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isRTL ? 'flex-row-reverse text-right' : 'text-left'} ${
                           isActive
                             ? "bg-blue-50 text-blue-600 font-medium"
                             : "text-gray-700 hover:bg-gray-50"
                         }`
                       }
                     >
-                      <item.icon className="w-5 h-5" />
+                      <item.icon className="w-5 h-5 flex-shrink-0" />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -83,8 +87,8 @@ export function TravelerSidebar() {
         </SidebarGroup>
 
         {!isCollapsed && (
-          <div className="mt-auto p-4 border-t border-gray-200">
-            <div className="bg-blue-50 rounded-lg p-4">
+          <div className="mt-auto p-4" style={{ borderTop: '1px solid #e5e7eb' }}>
+            <div className={`bg-blue-50 rounded-lg p-4 ${isRTL ? 'text-right' : 'text-left'}`}>
               <h3 className="font-medium text-blue-900 mb-2">
                 {t('travelerDashboard.planNextAdventure')}
               </h3>
@@ -96,7 +100,7 @@ export function TravelerSidebar() {
         )}
       </SidebarContent>
       
-      <SidebarTrigger className="absolute -right-4 top-4 bg-white border border-gray-200 shadow-sm" />
+      <SidebarTrigger className={`absolute top-4 bg-white border border-gray-200 shadow-sm ${isRTL ? '-left-4' : '-right-4'}`} />
     </Sidebar>
   );
 }

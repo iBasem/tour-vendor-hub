@@ -351,6 +351,10 @@
     "myAccount": "حسابي",
     "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج",
-    "searchDestinationsTours": "ابحث عن الوجهات والرحلات..."
+    "searchDestinationsTours": "ابحث عن الوجهات والرحلات...",
+    "noBookingsYet": "ليس لديك أي حجوزات بعد",
+    "noRecentlyViewed": "لا توجد رحلات شوهدت مؤخراً",
+    "cancelled": "ملغي",
+    "package": "باقة"
   }
 }

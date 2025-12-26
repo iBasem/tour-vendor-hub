@@ -32,11 +32,14 @@ export function TravelerHeader() {
     return "U";
   };
 
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-      <div className="flex items-center justify-between px-3 sm:px-4 lg:px-8 py-2 sm:py-3 lg:py-4">
+      <div className={`flex items-center justify-between px-3 sm:px-4 lg:px-8 py-2 sm:py-3 lg:py-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
         {/* Mobile menu and search */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-1">
+        <div className={`flex items-center gap-2 sm:gap-3 flex-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
           {/* Mobile hamburger menu */}
           <Sheet>
             <SheetTrigger asChild>
@@ -44,7 +47,7 @@ export function TravelerHeader() {
                 <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64">
+            <SheetContent side={isRTL ? "right" : "left"} className="p-0 w-64">
               <TravelerSidebar />
             </SheetContent>
           </Sheet>
@@ -60,7 +63,7 @@ export function TravelerHeader() {
         </div>
 
         {/* Right side controls */}
-        <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
+        <div className={`flex items-center gap-1 sm:gap-2 lg:gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
           {/* Language Switcher */}
           <LanguageSwitcher />
           
@@ -88,16 +91,16 @@ export function TravelerHeader() {
                   <AvatarImage src={profile?.avatar_url || "/placeholder.svg"} />
                   <AvatarFallback className="text-[10px] sm:text-xs lg:text-sm">{getInitials()}</AvatarFallback>
                 </Avatar>
-                <div className="text-left hidden md:block">
+                <div className={`hidden md:block ${isRTL ? 'text-right' : 'text-left'}`}>
                   <div className="text-xs sm:text-sm font-medium">
                     {profile?.first_name} {profile?.last_name}
                   </div>
                   <div className="text-[10px] sm:text-xs text-gray-500">{t('common.traveler')}</div>
                 </div>
-                <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 hidden md:block" />
+                <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 hidden md:block ${isRTL ? 'rotate-0' : ''}`} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 sm:w-56">
+            <DropdownMenuContent align={isRTL ? "start" : "end"} className="w-48 sm:w-56">
               <DropdownMenuLabel>{t('travelerDashboard.myAccount')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>

@@ -351,6 +351,10 @@
     "myAccount": "My Account",
     "profile": "Profile",
     "logout": "Logout",
-    "searchDestinationsTours": "Search destinations, tours..."
+    "searchDestinationsTours": "Search destinations, tours...",
+    "noBookingsYet": "You don't have any bookings yet",
+    "noRecentlyViewed": "No recently viewed tours",
+    "cancelled": "Cancelled",
+    "package": "Package"
   }
 }

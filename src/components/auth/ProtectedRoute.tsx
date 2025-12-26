@@ -23,6 +23,11 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   }
 
   if (!user) {
+    // Admin has a separate, hidden login page
+    if (requiredRole === 'admin') {
+      console.log('No user for admin route, redirecting to admin login')
+      return <Navigate to="/admin/login" state={{ from: location }} replace />
+    }
     const authType = requiredRole === 'agency' ? 'agency' : 'traveler'
     console.log('No user, redirecting to auth with type:', authType)
     return <Navigate to={`/auth?type=${authType}`} state={{ from: location }} replace />

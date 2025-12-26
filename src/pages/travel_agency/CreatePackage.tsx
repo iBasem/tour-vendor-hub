@@ -5,33 +5,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Package, MapPin, Users, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function CreatePackage() {
   const [showWizard, setShowWizard] = useState(false);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
 
   console.log('CreatePackage page loaded, showWizard:', showWizard);
 
   const features = [
     {
       icon: Package,
-      title: "Complete Package Builder",
-      description: "Create detailed travel packages with itineraries, pricing, and media"
+      title: t('agencyDashboard.completePackageBuilder'),
+      description: t('agencyDashboard.completePackageBuilderDesc')
     },
     {
       icon: MapPin,
-      title: "Destination Management",
-      description: "Set destinations, difficulty levels, and duration for your packages"
+      title: t('agencyDashboard.destinationManagement'),
+      description: t('agencyDashboard.destinationManagementDesc')
     },
     {
       icon: Users,
-      title: "Group Size Control",
-      description: "Define maximum participants and manage bookings effectively"
+      title: t('agencyDashboard.groupSizeControl'),
+      description: t('agencyDashboard.groupSizeControlDesc')
     },
     {
       icon: DollarSign,
-      title: "Flexible Pricing",
-      description: "Set base prices, inclusions, exclusions, and cancellation policies"
+      title: t('agencyDashboard.flexiblePricing'),
+      description: t('agencyDashboard.flexiblePricingDesc')
     }
   ];
 
@@ -49,10 +52,9 @@ export default function CreatePackage() {
   return (
     <div className="container mx-auto py-6 space-y-8">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Travel Package</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('agencyDashboard.createNewPackage')}</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Use our comprehensive package builder to create amazing travel experiences for your customers.
-          Add detailed itineraries, pricing information, and showcase your packages with beautiful media.
+          {t('agencyDashboard.packageBuilderDesc')}
         </p>
       </div>
 
@@ -60,7 +62,7 @@ export default function CreatePackage() {
         {features.map((feature, index) => (
           <Card key={index} className="border-gray-200">
             <CardHeader>
-              <CardTitle className="flex items-center gap-3">
+              <CardTitle className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <feature.icon className="w-6 h-6 text-blue-600" />
                 {feature.title}
               </CardTitle>
@@ -77,18 +79,17 @@ export default function CreatePackage() {
           <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
             <Plus className="w-8 h-8 text-blue-600" />
           </div>
-          <h2 className="text-xl font-semibold mb-2">Ready to create a new travel package?</h2>
+          <h2 className="text-xl font-semibold mb-2">{t('agencyDashboard.readyToCreate')}</h2>
           <p className="text-gray-600 mb-6 max-w-md">
-            Our step-by-step wizard will guide you through creating a comprehensive travel package
-            that your customers will love.
+            {t('agencyDashboard.wizardGuideDesc')}
           </p>
           <Button 
             onClick={handleStartWizard} 
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+            className={`flex items-center gap-2 bg-blue-600 hover:bg-blue-700 ${isRTL ? 'flex-row-reverse' : ''}`}
             size="lg"
           >
             <Plus className="w-5 h-5" />
-            Start Package Creation
+            {t('agencyDashboard.startPackageCreation')}
           </Button>
         </div>
       </div>

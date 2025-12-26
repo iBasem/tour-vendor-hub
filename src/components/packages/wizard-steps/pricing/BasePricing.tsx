@@ -1,4 +1,5 @@
 
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,18 +17,21 @@ interface BasePricingProps {
 }
 
 export function BasePricing({ data, onUpdate }: BasePricingProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <DollarSign className="w-5 h-5" />
-          Base Pricing
+          {t('packageWizard.basePricing')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
-            <Label>Currency</Label>
+            <Label>{t('packageWizard.currency')}</Label>
             <Select value={data.currency} onValueChange={(value) => onUpdate("currency", value)}>
               <SelectTrigger>
                 <SelectValue />
@@ -41,7 +45,7 @@ export function BasePricing({ data, onUpdate }: BasePricingProps) {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Base Price</Label>
+            <Label>{t('packageWizard.basePrice')}</Label>
             <Input
               type="number"
               value={data.basePrice}
@@ -50,7 +54,7 @@ export function BasePricing({ data, onUpdate }: BasePricingProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label>Original Price (optional)</Label>
+            <Label>{t('packageWizard.originalPrice')}</Label>
             <Input
               type="number"
               value={data.originalPrice || ""}
@@ -59,7 +63,7 @@ export function BasePricing({ data, onUpdate }: BasePricingProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label>Discount % (optional)</Label>
+            <Label>{t('packageWizard.discountPercent')}</Label>
             <Input
               type="number"
               value={data.discount || ""}

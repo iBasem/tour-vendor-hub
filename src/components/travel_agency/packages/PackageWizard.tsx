@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -12,6 +13,8 @@ interface PackageWizardProps {
 }
 
 export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     basicInfo: {
@@ -159,11 +162,11 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
 
   const getStepTitle = (step: number) => {
     switch (step) {
-      case 1: return "Basic Information";
-      case 2: return "Itinerary";
-      case 3: return "Pricing & Policies";
-      case 4: return "Media & Photos";
-      case 5: return "Review & Publish";
+      case 1: return t('packageWizard.basicInformation');
+      case 2: return t('packageWizard.itinerary');
+      case 3: return t('packageWizard.pricingAndPolicies');
+      case 4: return t('packageWizard.mediaAndPhotos');
+      case 5: return t('packageWizard.reviewAndPublish');
       default: return "";
     }
   };
@@ -210,15 +213,15 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
-            Create New Package - {getStepTitle(currentStep)}
+            {t('packageWizard.createNewPackage')} - {getStepTitle(currentStep)}
           </DialogTitle>
           <div className="mt-4">
             <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>Step {currentStep} of {totalSteps}</span>
-              <span>{Math.round(progress)}% Complete</span>
+              <span>{t('packageWizard.stepOf', { current: currentStep, total: totalSteps })}</span>
+              <span>{Math.round(progress)}% {t('packageWizard.complete')}</span>
             </div>
             <Progress value={progress} className="w-full" />
           </div>
@@ -233,18 +236,18 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
           />
         </div>
 
-        <div className="flex justify-between pt-4 border-t">
+        <div className={`flex justify-between pt-4 border-t ${isRTL ? 'flex-row-reverse' : ''}`}>
           <Button
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 1}
           >
-            Previous
+            {t('common.previous')}
           </Button>
 
-          <div className="flex gap-2">
+          <div className={`flex gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Button variant="outline" onClick={onClose}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             
             {currentStep === totalSteps ? (
@@ -252,14 +255,14 @@ export function PackageWizard({ isOpen, onClose }: PackageWizardProps) {
                 onClick={handleSubmit} 
                 disabled={loading || !isStepValid(currentStep)}
               >
-                {loading ? 'Creating...' : 'Create Package'}
+                {loading ? t('packageWizard.creating') : t('packageWizard.createPackage')}
               </Button>
             ) : (
               <Button 
                 onClick={nextStep} 
                 disabled={!isStepValid(currentStep)}
               >
-                Next
+                {t('common.next')}
               </Button>
             )}
           </div>

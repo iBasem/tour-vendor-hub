@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { MediaUploadArea } from "./media/MediaUploadArea";
 import { MediaGallery } from "./media/MediaGallery";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 interface MediaStepProps {
   data: any[];
@@ -17,13 +19,17 @@ interface MediaItem {
   url: string;
   caption: string;
   isPrimary: boolean;
+  file_name?: string;
+  file_path?: string;
 }
 
 export function MediaStep({ data, onUpdate }: MediaStepProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const [media, setMedia] = useState<MediaItem[]>(data);
+  const [media, setMedia] = useState<MediaItem[]>(data || []);
   const [dragOver, setDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     onUpdate(media);
@@ -42,38 +48,70 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
       type: 'image' as const,
       url,
       caption: `Sample image ${index + 1}`,
-      isPrimary: index === 0 && media.length === 0
+      isPrimary: index === 0 && media.length === 0,
+      file_name: `sample-image-${index + 1}.jpg`,
+      file_path: url
     }));
     setMedia(prev => [...prev, ...newImages]);
     toast.success(t('packageWizard.sampleImagesAdded'));
   };
 
   const handleFileUpload = async (files: FileList) => {
+    if (!user) {
+      toast.error('You must be logged in to upload files');
+      return;
+    }
+
+    setUploading(true);
     try {
       const newMediaItems: MediaItem[] = [];
       
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
-        // Create a local URL for preview
-        const url = URL.createObjectURL(file);
+        // Generate unique file path
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+        
+        // Upload to Supabase storage
+        const { error: uploadError } = await supabase.storage
+          .from('package-media')
+          .upload(filePath, file);
+        
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
+          continue;
+        }
+        
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('package-media')
+          .getPublicUrl(filePath);
         
         const mediaItem: MediaItem = {
           id: Math.random().toString(36).substr(2, 9),
           type: file.type.startsWith('image/') ? 'image' : 'video',
-          url,
+          url: publicUrl,
           caption: file.name,
-          isPrimary: media.length === 0 && i === 0
+          isPrimary: media.length === 0 && i === 0 && newMediaItems.length === 0,
+          file_name: file.name,
+          file_path: publicUrl
         };
         
         newMediaItems.push(mediaItem);
       }
       
-      setMedia(prev => [...prev, ...newMediaItems]);
-      toast.success(`${newMediaItems.length} ${t('packageWizard.filesUploaded')}`);
+      if (newMediaItems.length > 0) {
+        setMedia(prev => [...prev, ...newMediaItems]);
+        toast.success(`${newMediaItems.length} ${t('packageWizard.filesUploaded')}`);
+      }
     } catch (error) {
       console.error('File upload error:', error);
       toast.error(t('packageWizard.failedToUpload'));
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -132,7 +170,7 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
         <div
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
             dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300"
-          }`}
+          } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -147,43 +185,50 @@ export function MediaStep({ data, onUpdate }: MediaStepProps) {
               </p>
             </div>
             
-            <div className={`flex gap-2 justify-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <input
-                type="file"
-                id="photo-upload"
-                multiple
-                accept="image/*"
-                onChange={handleFileInputChange}
-                className="hidden"
-              />
-              <label htmlFor="photo-upload">
-                <Button type="button" variant="outline" asChild>
-                  <span className="cursor-pointer">
-                    {t('packageWizard.addPhotos')}
-                  </span>
+            {uploading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>{t('packageWizard.uploading') || 'Uploading...'}</span>
+              </div>
+            ) : (
+              <div className={`flex gap-2 justify-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <input
+                  type="file"
+                  id="photo-upload"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileInputChange}
+                  className="hidden"
+                />
+                <label htmlFor="photo-upload">
+                  <Button type="button" variant="outline" asChild>
+                    <span className="cursor-pointer">
+                      {t('packageWizard.addPhotos')}
+                    </span>
+                  </Button>
+                </label>
+                
+                <input
+                  type="file"
+                  id="video-upload"
+                  multiple
+                  accept="video/*"
+                  onChange={handleFileInputChange}
+                  className="hidden"
+                />
+                <label htmlFor="video-upload">
+                  <Button type="button" variant="outline" asChild>
+                    <span className="cursor-pointer">
+                      {t('packageWizard.addVideos')}
+                    </span>
+                  </Button>
+                </label>
+                
+                <Button onClick={addMockImages} className="bg-blue-600 hover:bg-blue-700">
+                  {t('packageWizard.addSampleImages')}
                 </Button>
-              </label>
-              
-              <input
-                type="file"
-                id="video-upload"
-                multiple
-                accept="video/*"
-                onChange={handleFileInputChange}
-                className="hidden"
-              />
-              <label htmlFor="video-upload">
-                <Button type="button" variant="outline" asChild>
-                  <span className="cursor-pointer">
-                    {t('packageWizard.addVideos')}
-                  </span>
-                </Button>
-              </label>
-              
-              <Button onClick={addMockImages} className="bg-blue-600 hover:bg-blue-700">
-                {t('packageWizard.addSampleImages')}
-              </Button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

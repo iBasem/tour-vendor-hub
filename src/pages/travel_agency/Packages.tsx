@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Search, Filter, Package, Loader2, Edit, Trash2, MoreVertical } from "lucide-react";
+import { Plus, Search, Filter, Package, Loader2, Edit, Trash2, MoreVertical, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -26,6 +26,14 @@ export default function Packages() {
     navigate("/travel_agency/packages/create");
   };
 
+  const handleEditPackage = (packageId: string) => {
+    navigate(`/travel_agency/packages/${packageId}/edit`);
+  };
+
+  const handleViewPackage = (packageId: string) => {
+    navigate(`/travel_agency/packages/${packageId}`);
+  };
+
   const handleDeletePackage = async (packageId: string, title: string) => {
     if (confirm(`${t('common.delete')} "${title}"?`)) {
       try {
@@ -45,6 +53,14 @@ export default function Packages() {
     } catch (error) {
       toast.error(t('agencyDashboard.errorLoadingPackages'));
     }
+  };
+
+  const getPrimaryImage = (pkg: any) => {
+    if (!pkg.package_media || pkg.package_media.length === 0) {
+      return null;
+    }
+    const primary = pkg.package_media.find((m: any) => m.is_primary);
+    return primary?.file_path || pkg.package_media[0]?.file_path || null;
   };
 
   const filteredPackages = packages.filter(pkg =>
@@ -108,63 +124,106 @@ export default function Packages() {
       {/* Packages Grid */}
       {filteredPackages.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-          {filteredPackages.map((pkg) => (
-            <Card key={pkg.id} className="cursor-pointer hover:shadow-lg transition-all duration-200 border-gray-200 hover:-translate-y-1 bg-white">
-              <CardHeader className={`pb-2 sm:pb-3 px-3 sm:px-4 lg:px-6 pt-3 sm:pt-4 lg:pt-6 ${isRTL ? 'text-right' : ''}`}>
-                <div className={`flex items-start justify-between gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <CardTitle className="text-sm sm:text-base lg:text-lg xl:text-xl font-semibold text-gray-900 line-clamp-2 flex-1 leading-tight">
-                    {pkg.title}
-                  </CardTitle>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 sm:h-8 sm:w-8 p-0">
-                        <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align={isRTL ? "start" : "end"} className="w-40 sm:w-48">
-                      <DropdownMenuItem onClick={() => togglePublishStatus(pkg)} className="text-xs sm:text-sm">
-                        {pkg.status === 'published' ? t('agencyDashboard.unpublish') : t('agencyDashboard.publish')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className={`text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
-                        <Edit className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
-                        {t('common.edit')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => handleDeletePackage(pkg.id, pkg.title)}
-                        className={`text-red-600 text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}
+          {filteredPackages.map((pkg) => {
+            const thumbnail = getPrimaryImage(pkg);
+            return (
+              <Card key={pkg.id} className="cursor-pointer hover:shadow-lg transition-all duration-200 border-gray-200 hover:-translate-y-1 bg-white overflow-hidden">
+                {/* Thumbnail */}
+                {thumbnail ? (
+                  <div className="relative h-40 w-full overflow-hidden" onClick={() => handleViewPackage(pkg.id)}>
+                    <img 
+                      src={thumbnail} 
+                      alt={pkg.title}
+                      className="w-full h-full object-cover transition-transform hover:scale-105"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                    <div className="absolute top-2 right-2">
+                      <Badge 
+                        variant={pkg.status === 'published' ? 'default' : 'secondary'}
+                        className={`text-xs ${pkg.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' : ''}`}
                       >
-                        <Trash2 className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
-                        {t('common.delete')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent className={`space-y-2 sm:space-y-3 lg:space-y-4 px-3 sm:px-4 lg:px-6 pb-3 sm:pb-4 lg:pb-6 ${isRTL ? 'text-right' : ''}`}>
-                <p className="text-xs sm:text-sm text-gray-600">{pkg.destination}</p>
-                <p className="text-xs sm:text-sm text-gray-600">{pkg.duration_days} {t('common.days')}, {pkg.duration_nights} {t('agencyDashboard.nights')}</p>
-                <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-blue-600">
-                    ${pkg.base_price}
-                  </p>
-                  <Badge 
-                    variant={pkg.status === 'published' ? 'default' : 'secondary'}
-                    className={`text-xs ${pkg.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' : ''}`}
+                        {pkg.status === 'published' ? t('agencyDashboard.published') : t('agencyDashboard.draft')}
+                      </Badge>
+                    </div>
+                  </div>
+                ) : (
+                  <div 
+                    className="relative h-40 w-full bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center"
+                    onClick={() => handleViewPackage(pkg.id)}
                   >
-                    {pkg.status === 'published' ? t('agencyDashboard.published') : t('agencyDashboard.draft')}
-                  </Badge>
-                </div>
-                <div className={`flex items-center justify-between pt-1 sm:pt-2 border-t border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <span className="text-xs sm:text-sm text-gray-600">
-                    {pkg.itineraries?.length || 0} {(pkg.itineraries?.length || 0) !== 1 ? t('agencyDashboard.daysPlannedPlural') : t('agencyDashboard.daysPlanned')}
-                  </span>
-                  <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs sm:text-sm h-6 sm:h-8 px-2 sm:px-3">
-                    {t('common.viewDetails')}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    <Package className="w-12 h-12 text-blue-300" />
+                    <div className="absolute top-2 right-2">
+                      <Badge 
+                        variant={pkg.status === 'published' ? 'default' : 'secondary'}
+                        className={`text-xs ${pkg.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' : ''}`}
+                      >
+                        {pkg.status === 'published' ? t('agencyDashboard.published') : t('agencyDashboard.draft')}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+                
+                <CardHeader className={`pb-2 sm:pb-3 px-3 sm:px-4 lg:px-6 pt-3 sm:pt-4 ${isRTL ? 'text-right' : ''}`}>
+                  <div className={`flex items-start justify-between gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 line-clamp-2 flex-1 leading-tight">
+                      {pkg.title}
+                    </CardTitle>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 sm:h-8 sm:w-8 p-0">
+                          <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align={isRTL ? "start" : "end"} className="w-40 sm:w-48">
+                        <DropdownMenuItem onClick={() => handleViewPackage(pkg.id)} className={`text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <Eye className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
+                          {t('common.viewDetails')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditPackage(pkg.id)} className={`text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <Edit className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
+                          {t('common.edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => togglePublishStatus(pkg)} className="text-xs sm:text-sm">
+                          {pkg.status === 'published' ? t('agencyDashboard.unpublish') : t('agencyDashboard.publish')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleDeletePackage(pkg.id, pkg.title)}
+                          className={`text-red-600 text-xs sm:text-sm ${isRTL ? 'flex-row-reverse' : ''}`}
+                        >
+                          <Trash2 className={`w-3 h-3 sm:w-4 sm:h-4 ${isRTL ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'}`} />
+                          {t('common.delete')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent className={`space-y-2 sm:space-y-3 px-3 sm:px-4 lg:px-6 pb-3 sm:pb-4 lg:pb-6 ${isRTL ? 'text-right' : ''}`}>
+                  <p className="text-xs sm:text-sm text-gray-600">{pkg.destination}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{pkg.duration_days} {t('common.days')}, {pkg.duration_nights} {t('agencyDashboard.nights')}</p>
+                  <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <p className="text-base sm:text-lg lg:text-xl font-bold text-blue-600">
+                      ${pkg.base_price}
+                    </p>
+                  </div>
+                  <div className={`flex items-center justify-between pt-1 sm:pt-2 border-t border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <span className="text-xs sm:text-sm text-gray-600">
+                      {pkg.itineraries?.length || 0} {(pkg.itineraries?.length || 0) !== 1 ? t('agencyDashboard.daysPlannedPlural') : t('agencyDashboard.daysPlanned')}
+                    </span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs sm:text-sm h-6 sm:h-8 px-2 sm:px-3"
+                      onClick={() => handleViewPackage(pkg.id)}
+                    >
+                      {t('common.viewDetails')}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-8 sm:py-12">

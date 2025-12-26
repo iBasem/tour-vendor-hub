@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -18,49 +18,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, Filter, MoreHorizontal, Eye, Edit, CheckCircle, XCircle, Building2 } from "lucide-react";
-
-const agencies = [
-  {
-    id: "AGY-001",
-    name: "Dream Vacations Ltd",
-    contactPerson: "John Smith",
-    email: "john@dreamvacations.com",
-    registrationDate: "2024-01-10",
-    totalTours: 24,
-    status: "approved",
-    commissionRate: "12%"
-  },
-  {
-    id: "AGY-002",
-    name: "Adventure Seekers Co",
-    contactPerson: "Maria Garcia",
-    email: "maria@adventureseekers.com",
-    registrationDate: "2024-02-15",
-    totalTours: 8,
-    status: "pending",
-    commissionRate: "10%"
-  },
-  {
-    id: "AGY-003",
-    name: "Luxury Escapes Inc",
-    contactPerson: "Robert Johnson",
-    email: "robert@luxuryescapes.com",
-    registrationDate: "2024-01-28",
-    totalTours: 16,
-    status: "approved",
-    commissionRate: "15%"
-  }
-];
+import { Search, Filter, MoreHorizontal, Eye, Edit, CheckCircle, XCircle, Building2, RefreshCw } from "lucide-react";
+import { useAdminAgencies } from "@/hooks/admin";
+import { toast } from "sonner";
 
 export default function AgencyManagement() {
+  const { agencies, stats, loading, refetch, updateAgencyStatus } = useAdminAgencies();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, isVerified: boolean) => {
+    if (isVerified || status === "approved") {
+      return <Badge className="bg-green-100 text-green-800">Approved</Badge>;
+    }
     switch (status) {
-      case "approved":
-        return <Badge className="bg-green-100 text-green-800">Approved</Badge>;
       case "pending":
         return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
       case "rejected":
@@ -72,13 +43,59 @@ export default function AgencyManagement() {
     }
   };
 
+  const handleApprove = async (agencyId: string) => {
+    const result = await updateAgencyStatus(agencyId, 'approved', true);
+    if (result.success) {
+      toast.success('Agency approved successfully');
+    } else {
+      toast.error('Failed to approve agency');
+    }
+  };
+
+  const handleReject = async (agencyId: string) => {
+    const result = await updateAgencyStatus(agencyId, 'rejected', false);
+    if (result.success) {
+      toast.success('Agency rejected');
+    } else {
+      toast.error('Failed to reject agency');
+    }
+  };
+
   const filteredAgencies = agencies.filter(agency => {
-    const matchesSearch = agency.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         agency.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const contactPerson = `${agency.contact_person_first_name} ${agency.contact_person_last_name}`.toLowerCase();
+    const matchesSearch = agency.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         contactPerson.includes(searchTerm.toLowerCase()) ||
                          agency.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || agency.status === statusFilter;
+    
+    const agencyStatus = agency.is_verified || agency.status === 'approved' ? 'approved' : agency.status;
+    const matchesStatus = statusFilter === "all" || agencyStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-72 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -87,7 +104,13 @@ export default function AgencyManagement() {
           <h1 className="text-3xl font-bold text-gray-900">Travel Agency Management</h1>
           <p className="text-gray-600">Manage and approve travel agencies</p>
         </div>
-        <Button>Agency Applications</Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={refetch}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+          <Button>Agency Applications</Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -97,7 +120,7 @@ export default function AgencyManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Total Agencies</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">156</div>
+            <div className="text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
         <Card>
@@ -105,7 +128,7 @@ export default function AgencyManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Approved</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">142</div>
+            <div className="text-2xl font-bold">{stats.approved}</div>
           </CardContent>
         </Card>
         <Card>
@@ -113,7 +136,7 @@ export default function AgencyManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Pending Approval</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">{stats.pending}</div>
           </CardContent>
         </Card>
         <Card>
@@ -121,7 +144,7 @@ export default function AgencyManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Total Tours Listed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,247</div>
+            <div className="text-2xl font-bold">{stats.totalPackages.toLocaleString()}</div>
           </CardContent>
         </Card>
       </div>
@@ -167,74 +190,88 @@ export default function AgencyManagement() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Agency</TableHead>
-                <TableHead>Agency ID</TableHead>
-                <TableHead>Contact Person</TableHead>
-                <TableHead>Registration Date</TableHead>
-                <TableHead>Tours Listed</TableHead>
-                <TableHead>Commission</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAgencies.map((agency) => (
-                <TableRow key={agency.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Building2 className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="font-medium">{agency.name}</div>
-                        <div className="text-sm text-gray-500">{agency.email}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">{agency.id}</TableCell>
-                  <TableCell>{agency.contactPerson}</TableCell>
-                  <TableCell>{new Date(agency.registrationDate).toLocaleDateString()}</TableCell>
-                  <TableCell>{agency.totalTours}</TableCell>
-                  <TableCell>{agency.commissionRate}</TableCell>
-                  <TableCell>{getStatusBadge(agency.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit Details
-                        </DropdownMenuItem>
-                        {agency.status === "pending" && (
-                          <>
-                            <DropdownMenuItem className="text-green-600">
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Approve Agency
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
-                              <XCircle className="w-4 h-4 mr-2" />
-                              Reject Agency
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          {filteredAgencies.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <p>No agencies found</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Agency</TableHead>
+                  <TableHead>Agency ID</TableHead>
+                  <TableHead>Contact Person</TableHead>
+                  <TableHead>Registration Date</TableHead>
+                  <TableHead>Tours Listed</TableHead>
+                  <TableHead>Commission</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredAgencies.map((agency) => (
+                  <TableRow key={agency.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Building2 className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium">{agency.company_name}</div>
+                          <div className="text-sm text-gray-500">{agency.email}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">{agency.id.slice(0, 8)}</TableCell>
+                    <TableCell>
+                      {agency.contact_person_first_name} {agency.contact_person_last_name}
+                    </TableCell>
+                    <TableCell>{new Date(agency.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>{agency.packages_count}</TableCell>
+                    <TableCell>{(agency.commission_rate * 100).toFixed(0)}%</TableCell>
+                    <TableCell>{getStatusBadge(agency.status, agency.is_verified)}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Profile
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit Details
+                          </DropdownMenuItem>
+                          {agency.status === "pending" && !agency.is_verified && (
+                            <>
+                              <DropdownMenuItem 
+                                className="text-green-600"
+                                onClick={() => handleApprove(agency.id)}
+                              >
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Approve Agency
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => handleReject(agency.id)}
+                              >
+                                <XCircle className="w-4 h-4 mr-2" />
+                                Reject Agency
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

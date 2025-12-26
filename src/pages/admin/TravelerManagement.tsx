@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -19,48 +19,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, Filter, MoreHorizontal, Eye, Edit, UserX, UserCheck } from "lucide-react";
-
-const travelers = [
-  {
-    id: "TRV-001",
-    name: "Sarah Johnson",
-    email: "sarah.j@email.com",
-    registrationDate: "2024-01-15",
-    totalBookings: 8,
-    status: "active",
-    avatar: "/placeholder.svg"
-  },
-  {
-    id: "TRV-002",
-    name: "Mike Chen",
-    email: "mike.chen@email.com",
-    registrationDate: "2024-02-08",
-    totalBookings: 3,
-    status: "active",
-    avatar: "/placeholder.svg"
-  },
-  {
-    id: "TRV-003",
-    name: "Emma Wilson",
-    email: "emma.w@email.com",
-    registrationDate: "2024-01-22",
-    totalBookings: 12,
-    status: "suspended",
-    avatar: "/placeholder.svg"
-  },
-  {
-    id: "TRV-004",
-    name: "David Rodriguez",
-    email: "d.rodriguez@email.com",
-    registrationDate: "2024-03-05",
-    totalBookings: 1,
-    status: "active",
-    avatar: "/placeholder.svg"
-  }
-];
+import { Search, Filter, MoreHorizontal, Eye, Edit, UserX, UserCheck, RefreshCw } from "lucide-react";
+import { useAdminTravelers } from "@/hooks/admin";
+import { toast } from "sonner";
 
 export default function TravelerManagement() {
+  const { travelers, stats, loading, refetch, updateTravelerStatus } = useAdminTravelers();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -75,13 +39,48 @@ export default function TravelerManagement() {
     }
   };
 
+  const handleStatusChange = async (travelerId: string, newStatus: string) => {
+    const result = await updateTravelerStatus(travelerId, newStatus);
+    if (result.success) {
+      toast.success(`Traveler ${newStatus === 'active' ? 'activated' : 'suspended'} successfully`);
+    } else {
+      toast.error('Failed to update traveler status');
+    }
+  };
+
   const filteredTravelers = travelers.filter(traveler => {
-    const matchesSearch = traveler.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const fullName = `${traveler.first_name} ${traveler.last_name}`.toLowerCase();
+    const matchesSearch = fullName.includes(searchTerm.toLowerCase()) ||
                          traveler.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          traveler.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || traveler.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-64 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -90,7 +89,13 @@ export default function TravelerManagement() {
           <h1 className="text-3xl font-bold text-gray-900">Traveler Management</h1>
           <p className="text-gray-600">Manage all registered travelers</p>
         </div>
-        <Button>Export Data</Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={refetch}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+          <Button>Export Data</Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -100,7 +105,7 @@ export default function TravelerManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Total Travelers</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8,542</div>
+            <div className="text-2xl font-bold">{stats.total.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card>
@@ -108,7 +113,7 @@ export default function TravelerManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Active Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8,234</div>
+            <div className="text-2xl font-bold">{stats.active.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card>
@@ -116,7 +121,7 @@ export default function TravelerManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Suspended</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">308</div>
+            <div className="text-2xl font-bold">{stats.suspended.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card>
@@ -124,7 +129,7 @@ export default function TravelerManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">New This Month</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">456</div>
+            <div className="text-2xl font-bold">{stats.newThisMonth.toLocaleString()}</div>
           </CardContent>
         </Card>
       </div>
@@ -167,70 +172,84 @@ export default function TravelerManagement() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Traveler</TableHead>
-                <TableHead>User ID</TableHead>
-                <TableHead>Registration Date</TableHead>
-                <TableHead>Total Bookings</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTravelers.map((traveler) => (
-                <TableRow key={traveler.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={traveler.avatar} />
-                        <AvatarFallback>{traveler.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{traveler.name}</div>
-                        <div className="text-sm text-gray-500">{traveler.email}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">{traveler.id}</TableCell>
-                  <TableCell>{new Date(traveler.registrationDate).toLocaleDateString()}</TableCell>
-                  <TableCell>{traveler.totalBookings}</TableCell>
-                  <TableCell>{getStatusBadge(traveler.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit Details
-                        </DropdownMenuItem>
-                        {traveler.status === "active" ? (
-                          <DropdownMenuItem className="text-red-600">
-                            <UserX className="w-4 h-4 mr-2" />
-                            Suspend User
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem className="text-green-600">
-                            <UserCheck className="w-4 h-4 mr-2" />
-                            Activate User
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          {filteredTravelers.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <p>No travelers found</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Traveler</TableHead>
+                  <TableHead>User ID</TableHead>
+                  <TableHead>Registration Date</TableHead>
+                  <TableHead>Total Bookings</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredTravelers.map((traveler) => (
+                  <TableRow key={traveler.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={traveler.avatar_url || undefined} />
+                          <AvatarFallback>
+                            {traveler.first_name?.[0]}{traveler.last_name?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{traveler.first_name} {traveler.last_name}</div>
+                          <div className="text-sm text-gray-500">{traveler.email}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">{traveler.id.slice(0, 8)}</TableCell>
+                    <TableCell>{new Date(traveler.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>{traveler.bookings_count}</TableCell>
+                    <TableCell>{getStatusBadge(traveler.status)}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Profile
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit Details
+                          </DropdownMenuItem>
+                          {traveler.status === "active" ? (
+                            <DropdownMenuItem 
+                              className="text-red-600"
+                              onClick={() => handleStatusChange(traveler.id, 'suspended')}
+                            >
+                              <UserX className="w-4 h-4 mr-2" />
+                              Suspend User
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem 
+                              className="text-green-600"
+                              onClick={() => handleStatusChange(traveler.id, 'active')}
+                            >
+                              <UserCheck className="w-4 h-4 mr-2" />
+                              Activate User
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

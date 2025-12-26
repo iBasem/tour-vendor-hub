@@ -101,6 +101,95 @@ export type Database = {
         }
         Relationships: []
       }
+      agency_payouts: {
+        Row: {
+          agency_id: string
+          amount: number
+          commission_rate: number
+          created_at: string
+          id: string
+          payment_reference: string | null
+          period_end: string
+          period_start: string
+          processed_at: string | null
+          processed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          amount?: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          payment_reference?: string | null
+          period_end: string
+          period_start: string
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          amount?: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          payment_reference?: string | null
+          period_end?: string
+          period_start?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_payouts_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "travel_agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_pages: {
+        Row: {
+          author_id: string | null
+          content: string | null
+          content_type: string
+          created_at: string
+          id: string
+          slug: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          id?: string
+          slug?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          id?: string
+          slug?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       itineraries: {
         Row: {
           accommodation: string | null
@@ -347,11 +436,45 @@ export type Database = {
           },
         ]
       }
+      platform_stats: {
+        Row: {
+          active_packages: number
+          created_at: string
+          id: string
+          new_agencies: number
+          new_travelers: number
+          stat_date: string
+          total_bookings: number
+          total_revenue: number
+        }
+        Insert: {
+          active_packages?: number
+          created_at?: string
+          id?: string
+          new_agencies?: number
+          new_travelers?: number
+          stat_date: string
+          total_bookings?: number
+          total_revenue?: number
+        }
+        Update: {
+          active_packages?: number
+          created_at?: string
+          id?: string
+          new_agencies?: number
+          new_travelers?: number
+          stat_date?: string
+          total_bookings?: number
+          total_revenue?: number
+        }
+        Relationships: []
+      }
       travel_agencies: {
         Row: {
           address: string | null
           avatar_url: string | null
           city: string | null
+          commission_rate: number | null
           company_description: string | null
           company_name: string
           contact_person_first_name: string
@@ -364,6 +487,7 @@ export type Database = {
           license_number: string | null
           phone: string | null
           rating: number | null
+          status: string | null
           total_reviews: number | null
           updated_at: string
           website: string | null
@@ -372,6 +496,7 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           city?: string | null
+          commission_rate?: number | null
           company_description?: string | null
           company_name: string
           contact_person_first_name?: string
@@ -384,6 +509,7 @@ export type Database = {
           license_number?: string | null
           phone?: string | null
           rating?: number | null
+          status?: string | null
           total_reviews?: number | null
           updated_at?: string
           website?: string | null
@@ -392,6 +518,7 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           city?: string | null
+          commission_rate?: number | null
           company_description?: string | null
           company_name?: string
           contact_person_first_name?: string
@@ -404,6 +531,7 @@ export type Database = {
           license_number?: string | null
           phone?: string | null
           rating?: number | null
+          status?: string | null
           total_reviews?: number | null
           updated_at?: string
           website?: string | null
@@ -425,6 +553,7 @@ export type Database = {
           passport_number: string | null
           phone: string | null
           preferences: Json | null
+          status: string | null
           updated_at: string
         }
         Insert: {
@@ -441,6 +570,7 @@ export type Database = {
           passport_number?: string | null
           phone?: string | null
           preferences?: Json | null
+          status?: string | null
           updated_at?: string
         }
         Update: {
@@ -457,6 +587,7 @@ export type Database = {
           passport_number?: string | null
           phone?: string | null
           preferences?: Json | null
+          status?: string | null
           updated_at?: string
         }
         Relationships: []

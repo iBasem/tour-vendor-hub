@@ -1,13 +1,24 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { MapPin, Menu, X, Users, Building } from "lucide-react";
-import { Link } from "react-router-dom";
+import { MapPin, Menu, X, Users, Building, LogOut, LayoutDashboard } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function HeaderSection() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t, i18n } = useTranslation();
+  const { user, profile, loading, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -16,6 +27,57 @@ export function HeaderSection() {
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
+  const getDashboardPath = () => {
+    if (!profile?.role) return '/';
+    switch (profile.role) {
+      case 'admin':
+        return '/admin';
+      case 'agency':
+        return '/travel_agency';
+      case 'traveler':
+        return '/traveler/dashboard';
+      default:
+        return '/';
+    }
+  };
+
+  const getUserInitials = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
+    }
+    if (profile?.first_name) {
+      return profile.first_name.charAt(0).toUpperCase();
+    }
+    return user?.email?.charAt(0).toUpperCase() || 'U';
+  };
+
+  const getUserDisplayName = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name} ${profile.last_name}`;
+    }
+    if (profile?.first_name) {
+      return profile.first_name;
+    }
+    return user?.email || 'User';
+  };
+
+  const getRoleLabel = () => {
+    switch (profile?.role) {
+      case 'admin':
+        return t('common.admin', 'Admin');
+      case 'agency':
+        return t('common.agency', 'Agency');
+      case 'traveler':
+        return t('common.traveler', 'Traveler');
+      default:
+        return '';
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm relative z-50">
@@ -45,18 +107,56 @@ export function HeaderSection() {
           {/* Desktop Auth Buttons & Language Switcher */}
           <div className="hidden md:flex items-center gap-2">
             <LanguageSwitcher />
-            <Link to="/auth?type=traveler">
-              <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                <Users className="w-4 h-4" />
-                {t('common.traveler')}
-              </Button>
-            </Link>
-            <Link to="/auth?type=agency">
-              <Button size="sm" className="flex items-center gap-1">
-                <Building className="w-4 h-4" />
-                {t('common.agency')}
-              </Button>
-            </Link>
+            {!loading && user && profile ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={profile.avatar_url || undefined} alt={getUserDisplayName()} />
+                      <AvatarFallback className="bg-blue-600 text-white">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex flex-col space-y-1 p-2">
+                    <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                    <p className="text-xs leading-none text-blue-600 font-medium">
+                      {getRoleLabel()}
+                    </p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate(getDashboardPath())}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    {t('nav.dashboard', 'Dashboard')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    {t('nav.logout', 'Logout')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : !loading ? (
+              <>
+                <Link to="/auth?type=traveler">
+                  <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                    <Users className="w-4 h-4" />
+                    {t('common.traveler')}
+                  </Button>
+                </Link>
+                <Link to="/auth?type=agency">
+                  <Button size="sm" className="flex items-center gap-1">
+                    <Building className="w-4 h-4" />
+                    {t('common.agency')}
+                  </Button>
+                </Link>
+              </>
+            ) : null}
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,20 +203,57 @@ export function HeaderSection() {
                 {t('nav.destinations')}
               </Link>
               
-              {/* Auth Buttons */}
+              {/* Auth Section */}
               <div className="pt-3 border-t border-gray-200 space-y-2">
-                <Link to="/auth?type=traveler" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start">
-                    <Users className="w-4 h-4 me-2" />
-                    {t('nav.travelerLogin')}
-                  </Button>
-                </Link>
-                <Link to="/auth?type=agency" onClick={() => setIsMenuOpen(false)}>
-                  <Button size="sm" className="w-full justify-start">
-                    <Building className="w-4 h-4 me-2" />
-                    {t('nav.agencyLogin')}
-                  </Button>
-                </Link>
+                {!loading && user && profile ? (
+                  <>
+                    <div className="flex items-center gap-3 py-2">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={profile.avatar_url || undefined} alt={getUserDisplayName()} />
+                        <AvatarFallback className="bg-blue-600 text-white">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">{getUserDisplayName()}</p>
+                        <p className="text-xs text-muted-foreground">{getRoleLabel()}</p>
+                      </div>
+                    </div>
+                    <Link to={getDashboardPath()} onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="ghost" size="sm" className="w-full justify-start">
+                        <LayoutDashboard className="w-4 h-4 me-2" />
+                        {t('nav.dashboard', 'Dashboard')}
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="w-full justify-start text-red-600"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      <LogOut className="w-4 h-4 me-2" />
+                      {t('nav.logout', 'Logout')}
+                    </Button>
+                  </>
+                ) : !loading ? (
+                  <>
+                    <Link to="/auth?type=traveler" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="ghost" size="sm" className="w-full justify-start">
+                        <Users className="w-4 h-4 me-2" />
+                        {t('nav.travelerLogin')}
+                      </Button>
+                    </Link>
+                    <Link to="/auth?type=agency" onClick={() => setIsMenuOpen(false)}>
+                      <Button size="sm" className="w-full justify-start">
+                        <Building className="w-4 h-4 me-2" />
+                        {t('nav.agencyLogin')}
+                      </Button>
+                    </Link>
+                  </>
+                ) : null}
               </div>
             </div>
           </div>

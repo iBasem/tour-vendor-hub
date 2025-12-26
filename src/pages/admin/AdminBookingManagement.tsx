@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -18,34 +18,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, Filter, MoreHorizontal, Eye, RefreshCw, XCircle } from "lucide-react";
+import { Search, MoreHorizontal, Eye, RefreshCw, XCircle } from "lucide-react";
+import { useAdminBookings } from "@/hooks/admin";
+import { toast } from "sonner";
 
-const bookings = [
-  {
-    id: "BK-2024-001",
-    tourName: "Tokyo Cultural Experience",
-    traveler: "Sarah Johnson",
-    agency: "Dream Vacations Ltd",
-    bookingDate: "2024-06-10",
-    travelDates: "2024-07-15 to 2024-07-22",
-    amount: "$2,499",
-    paymentStatus: "confirmed",
-    bookingStatus: "confirmed"
-  },
-  {
-    id: "BK-2024-002", 
-    tourName: "Bali Adventure Trek",
-    traveler: "Mike Chen",
-    agency: "Adventure Seekers Co",
-    bookingDate: "2024-06-12",
-    travelDates: "2024-08-01 to 2024-08-06",
-    amount: "$1,899",
-    paymentStatus: "pending",
-    bookingStatus: "pending"
-  }
-];
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+  }).format(amount);
+};
 
 export default function AdminBookingManagement() {
+  const { bookings, stats, loading, refetch, updateBookingStatus } = useAdminBookings();
   const [searchTerm, setSearchTerm] = useState("");
 
   const getPaymentBadge = (status: string) => {
@@ -78,6 +64,56 @@ export default function AdminBookingManagement() {
     }
   };
 
+  const handleCancelBooking = async (bookingId: string) => {
+    const result = await updateBookingStatus(bookingId, 'cancelled');
+    if (result.success) {
+      toast.success('Booking cancelled successfully');
+    } else {
+      toast.error('Failed to cancel booking');
+    }
+  };
+
+  const handleProcessRefund = async (bookingId: string) => {
+    const result = await updateBookingStatus(bookingId, 'cancelled', 'refunded');
+    if (result.success) {
+      toast.success('Refund processed successfully');
+    } else {
+      toast.error('Failed to process refund');
+    }
+  };
+
+  const filteredBookings = bookings.filter(booking =>
+    booking.package_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    booking.traveler_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    booking.agency_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    booking.id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -85,7 +121,13 @@ export default function AdminBookingManagement() {
           <h1 className="text-3xl font-bold text-gray-900">Booking Management</h1>
           <p className="text-gray-600">Manage all bookings on the platform</p>
         </div>
-        <Button>Export Bookings</Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={refetch}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+          <Button>Export Bookings</Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -94,7 +136,7 @@ export default function AdminBookingManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Total Bookings</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,367</div>
+            <div className="text-2xl font-bold">{stats.total.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card>
@@ -102,7 +144,7 @@ export default function AdminBookingManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Confirmed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
+            <div className="text-2xl font-bold">{stats.confirmed.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card>
@@ -110,7 +152,7 @@ export default function AdminBookingManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">Pending</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">89</div>
+            <div className="text-2xl font-bold">{stats.pending}</div>
           </CardContent>
         </Card>
         <Card>
@@ -118,7 +160,7 @@ export default function AdminBookingManagement() {
             <CardTitle className="text-sm font-medium text-gray-500">This Month</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">234</div>
+            <div className="text-2xl font-bold">{stats.thisMonth}</div>
           </CardContent>
         </Card>
       </div>
@@ -139,58 +181,67 @@ export default function AdminBookingManagement() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Booking ID</TableHead>
-                <TableHead>Tour</TableHead>
-                <TableHead>Traveler</TableHead>
-                <TableHead>Agency</TableHead>
-                <TableHead>Travel Dates</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Payment</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {bookings.map((booking) => (
-                <TableRow key={booking.id}>
-                  <TableCell className="font-mono text-sm">{booking.id}</TableCell>
-                  <TableCell className="font-medium">{booking.tourName}</TableCell>
-                  <TableCell>{booking.traveler}</TableCell>
-                  <TableCell>{booking.agency}</TableCell>
-                  <TableCell className="text-sm">{booking.travelDates}</TableCell>
-                  <TableCell className="font-medium">{booking.amount}</TableCell>
-                  <TableCell>{getPaymentBadge(booking.paymentStatus)}</TableCell>
-                  <TableCell>{getBookingBadge(booking.bookingStatus)}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <RefreshCw className="w-4 h-4 mr-2" />
-                          Process Refund
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          <XCircle className="w-4 h-4 mr-2" />
-                          Cancel Booking
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          {filteredBookings.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <p>No bookings found</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Booking ID</TableHead>
+                  <TableHead>Tour</TableHead>
+                  <TableHead>Traveler</TableHead>
+                  <TableHead>Agency</TableHead>
+                  <TableHead>Travel Date</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Payment</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredBookings.map((booking) => (
+                  <TableRow key={booking.id}>
+                    <TableCell className="font-mono text-sm">{booking.id.slice(0, 8)}</TableCell>
+                    <TableCell className="font-medium">{booking.package_title}</TableCell>
+                    <TableCell>{booking.traveler_name}</TableCell>
+                    <TableCell>{booking.agency_name}</TableCell>
+                    <TableCell className="text-sm">{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
+                    <TableCell className="font-medium">{formatCurrency(booking.total_price)}</TableCell>
+                    <TableCell>{getPaymentBadge(booking.payment_status)}</TableCell>
+                    <TableCell>{getBookingBadge(booking.status)}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleProcessRefund(booking.id)}>
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Process Refund
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => handleCancelBooking(booking.id)}
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Cancel Booking
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

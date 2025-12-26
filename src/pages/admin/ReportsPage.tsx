@@ -1,27 +1,47 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Download, TrendingUp, Users, Package, DollarSign } from "lucide-react";
+import { Download, TrendingUp, Users, Package, DollarSign, RefreshCw } from "lucide-react";
+import { useAdminReports } from "@/hooks/admin";
 
-const monthlyData = [
-  { name: "Jan", bookings: 145, revenue: 12400, users: 89 },
-  { name: "Feb", bookings: 168, revenue: 15200, users: 112 },
-  { name: "Mar", bookings: 192, revenue: 18900, users: 134 },
-  { name: "Apr", bookings: 158, revenue: 14800, users: 98 },
-  { name: "May", bookings: 210, revenue: 22100, users: 156 },
-  { name: "Jun", bookings: 234, revenue: 26500, users: 189 }
-];
-
-const destinationData = [
-  { name: "Asia", value: 45, color: "#3B82F6" },
-  { name: "Europe", value: 30, color: "#10B981" },
-  { name: "Americas", value: 15, color: "#F59E0B" },
-  { name: "Others", value: 10, color: "#EF4444" }
-];
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+  }).format(amount);
+};
 
 export default function ReportsPage() {
+  const { stats, monthlyData, destinationData, loading, refetch } = useAdminReports();
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-56 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -30,6 +50,10 @@ export default function ReportsPage() {
           <p className="text-gray-600">Comprehensive insights and analytics</p>
         </div>
         <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={refetch}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
           <Select defaultValue="6months">
             <SelectTrigger className="w-40">
               <SelectValue />
@@ -55,7 +79,9 @@ export default function ReportsPage() {
             <TrendingUp className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+24.8%</div>
+            <div className="text-2xl font-bold">
+              {stats.growthRate > 0 ? '+' : ''}{stats.growthRate}%
+            </div>
             <p className="text-xs text-gray-500">vs previous period</p>
           </CardContent>
         </Card>
@@ -66,8 +92,8 @@ export default function ReportsPage() {
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$1,845</div>
-            <p className="text-xs text-gray-500">+12% from last month</p>
+            <div className="text-2xl font-bold">{formatCurrency(stats.avgBookingValue)}</div>
+            <p className="text-xs text-gray-500">Per booking</p>
           </CardContent>
         </Card>
 
@@ -77,8 +103,8 @@ export default function ReportsPage() {
             <Users className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3.8%</div>
-            <p className="text-xs text-gray-500">+0.4% from last month</p>
+            <div className="text-2xl font-bold">{stats.conversionRate}%</div>
+            <p className="text-xs text-gray-500">Travelers to bookings</p>
           </CardContent>
         </Card>
 
@@ -88,8 +114,8 @@ export default function ReportsPage() {
             <Package className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,156</div>
-            <p className="text-xs text-gray-500">92% of total packages</p>
+            <div className="text-2xl font-bold">{stats.activePackages.toLocaleString()}</div>
+            <p className="text-xs text-gray-500">Published packages</p>
           </CardContent>
         </Card>
       </div>
@@ -101,15 +127,21 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Bar dataKey="bookings" fill="#3B82F6" name="Bookings" />
-                  <Bar dataKey="users" fill="#10B981" name="New Users" />
-                </BarChart>
-              </ResponsiveContainer>
+              {monthlyData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Bar dataKey="bookings" fill="#3B82F6" name="Bookings" />
+                    <Bar dataKey="users" fill="#10B981" name="New Users" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No monthly data available
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -120,23 +152,29 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={destinationData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={120}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {destinationData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+              {destinationData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={destinationData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={120}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {destinationData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No destination data available
+                </div>
+              )}
             </div>
             <div className="mt-4 space-y-2">
               {destinationData.map((item, index) => (

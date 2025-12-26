@@ -28,6 +28,7 @@ import Deals from "./pages/travel_agency/Deals";
 import Feedback from "./pages/travel_agency/Feedback";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminAuth from "./pages/admin/AdminAuth";
 import TravelerManagement from "./pages/admin/TravelerManagement";
 import AgencyManagement from "./pages/admin/AgencyManagement";
 import AdminPackageManagement from "./pages/admin/AdminPackageManagement";
@@ -95,6 +96,9 @@ const App = () => (
               <Route path="deals" element={<Deals />} />
               <Route path="feedback" element={<Feedback />} />
             </Route>
+
+            {/* Admin Auth Route - No signup, sign-in only */}
+            <Route path="/admin/login" element={<AdminAuth />} />
 
             {/* Protected Admin Routes */}
             <Route path="/admin" element={

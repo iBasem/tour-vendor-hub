@@ -2,8 +2,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, MessageSquare } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function Feedback() {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
   const feedbacks = [
     {
       id: 1,
@@ -12,7 +16,7 @@ export default function Feedback() {
       rating: 5,
       comment: "Absolutely wonderful experience! Everything was perfectly organized.",
       date: "2024-03-20",
-      status: "Published"
+      status: "published"
     },
     {
       id: 2,
@@ -21,7 +25,7 @@ export default function Feedback() {
       rating: 4,
       comment: "Great trip overall, but the hotel could have been better.",
       date: "2024-04-15",
-      status: "Published"
+      status: "published"
     },
     {
       id: 3,
@@ -30,7 +34,7 @@ export default function Feedback() {
       rating: 5,
       comment: "Perfect vacation! The guide was amazing and very knowledgeable.",
       date: "2024-05-10",
-      status: "Pending"
+      status: "pending"
     }
   ];
 
@@ -47,28 +51,39 @@ export default function Feedback() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Published":
+      case "published":
         return "bg-green-100 text-green-800";
-      case "Pending":
+      case "pending":
         return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "published":
+        return t('agencyDashboard.published');
+      case "pending":
+        return t('agencyDashboard.pending');
+      default:
+        return status;
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Customer Feedback</h1>
+      <h1 className="text-3xl font-bold">{t('agencyDashboard.customerFeedback')}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-600">4.8</div>
-              <div className="flex justify-center mt-1">
+              <div className={`flex justify-center mt-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 {renderStars(5)}
               </div>
-              <p className="text-sm text-gray-600 mt-1">Average Rating</p>
+              <p className="text-sm text-gray-600 mt-1">{t('agencyDashboard.averageRating')}</p>
             </div>
           </CardContent>
         </Card>
@@ -77,7 +92,7 @@ export default function Feedback() {
           <CardContent className="p-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">127</div>
-              <p className="text-sm text-gray-600">Total Reviews</p>
+              <p className="text-sm text-gray-600">{t('agencyDashboard.totalReviews')}</p>
             </div>
           </CardContent>
         </Card>
@@ -86,7 +101,7 @@ export default function Feedback() {
           <CardContent className="p-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-yellow-600">3</div>
-              <p className="text-sm text-gray-600">Pending Reviews</p>
+              <p className="text-sm text-gray-600">{t('agencyDashboard.pendingReviews')}</p>
             </div>
           </CardContent>
         </Card>
@@ -95,7 +110,7 @@ export default function Feedback() {
           <CardContent className="p-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">95%</div>
-              <p className="text-sm text-gray-600">Satisfaction Rate</p>
+              <p className="text-sm text-gray-600">{t('agencyDashboard.satisfactionRate')}</p>
             </div>
           </CardContent>
         </Card>
@@ -103,30 +118,30 @@ export default function Feedback() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <MessageSquare className="w-5 h-5" />
-            Recent Feedback
+            {t('agencyDashboard.recentFeedback')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             {feedbacks.map((feedback) => (
               <div key={feedback.id} className="border-b pb-6 last:border-b-0">
-                <div className="flex items-start justify-between mb-3">
+                <div className={`flex items-start justify-between mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <div>
                     <p className="font-medium">{feedback.traveler}</p>
                     <p className="text-sm text-gray-600">{feedback.package}</p>
                   </div>
-                  <div className="text-right">
+                  <div className={isRTL ? 'text-left' : 'text-right'}>
                     <Badge className={getStatusColor(feedback.status)}>
-                      {feedback.status}
+                      {getStatusLabel(feedback.status)}
                     </Badge>
                     <p className="text-xs text-gray-500 mt-1">{feedback.date}</p>
                   </div>
                 </div>
-                <div className="flex items-center mb-2">
+                <div className={`flex items-center mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   {renderStars(feedback.rating)}
-                  <span className="ml-2 text-sm text-gray-600">({feedback.rating}/5)</span>
+                  <span className={`text-sm text-gray-600 ${isRTL ? 'mr-2' : 'ml-2'}`}>({feedback.rating}/5)</span>
                 </div>
                 <p className="text-gray-700">{feedback.comment}</p>
               </div>

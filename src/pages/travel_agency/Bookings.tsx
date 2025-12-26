@@ -7,8 +7,11 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useBookings } from "@/hooks/useBookings";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export default function Bookings() {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { bookings, loading, error, updateBookingStatus } = useBookings();
 
   if (loading) {
@@ -22,9 +25,9 @@ export default function Bookings() {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600 text-sm sm:text-base">Error loading bookings: {error}</p>
+        <p className="text-red-600 text-sm sm:text-base">{t('agencyDashboard.errorLoadingBookings')}: {error}</p>
         <Button onClick={() => window.location.reload()} className="mt-4">
-          Retry
+          {t('common.retry')}
         </Button>
       </div>
     );
@@ -43,12 +46,25 @@ export default function Bookings() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return t('agencyDashboard.confirmed');
+      case "pending":
+        return t('agencyDashboard.pending');
+      case "cancelled":
+        return t('agencyDashboard.cancelled');
+      default:
+        return status;
+    }
+  };
+
   const handleStatusUpdate = async (bookingId: string, newStatus: string) => {
     const result = await updateBookingStatus(bookingId, newStatus);
     if (result.success) {
-      toast.success(`Booking ${newStatus} successfully`);
+      toast.success(t('packageWizard.bookingUpdated', { status: getStatusLabel(newStatus) }));
     } else {
-      toast.error(result.error || 'Failed to update booking');
+      toast.error(result.error || t('packageWizard.failedToUpdate'));
     }
   };
 
@@ -62,17 +78,17 @@ export default function Bookings() {
     <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Bookings Management</h1>
-        <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1">Track and manage customer bookings</p>
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{t('agencyDashboard.bookingsManagement')}</h1>
+        <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1">{t('agencyDashboard.trackBookings')}</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         <Card className="bg-white border-gray-200">
           <CardContent className="p-3 sm:p-4 lg:p-6">
-            <div className="flex items-center justify-between">
+            <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Bookings</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">{t('agencyDashboard.totalBookings')}</p>
                 <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">{bookings.length}</p>
               </div>
               <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
@@ -82,9 +98,9 @@ export default function Bookings() {
         
         <Card className="bg-white border-gray-200">
           <CardContent className="p-3 sm:p-4 lg:p-6">
-            <div className="flex items-center justify-between">
+            <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Pending</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">{t('agencyDashboard.pending')}</p>
                 <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-yellow-600">{pendingBookings}</p>
               </div>
               <User className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600" />
@@ -94,9 +110,9 @@ export default function Bookings() {
         
         <Card className="bg-white border-gray-200">
           <CardContent className="p-3 sm:p-4 lg:p-6">
-            <div className="flex items-center justify-between">
+            <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Confirmed</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">{t('agencyDashboard.confirmed')}</p>
                 <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-green-600">{confirmedBookings}</p>
               </div>
               <Eye className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
@@ -106,9 +122,9 @@ export default function Bookings() {
         
         <Card className="bg-white border-gray-200">
           <CardContent className="p-3 sm:p-4 lg:p-6">
-            <div className="flex items-center justify-between">
+            <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Revenue</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">{t('agencyDashboard.revenue')}</p>
                 <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-blue-600">
                   ${new Intl.NumberFormat('en-US', { 
                     minimumFractionDigits: 0, 
@@ -125,20 +141,20 @@ export default function Bookings() {
       {/* Bookings List */}
       <Card className="bg-white border-gray-200">
         <CardHeader className="p-3 sm:p-4 lg:p-6">
-          <CardTitle className="text-base sm:text-lg lg:text-xl font-semibold">Recent Bookings</CardTitle>
+          <CardTitle className="text-base sm:text-lg lg:text-xl font-semibold">{t('agencyDashboard.recentBookings')}</CardTitle>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
           {bookings.length > 0 ? (
             <div className="space-y-3 sm:space-y-4">
               {bookings.map((booking) => (
                 <div key={booking.id} className="flex flex-col gap-3 p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                  <div className={`flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
                     {/* Left section */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
-                        <div className="flex items-center gap-2">
+                      <div className={`flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
+                        <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <p className="font-semibold text-sm sm:text-base text-gray-900">
-                            {booking.travelers ? `${booking.travelers.first_name} ${booking.travelers.last_name}` : 'Unknown Traveler'}
+                            {booking.travelers ? `${booking.travelers.first_name} ${booking.travelers.last_name}` : t('packageWizard.unknownTraveler')}
                           </p>
                           <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
                             {booking.id.slice(-8)}
@@ -146,65 +162,65 @@ export default function Bookings() {
                         </div>
                       </div>
                       <p className="text-xs sm:text-sm text-gray-600 mb-1">
-                        {booking.packages?.title || 'Unknown Package'}
+                        {booking.packages?.title || t('packageWizard.unknownPackage')}
                       </p>
-                      <div className="hidden sm:flex items-center gap-3 text-xs text-gray-500">
-                        <div className="flex items-center gap-1">
+                      <div className={`hidden sm:flex items-center gap-3 text-xs text-gray-500 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <div className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <Mail className="w-3 h-3" />
-                          <span>{booking.travelers?.email || 'No email'}</span>
+                          <span>{booking.travelers?.email || t('agencyDashboard.noEmail')}</span>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <Phone className="w-3 h-3" />
-                          <span>{booking.travelers?.phone || 'No phone'}</span>
+                          <span>{booking.travelers?.phone || t('agencyDashboard.noPhone')}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Right section */}
-                    <div className="flex flex-col sm:items-end gap-2 sm:gap-3">
-                      <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 sm:gap-1">
-                        <div className="text-right">
+                    <div className={`flex flex-col sm:items-end gap-2 sm:gap-3 ${isRTL ? 'sm:items-start' : ''}`}>
+                      <div className={`flex items-center justify-between sm:flex-col sm:items-end gap-2 sm:gap-1 ${isRTL ? 'flex-row-reverse sm:items-start' : ''}`}>
+                        <div className={isRTL ? 'text-left' : 'text-right'}>
                           <p className="font-bold text-base sm:text-lg text-gray-900">${booking.total_price}</p>
                           <p className="text-xs sm:text-sm text-gray-600">
-                            {new Date(booking.booking_date).toLocaleDateString()}
+                            {new Date(booking.booking_date).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}
                           </p>
                         </div>
                         <Badge className={`${getStatusColor(booking.status)} border font-medium text-xs capitalize`}>
-                          {booking.status}
+                          {getStatusLabel(booking.status)}
                         </Badge>
                       </div>
                       
-                      <div className="flex gap-2">
+                      <div className={`flex gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         {booking.status === 'pending' && (
                           <Button 
                             size="sm" 
                             onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
                             className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1"
                           >
-                            Confirm
+                            {t('agencyDashboard.confirm')}
                           </Button>
                         )}
                         <Button size="sm" variant="outline" className="border-gray-200 hover:bg-gray-50 text-xs px-2 py-1">
                           <Eye className="w-3 h-3" />
-                          <span className="sr-only sm:not-sr-only sm:ml-1">View</span>
+                          <span className={`sr-only sm:not-sr-only ${isRTL ? 'sm:mr-1' : 'sm:ml-1'}`}>{t('agencyDashboard.view')}</span>
                         </Button>
                         <Button size="sm" variant="outline" className="border-gray-200 hover:bg-gray-50 text-xs px-2 py-1">
                           <MessageSquare className="w-3 h-3" />
-                          <span className="sr-only sm:not-sr-only sm:ml-1">Message</span>
+                          <span className={`sr-only sm:not-sr-only ${isRTL ? 'sm:mr-1' : 'sm:ml-1'}`}>{t('agencyDashboard.message')}</span>
                         </Button>
                       </div>
                     </div>
                   </div>
 
                   {/* Mobile contact info */}
-                  <div className="sm:hidden flex flex-col gap-1 text-xs text-gray-500 pt-2 border-t border-gray-100">
-                    <div className="flex items-center gap-1">
+                  <div className={`sm:hidden flex flex-col gap-1 text-xs text-gray-500 pt-2 border-t border-gray-100 ${isRTL ? 'items-end' : ''}`}>
+                    <div className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <Mail className="w-3 h-3" />
-                      <span>{booking.travelers?.email || 'No email'}</span>
+                      <span>{booking.travelers?.email || t('agencyDashboard.noEmail')}</span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <Phone className="w-3 h-3" />
-                      <span>{booking.travelers?.phone || 'No phone'}</span>
+                      <span>{booking.travelers?.phone || t('agencyDashboard.noPhone')}</span>
                     </div>
                   </div>
                 </div>
@@ -213,8 +229,8 @@ export default function Bookings() {
           ) : (
             <EmptyState
               icon="calendar"
-              title="No bookings yet"
-              description="Bookings will appear here once customers start booking your packages"
+              title={t('agencyDashboard.noBookingsYet')}
+              description={t('agencyDashboard.noBookingsDesc')}
             />
           )}
         </CardContent>

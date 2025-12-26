@@ -3,8 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Percent, Calendar } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function Deals() {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
   const deals = [
     {
       id: 1,
@@ -13,7 +17,7 @@ export default function Deals() {
       discount: 20,
       type: "Percentage",
       validUntil: "2024-06-30",
-      status: "Active",
+      status: "active",
       bookings: 45
     },
     {
@@ -23,7 +27,7 @@ export default function Deals() {
       discount: 15,
       type: "Percentage",
       validUntil: "2024-08-31",
-      status: "Active",
+      status: "active",
       bookings: 23
     },
     {
@@ -33,31 +37,44 @@ export default function Deals() {
       discount: 25,
       type: "Percentage",
       validUntil: "2024-12-31",
-      status: "Draft",
+      status: "draft",
       bookings: 0
     }
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Active":
+      case "active":
         return "bg-green-100 text-green-800";
-      case "Draft":
+      case "draft":
         return "bg-gray-100 text-gray-800";
-      case "Expired":
+      case "expired":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "active":
+        return t('agencyDashboard.active');
+      case "draft":
+        return t('agencyDashboard.draft');
+      case "expired":
+        return t('agencyDashboard.expired');
+      default:
+        return status;
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Deals & Promotions</h1>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Create Deal
+      <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <h1 className="text-3xl font-bold">{t('agencyDashboard.dealsAndPromotions')}</h1>
+        <Button className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <Plus className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+          {t('agencyDashboard.createDeal')}
         </Button>
       </div>
 
@@ -65,10 +82,10 @@ export default function Deals() {
         {deals.map((deal) => (
           <Card key={deal.id}>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <CardTitle className="text-lg">{deal.title}</CardTitle>
                 <Badge className={getStatusColor(deal.status)}>
-                  {deal.status}
+                  {getStatusLabel(deal.status)}
                 </Badge>
               </div>
             </CardHeader>
@@ -76,27 +93,27 @@ export default function Deals() {
               <div className="space-y-4">
                 <p className="text-sm text-gray-600">{deal.description}</p>
                 
-                <div className="flex items-center space-x-2">
+                <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
                   <Percent className="w-4 h-4 text-green-600" />
                   <span className="text-2xl font-bold text-green-600">{deal.discount}%</span>
-                  <span className="text-sm text-gray-600">OFF</span>
+                  <span className="text-sm text-gray-600">{t('common.off')}</span>
                 </div>
                 
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className={`flex items-center space-x-2 text-sm text-gray-600 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
                   <Calendar className="w-4 h-4" />
-                  <span>Valid until {deal.validUntil}</span>
+                  <span>{t('agencyDashboard.validUntil')} {deal.validUntil}</span>
                 </div>
                 
                 <div className="pt-2 border-t">
-                  <p className="text-sm text-gray-600">{deal.bookings} bookings used</p>
+                  <p className="text-sm text-gray-600">{deal.bookings} {t('agencyDashboard.bookingsUsed')}</p>
                 </div>
                 
-                <div className="flex space-x-2">
+                <div className={`flex space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
                   <Button variant="outline" size="sm" className="flex-1">
-                    Edit
+                    {t('common.edit')}
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1">
-                    View Details
+                    {t('agencyDashboard.view')}
                   </Button>
                 </div>
               </div>

@@ -17,6 +17,7 @@ import Destinations from "./pages/Destinations";
 import Dashboard from "./pages/travel_agency/Dashboard";
 import Packages from "./pages/travel_agency/Packages";
 import CreatePackage from "./pages/travel_agency/CreatePackage";
+import EditPackage from "./pages/travel_agency/EditPackage";
 import PackageDetails from "./pages/PackageDetails";
 import Bookings from "./pages/travel_agency/Bookings";
 import Calendar from "./pages/travel_agency/Calendar";
@@ -86,6 +87,7 @@ const App = () => (
               <Route index element={<Dashboard />} />
               <Route path="packages" element={<Packages />} />
               <Route path="packages/create" element={<CreatePackage />} />
+              <Route path="packages/:id/edit" element={<EditPackage />} />
               <Route path="packages/:id" element={<PackageDetails />} />
               <Route path="bookings" element={<Bookings />} />
               <Route path="calendar" element={<Calendar />} />
